@@ -65,6 +65,7 @@ public class PicActivity extends AppCompatActivity {
                     imageViewer = ImageViewer.newInstance();
                 }
                 imageViewer.setLocations(mRects)
+                        .setIndexGravity(ImageViewer.BOTTOM)
                         .setResources(i, mList, PicActivity.this)
                         .show(getSupportFragmentManager(), "pic");
             }

@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,9 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  * A control for viewing images
  */
 public class ImageViewer extends DialogFragment implements DialogInterface.OnKeyListener {
+    public static final int TOP = 0;
+    public static final int BOTTOM = 1;
+
     private View contentView;
     private View v_bg;
     private PhotoView photoVi_current;
@@ -44,6 +48,7 @@ public class ImageViewer extends DialogFragment implements DialogInterface.OnKey
     private List<View> mViews;
     private ViewGroup.LayoutParams mCurrentParams;
 
+    private int mIndexGravity = TOP;
     // The location of the image on the screen
     private List<Rect> mLocations;
     // The sequence number of the first picture shown
@@ -84,6 +89,14 @@ public class ImageViewer extends DialogFragment implements DialogInterface.OnKey
             mAdapter.setData(mViews);
             viewpager.setAdapter(mAdapter);
             viewpager.setCurrentItem(mBeginIndex);
+            if (mViews.size() > 1) {
+                tv_index.setText((mBeginIndex + 1) + "/" + mViews.size());
+                if (mIndexGravity == BOTTOM) {
+                    tv_index.setGravity(Gravity.BOTTOM);
+                }
+            } else {
+                tv_index.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -240,6 +253,17 @@ public class ImageViewer extends DialogFragment implements DialogInterface.OnKey
     }
 
     /**
+     * Set the location of the image serial number
+     *
+     * @param gravity
+     * @return
+     */
+    public ImageViewer setIndexGravity(int gravity) {
+        mIndexGravity = gravity;
+        return this;
+    }
+
+    /**
      * Zoom in to full-screen animation
      */
     private void fullScreen() {
@@ -283,7 +307,6 @@ public class ImageViewer extends DialogFragment implements DialogInterface.OnKey
                     if (fraction == 1) {
                         if (mViews.size() > 1) {
                             tv_index.setVisibility(View.VISIBLE);
-                            tv_index.setText((mBeginIndex + 1) + "/" + mViews.size());
                         } else {
                             tv_index.setVisibility(View.GONE);
                         }
