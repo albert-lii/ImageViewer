@@ -1,22 +1,24 @@
 package com.liyi.example;
 
-import android.graphics.Rect;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.liyi.autogrid.AutoGridView;
 import com.liyi.autogrid.BaseGridAdapter;
 import com.liyi.viewer.ImageViewer;
+import com.liyi.viewer.data.ViewData;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -24,59 +26,74 @@ import java.util.List;
  */
 public class PicActivity extends AppCompatActivity {
     private AutoGridView autoGridView;
-    private List<Integer> mList = new ArrayList<>();
-    private List<Rect> mRects = new ArrayList<>();
 
     private ImageViewer imageViewer;
+    private ArrayList<Object> mImageDatas;
+    private ArrayList<ViewData> mViewDatas;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 取消标题
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        // 取消状态栏
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_pic);
+        initUI();
+        addListener();
+    }
 
+    private void initUI() {
         autoGridView = (AutoGridView) findViewById(R.id.autogridview);
 
-        mList.add(R.drawable.langman);
-        mList.add(R.drawable.huaijiu);
-        mList.add(R.drawable.landiao);
-        mList.add(R.drawable.fennen);
-        mList.add(R.drawable.heibai);
-
+        generateData();
         autoGridView.setAdapter(new MyAdapter());
+
+        imageViewer = ImageViewer.newInstance().indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL).imageData(mImageDatas);
+        mViewDatas = new ArrayList<>();
+    }
+
+    private void addListener() {
         autoGridView.setOnItemClickListener(new AutoGridView.OnItemClickListener() {
             @Override
             public void onItemClick(int i, View view) {
-                mRects.clear();
+                mViewDatas.clear();
                 for (int j = 0; j < autoGridView.getChildCount(); j++) {
                     int[] location = new int[2];
                     // 获取在整个屏幕内的绝对坐标
                     autoGridView.getChildAt(j).getLocationOnScreen(location);
-                    mRects.add(new Rect(location[0], location[1],
-                            location[0] + autoGridView.getChildAt(i).getMeasuredWidth(),
-                            location[1] + autoGridView.getChildAt(i).getMeasuredHeight()));
+                    ViewData viewData = new ViewData();
+                    viewData.x = location[0];
+                    viewData.y = location[1];
+                    viewData.width = autoGridView.getChildAt(j).getMeasuredWidth();
+                    viewData.height = autoGridView.getChildAt(j).getMeasuredHeight();
+                    mViewDatas.add(viewData);
                 }
-                if (imageViewer == null) {
-                    imageViewer = ImageViewer.newInstance();
-                }
-                imageViewer.setLocations(mRects)
-                        .setIndexGravity(ImageViewer.BOTTOM)
-                        .setResources(i, mList, PicActivity.this)
-                        .show(getSupportFragmentManager(), "pic");
+                imageViewer.beginIndex(i)
+                        .viewData(mViewDatas)
+                        .show(PicActivity.this);
             }
         });
+    }
+
+    private void generateData() {
+        mImageDatas = new ArrayList<>();
+        String url0 = "http://img5.duitang.com/uploads/item/201404/11/20140411214939_XswXa.jpeg";
+        String url1 = "http://att.bbs.duowan.com/forum/201210/20/210446opy9p5pghu015p9u.jpg";
+        String url2 = "https://b-ssl.duitang.com/uploads/item/201505/09/20150509221719_kyNrM.jpeg";
+        String url3 = "https://b-ssl.duitang.com/uploads/item/201709/26/20170926131419_8YhLA.jpeg";
+        String url4 = "https://b-ssl.duitang.com/uploads/item/201505/11/20150511122951_MAwVZ.jpeg";
+        mImageDatas.add(url0);
+        mImageDatas.add(url1);
+        mImageDatas.add(url2);
+        mImageDatas.add(url3);
+        mImageDatas.add(url4);
     }
 
     private class MyAdapter extends BaseGridAdapter {
 
         @Override
         public int getCount() {
-            return mList == null ? 0 : mList.size();
+            return mImageDatas != null ? mImageDatas.size() : 0;
         }
 
         @Override
@@ -90,12 +107,28 @@ public class PicActivity extends AppCompatActivity {
             } else {
                 holder = (ItemHolder) view.getTag();
             }
-            holder.iv_grid.setImageResource(mList.get(i));
+            Glide.with(PicActivity.this)
+                    .load(mImageDatas.get(i))
+                    .into(holder.iv_grid);
             return view;
         }
 
         private class ItemHolder {
             private ImageView iv_grid;
         }
+    }
+
+    /**
+     * 获取状态栏的高度
+     *
+     * @return
+     */
+    public static int getStatusBarHeight(Context context) {
+        int result = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }
