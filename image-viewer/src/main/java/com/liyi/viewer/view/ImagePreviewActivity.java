@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
@@ -32,6 +33,7 @@ import com.liyi.viewer.R;
 import com.liyi.viewer.data.ViewData;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -53,6 +55,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
     private int mIndexPos;
     // Determine if the first picture you need to display is loaded
     private boolean isBeginLoaded;
+    private LinkedList<String> mLoadFailArray;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -93,6 +96,9 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
                     }
                 });
                 tv_index.setText((position + 1) + "/" + mImageList.size());
+                if (mLoadFailArray.contains(position + "")) {
+                    Toast.makeText(ImagePreviewActivity.this, "图片加载失败", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -116,10 +122,9 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
         mCurViewData = mViewDataList.get(mBeginIndex);
         isBeginLoaded = false;
 
-        if (mPhotoViewList == null) {
-            mPhotoViewList = new ArrayList<PhotoView>();
-        }
-        mPhotoViewList.clear();
+        mLoadFailArray = new LinkedList<String>();
+        mPhotoViewList = new ArrayList<PhotoView>();
+
         for (int i = 0; i < mImageList.size(); i++) {
             final PhotoView photoView = new PhotoView(this);
             loadImage(i, mImageList.get(i), photoView, false);
@@ -334,7 +339,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
                         isBeginLoaded = true;
                     }
                 }
-//                Toast.makeText(ImagePreviewActivity.this, "图片加载失败", Toast.LENGTH_SHORT).show();
+                mLoadFailArray.add(index + "");
             }
 
             @Override
@@ -351,6 +356,9 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
                     } else {
                         isBeginLoaded = true;
                     }
+                }
+                if (mLoadFailArray.contains(index + "")) {
+                    mLoadFailArray.remove(index + "");
                 }
             }
         });
