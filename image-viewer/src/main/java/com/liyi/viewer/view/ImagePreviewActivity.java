@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
@@ -22,10 +21,11 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.ImageViewTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.liyi.viewer.ImageDefine;
 import com.liyi.viewer.ImageViewer;
@@ -54,8 +54,6 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
     private int mIndexPos;
     // Determine if the first picture you need to display is loaded
     private boolean isBeginLoaded;
-    // Determine if the animation of the picture is over
-    private boolean isShowAnimEnd;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,9 +79,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
         viewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (iv_show.getVisibility() == View.VISIBLE) {
-                    iv_show.setVisibility(View.GONE);
-                }
+
             }
 
             @Override
@@ -120,7 +116,6 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
         mScreenSize = getScreenSize(this);
         mCurViewData = mViewDataList.get(mBeginIndex);
         isBeginLoaded = false;
-        isShowAnimEnd = false;
 
         if (mPhotoViewList == null) {
             mPhotoViewList = new ArrayList<PhotoView>();
@@ -139,23 +134,30 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
         }
         viewpager.setAdapter(new SimpleAdapter(mPhotoViewList));
         viewpager.setCurrentItem(mBeginIndex);
+        viewpager.setVisibility(View.GONE);
 
         iv_show.setLayoutParams(new FrameLayout.LayoutParams((int) mCurViewData.width, (int) mCurViewData.height));
         iv_show.setX(mCurViewData.x);
         iv_show.setY(mCurViewData.y);
-        loadImage(mBeginIndex, mImageList.get(mBeginIndex), iv_show, true);
+        iv_show.setVisibility(View.GONE);
 
         tv_index.setText((mBeginIndex + 1) + "/" + mImageList.size());
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) tv_index.getLayoutParams();
         lp.gravity = mIndexPos;
         tv_index.setLayoutParams(lp);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                fullScreen();
-            }
-        }, 200);
+        if (!isBeginLoaded) {
+            loadImage(mBeginIndex, mImageList.get(mBeginIndex), iv_show, true);
+        } else {
+            iv_show.setImageDrawable(mPhotoViewList.get(mBeginIndex).getDrawable());
+            fullScreen();
+        }
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                fullScreen();
+//            }
+//        }, 200);
     }
 
     @Override
@@ -211,10 +213,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             public void onAnimationEnd(Animator animation) {
                 viewpager.setVisibility(View.VISIBLE);
                 tv_index.setVisibility(View.VISIBLE);
-                isShowAnimEnd = true;
-                if (isBeginLoaded) {
-                    iv_show.setVisibility(View.GONE);
-                }
+                iv_show.setVisibility(View.GONE);
             }
 
             @Override
@@ -313,17 +312,45 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
 
     private void loadImage(final int index, Object src, final ImageView view, final boolean isShow) {
         final RequestBuilder builder = Glide.with(this).asBitmap().load(src);
-        if (ImageViewer.Options != null) {
-            builder.apply(ImageViewer.Options);
+        if (ImageViewer.getOptions() != null) {
+            builder.apply(ImageViewer.getOptions());
         }
-        builder.into(new SimpleTarget<Bitmap>() {
+        builder.into(new ImageViewTarget<Bitmap>(view) {
             @Override
-            public void onResourceReady(Bitmap resource, Transition transition) {
+            protected void setResource(@Nullable Bitmap resource) {
+
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                super.onLoadFailed(errorDrawable);
+                if (index == mBeginIndex) {
+                    if (isShow) {
+                        if (!isBeginLoaded) {
+                            Glide.with(ImagePreviewActivity.this).clear(mPhotoViewList.get(index));
+                            mPhotoViewList.get(index).setImageDrawable(errorDrawable);
+                        }
+                        fullScreen();
+                    } else {
+                        isBeginLoaded = true;
+                    }
+                }
+                Toast.makeText(ImagePreviewActivity.this, "图片加载失败", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResourceReady(Bitmap resource, @Nullable Transition transition) {
+                super.onResourceReady(resource, transition);
                 view.setImageBitmap(resource);
-                if (!isShow && index == mBeginIndex) {
-                    isBeginLoaded = true;
-                    if (isShowAnimEnd) {
-                        iv_show.setVisibility(View.GONE);
+                if (index == mBeginIndex) {
+                    if (isShow) {
+                        if (!isBeginLoaded) {
+                            Glide.with(ImagePreviewActivity.this).clear(mPhotoViewList.get(index));
+                            mPhotoViewList.get(index).setImageBitmap(resource);
+                        }
+                        fullScreen();
+                    } else {
+                        isBeginLoaded = true;
                     }
                 }
             }

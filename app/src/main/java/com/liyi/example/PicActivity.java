@@ -1,7 +1,6 @@
 package com.liyi.example;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.liyi.autogrid.AutoGridView;
 import com.liyi.autogrid.BaseGridAdapter;
 import com.liyi.viewer.ImageViewer;
@@ -30,6 +30,7 @@ public class PicActivity extends AppCompatActivity {
     private ImageViewer imageViewer;
     private ArrayList<Object> mImageDatas;
     private ArrayList<ViewData> mViewDatas;
+    private RequestOptions mOptions;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,12 +45,15 @@ public class PicActivity extends AppCompatActivity {
 
     private void initUI() {
         autoGridView = (AutoGridView) findViewById(R.id.autogridview);
-
         generateData();
-        autoGridView.setAdapter(new MyAdapter());
 
-        imageViewer = ImageViewer.newInstance().indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL).imageData(mImageDatas);
         mViewDatas = new ArrayList<>();
+        mOptions = new RequestOptions();
+        mOptions.placeholder(R.drawable.fennen).error(R.drawable.heibai);
+        imageViewer = ImageViewer.newInstance()
+                .options(mOptions)
+                .indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL).imageData(mImageDatas);
+        autoGridView.setAdapter(new MyAdapter());
     }
 
     private void addListener() {
@@ -82,11 +86,13 @@ public class PicActivity extends AppCompatActivity {
         String url2 = "https://b-ssl.duitang.com/uploads/item/201505/09/20150509221719_kyNrM.jpeg";
         String url3 = "https://b-ssl.duitang.com/uploads/item/201709/26/20170926131419_8YhLA.jpeg";
         String url4 = "https://b-ssl.duitang.com/uploads/item/201505/11/20150511122951_MAwVZ.jpeg";
+        String url5 = "https://b-ssl.duitang.com/uploads/item/201704/23/20170423205828_BhNSv.jpeg";
         mImageDatas.add(url0);
         mImageDatas.add(url1);
         mImageDatas.add(url2);
         mImageDatas.add(url3);
         mImageDatas.add(url4);
+        mImageDatas.add(url5);
     }
 
     private class MyAdapter extends BaseGridAdapter {
@@ -109,6 +115,7 @@ public class PicActivity extends AppCompatActivity {
             }
             Glide.with(PicActivity.this)
                     .load(mImageDatas.get(i))
+                    .apply(mOptions)
                     .into(holder.iv_grid);
             return view;
         }

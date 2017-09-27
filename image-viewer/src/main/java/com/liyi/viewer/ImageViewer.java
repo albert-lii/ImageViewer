@@ -1,14 +1,11 @@
 package com.liyi.viewer;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.Gravity;
-import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.view.ImagePreviewActivity;
@@ -20,11 +17,12 @@ public class ImageViewer {
     private ArrayList<Object> mImageDatas;
     private int mBeginIndex;
     private int mIndexPos;
-    public static RequestOptions Options;
+    private static RequestOptions mOptions;
 
     private ImageViewer() {
         this.mBeginIndex = 0;
         this.mIndexPos = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+        mOptions = null;
     }
 
     public static ImageViewer newInstance() {
@@ -51,6 +49,11 @@ public class ImageViewer {
         return this;
     }
 
+    public ImageViewer options(RequestOptions options) {
+        this.mOptions = options;
+        return this;
+    }
+
     public void show(@NonNull Context context) {
         Intent intent = new Intent(context, ImagePreviewActivity.class);
         intent.putExtra(ImageDefine.BEGIN_INDEX, mBeginIndex);
@@ -58,5 +61,9 @@ public class ImageViewer {
         intent.putExtra(ImageDefine.IMAGE_ARRAY, mImageDatas);
         intent.putExtra(ImageDefine.INDEX_GRAVITY, mIndexPos);
         context.startActivity(intent);
+    }
+
+    public static RequestOptions getOptions() {
+        return mOptions;
     }
 }
