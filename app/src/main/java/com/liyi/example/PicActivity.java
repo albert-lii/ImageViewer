@@ -49,10 +49,8 @@ public class PicActivity extends AppCompatActivity {
 
         mViewDatas = new ArrayList<>();
         mOptions = new RequestOptions();
-        mOptions.placeholder(R.drawable.fennen).error(R.drawable.heibai);
-        imageViewer = ImageViewer.newInstance()
-                .options(mOptions)
-                .indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL).imageData(mImageDatas);
+        mOptions.placeholder(R.drawable.img_viewer_placeholder).error(R.drawable.img_viewer_error);
+        imageViewer = ImageViewer.newInstance().indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL).imageData(mImageDatas);
         autoGridView.setAdapter(new MyAdapter());
     }
 
@@ -87,12 +85,20 @@ public class PicActivity extends AppCompatActivity {
         String url3 = "https://b-ssl.duitang.com/uploads/item/201709/26/20170926131419_8YhLA.jpeg";
         String url4 = "https://b-ssl.duitang.com/uploads/item/201505/11/20150511122951_MAwVZ.jpeg";
         String url5 = "https://b-ssl.duitang.com/uploads/item/201704/23/20170423205828_BhNSv.jpeg";
+        String url6 = "https://b-ssl.duitang.com/uploads/item/201706/30/20170630181644_j4mh5.jpeg";
+        String url7 = "https://b-ssl.duitang.com/uploads/item/201407/22/20140722172759_iPCXv.jpeg";
+        String url8 = "https://b-ssl.duitang.com/uploads/item/201511/11/20151111103149_mrRfd.jpeg";
+        String url9 = "https://b-ssl.duitang.com/uploads/item/201510/14/20151014172010_RnJVz.jpeg";
         mImageDatas.add(url0);
         mImageDatas.add(url1);
         mImageDatas.add(url2);
         mImageDatas.add(url3);
         mImageDatas.add(url4);
         mImageDatas.add(url5);
+        mImageDatas.add(url6);
+        mImageDatas.add(url7);
+        mImageDatas.add(url8);
+        mImageDatas.add(url9);
     }
 
     private class MyAdapter extends BaseGridAdapter {

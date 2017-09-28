@@ -22,7 +22,7 @@ public class ImageViewer {
     private ImageViewer() {
         this.mBeginIndex = 0;
         this.mIndexPos = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-        mOptions = null;
+        mOptions = new RequestOptions().placeholder(R.drawable.img_viewer_placeholder).error(R.drawable.img_viewer_error);
     }
 
     public static ImageViewer newInstance() {

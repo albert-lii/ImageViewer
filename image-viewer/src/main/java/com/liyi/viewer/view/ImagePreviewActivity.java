@@ -16,6 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.target.ImageViewTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -45,7 +47,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
     private ImageView iv_show;
     private TextView tv_index;
 
-    private ArrayList<PhotoView> mPhotoViewList;
+    private ArrayList<View> mViewList;
     private ArrayList<ViewData> mViewDataList;
     private ArrayList<Object> mImageList;
     private ViewData mCurViewData;
@@ -55,6 +57,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
     private int mIndexPos;
     // Determine if the first picture you need to display is loaded
     private boolean isBeginLoaded;
+    private boolean isShowAnimEnd;
     private LinkedList<String> mLoadFailArray;
 
     @Override
@@ -86,18 +89,20 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
 
             @Override
             public void onPageSelected(int position) {
-                mCurViewData = mViewDataList.get(position);
-                // Prevent click event failure
-                PhotoView photoView = mPhotoViewList.get(position);
-                photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
-                    @Override
-                    public void onViewTap(View view, float x, float y) {
-                        restoreImage();
+                if (position < mViewDataList.size()) {
+                    mCurViewData = mViewDataList.get(position);
+                    // Prevent click event failure
+                    PhotoView photoView = (PhotoView) mViewList.get(position).findViewById(R.id.photoVi_item_imgViewer);
+                    photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+                        @Override
+                        public void onViewTap(View view, float x, float y) {
+                            restoreImage();
+                        }
+                    });
+                    tv_index.setText((position + 1) + "/" + mImageList.size());
+                    if (mLoadFailArray.contains(position + "")) {
+                        Toast.makeText(ImagePreviewActivity.this, "图片加载失败", Toast.LENGTH_SHORT).show();
                     }
-                });
-                tv_index.setText((position + 1) + "/" + mImageList.size());
-                if (mLoadFailArray.contains(position + "")) {
-                    Toast.makeText(ImagePreviewActivity.this, "图片加载失败", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -121,12 +126,25 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
         mScreenSize = getScreenSize(this);
         mCurViewData = mViewDataList.get(mBeginIndex);
         isBeginLoaded = false;
+        isShowAnimEnd = false;
 
         mLoadFailArray = new LinkedList<String>();
-        mPhotoViewList = new ArrayList<PhotoView>();
+        mViewList = new ArrayList<View>();
+
+        iv_show.setLayoutParams(new FrameLayout.LayoutParams((int) mCurViewData.width, (int) mCurViewData.height));
+        iv_show.setX(mCurViewData.x);
+        iv_show.setY(mCurViewData.y);
+        iv_show.setVisibility(View.GONE);
+        if (!isBeginLoaded) {
+            loadImage(mBeginIndex, mImageList.get(mBeginIndex), iv_show, true);
+        } else {
+            iv_show.setImageDrawable(((PhotoView) mViewList.get(mBeginIndex).findViewById(R.id.photoVi_item_imgViewer)).getDrawable());
+            fullScreen();
+        }
 
         for (int i = 0; i < mImageList.size(); i++) {
-            final PhotoView photoView = new PhotoView(this);
+            View view = LayoutInflater.from(this).inflate(R.layout.item_image_viewer, null);
+            final PhotoView photoView = (PhotoView) view.findViewById(R.id.photoVi_item_imgViewer);
             loadImage(i, mImageList.get(i), photoView, false);
             photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
                 @Override
@@ -134,34 +152,17 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
                     restoreImage();
                 }
             });
-            mPhotoViewList.add(photoView);
+            mViewList.add(view);
         }
-        viewpager.setAdapter(new SimpleAdapter(mPhotoViewList));
+        viewpager.setAdapter(new SimpleAdapter(mViewList));
         viewpager.setCurrentItem(mBeginIndex);
         viewpager.setVisibility(View.GONE);
-
-        iv_show.setLayoutParams(new FrameLayout.LayoutParams((int) mCurViewData.width, (int) mCurViewData.height));
-        iv_show.setX(mCurViewData.x);
-        iv_show.setY(mCurViewData.y);
-        iv_show.setVisibility(View.GONE);
 
         tv_index.setText((mBeginIndex + 1) + "/" + mImageList.size());
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) tv_index.getLayoutParams();
         lp.gravity = mIndexPos;
         tv_index.setLayoutParams(lp);
-
-        if (!isBeginLoaded) {
-            loadImage(mBeginIndex, mImageList.get(mBeginIndex), iv_show, true);
-        } else {
-            iv_show.setImageDrawable(mPhotoViewList.get(mBeginIndex).getDrawable());
-            fullScreen();
-        }
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                fullScreen();
-//            }
-//        }, 200);
+//        fullScreen();
     }
 
     @Override
@@ -215,6 +216,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
 
             @Override
             public void onAnimationEnd(Animator animation) {
+                isShowAnimEnd = true;
                 viewpager.setVisibility(View.VISIBLE);
                 tv_index.setVisibility(View.VISIBLE);
                 iv_show.setVisibility(View.GONE);
@@ -236,7 +238,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
 
     @Override
     public void restoreImage() {
-        PhotoView photoView = mPhotoViewList.get(viewpager.getCurrentItem());
+        PhotoView photoView = (PhotoView) mViewList.get(viewpager.getCurrentItem()).findViewById(R.id.photoVi_item_imgViewer);
         Drawable d = photoView.getDrawable();
         // The width and height of the original image
         float ori_w = d.getIntrinsicWidth();
@@ -317,7 +319,11 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
     private void loadImage(final int index, Object src, final ImageView view, final boolean isShow) {
         final RequestBuilder builder = Glide.with(this).asBitmap().load(src);
         if (ImageViewer.getOptions() != null) {
-            builder.apply(ImageViewer.getOptions());
+            if (isShow) {
+                builder.apply(ImageViewer.getOptions().priority(Priority.IMMEDIATE));
+            } else {
+                builder.apply(ImageViewer.getOptions().priority(Priority.NORMAL));
+            }
         }
         builder.into(new ImageViewTarget<Bitmap>(view) {
             @Override
@@ -328,11 +334,13 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             @Override
             public void onLoadFailed(@Nullable Drawable errorDrawable) {
                 super.onLoadFailed(errorDrawable);
+                mViewList.get(index).findViewById(R.id.cirProBar_item_imgViewer).setVisibility(View.GONE);
                 if (index == mBeginIndex) {
                     if (isShow) {
                         if (!isBeginLoaded) {
-                            Glide.with(ImagePreviewActivity.this).clear(mPhotoViewList.get(index));
-                            mPhotoViewList.get(index).setImageDrawable(errorDrawable);
+                            PhotoView photoView = (PhotoView) mViewList.get(index).findViewById(R.id.photoVi_item_imgViewer);
+                            Glide.with(ImagePreviewActivity.this).clear(photoView);
+                            photoView.setImageDrawable(errorDrawable);
                         }
                         fullScreen();
                     } else {
@@ -346,11 +354,13 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             public void onResourceReady(Bitmap resource, @Nullable Transition transition) {
                 super.onResourceReady(resource, transition);
                 view.setImageBitmap(resource);
+                mViewList.get(index).findViewById(R.id.cirProBar_item_imgViewer).setVisibility(View.GONE);
                 if (index == mBeginIndex) {
                     if (isShow) {
                         if (!isBeginLoaded) {
-                            Glide.with(ImagePreviewActivity.this).clear(mPhotoViewList.get(index));
-                            mPhotoViewList.get(index).setImageBitmap(resource);
+                            PhotoView photoView = (PhotoView) mViewList.get(index).findViewById(R.id.photoVi_item_imgViewer);
+                            Glide.with(ImagePreviewActivity.this).clear(photoView);
+                            photoView.setImageBitmap(resource);
                         }
                         fullScreen();
                     } else {

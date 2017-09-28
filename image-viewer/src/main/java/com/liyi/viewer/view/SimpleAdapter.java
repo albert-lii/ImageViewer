@@ -11,9 +11,9 @@ import uk.co.senab.photoview.PhotoView;
 
 
 public class SimpleAdapter extends PagerAdapter {
-    private ArrayList<PhotoView> mViews;
+    private ArrayList<View> mViews;
 
-    public SimpleAdapter(ArrayList<PhotoView> views) {
+    public SimpleAdapter(ArrayList<View> views) {
         this.mViews = views;
     }
 
@@ -25,7 +25,7 @@ public class SimpleAdapter extends PagerAdapter {
     @Override
     public View instantiateItem(ViewGroup container, final int position) {
         if (mViews != null) {
-            container.addView(mViews.get(position), ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            container.addView(mViews.get(position));
             return mViews.get(position);
         } else {
             return null;
