@@ -18,6 +18,6 @@ Step 1:
 Step 2:
 
     dependencies {
-        compile 'com.github.albert-lii:ImageViewer:1.0.1'
+        compile 'com.github.albert-lii:ImageViewer:1.0.2'
     }
 ```
