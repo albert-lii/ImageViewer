@@ -34,6 +34,7 @@ public class ImageViewer {
                 .placeholder(R.drawable.img_viewer_placeholder)
                 .error(R.drawable.img_viewer_error);
         this.mBeginImage = null;
+        this.mProgressDrawable = null;
     }
 
     public static ImageViewer newInstance() {
