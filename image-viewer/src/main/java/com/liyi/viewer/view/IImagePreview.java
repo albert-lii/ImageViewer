@@ -19,4 +19,6 @@ public interface IImagePreview {
      * Animation of the image when exiting
      */
     void restoreImage();
+
+    void clear();
 }

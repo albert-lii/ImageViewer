@@ -1,16 +1,18 @@
 package com.liyi.viewer.view;
 
 
-import android.animation.Animator;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
@@ -21,12 +23,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
 import com.bumptech.glide.request.target.ImageViewTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.liyi.viewer.ImageDefine;
@@ -34,7 +38,9 @@ import com.liyi.viewer.ImageViewer;
 import com.liyi.viewer.R;
 import com.liyi.viewer.data.ViewData;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import uk.co.senab.photoview.PhotoView;
@@ -49,15 +55,18 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
 
     private ArrayList<View> mViewList;
     private ArrayList<ViewData> mViewDataList;
-    private ArrayList<Object> mImageList;
+    private ArrayList<Object> mImageSrcList;
+    private HashMap<Integer, SoftReference<Bitmap>> mImageCache;
     private ViewData mCurViewData;
 
     private Point mScreenSize;
     private int mBeginIndex;
     private int mIndexPos;
+    private boolean isShowProgress;
     // Determine if the first picture you need to display is loaded
     private boolean isBeginLoaded;
-    private boolean isShowAnimEnd;
+    // Determines whether the ImageView executing the animation has loaded the picture
+    private boolean isShowLoaded;
     private LinkedList<String> mLoadFailArray;
 
     @Override
@@ -93,13 +102,18 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
                     mCurViewData = mViewDataList.get(position);
                     // Prevent click event failure
                     PhotoView photoView = (PhotoView) mViewList.get(position).findViewById(R.id.photoVi_item_imgViewer);
+                    if (mImageCache.get(position) != null && mImageCache.get(position).get() != null) {
+                        photoView.setImageBitmap(mImageCache.get(position).get());
+                    } else {
+                        loadImage(position, mImageSrcList.get(position), photoView, false);
+                    }
                     photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
                         @Override
                         public void onViewTap(View view, float x, float y) {
                             restoreImage();
                         }
                     });
-                    tv_index.setText((position + 1) + "/" + mImageList.size());
+                    tv_index.setText((position + 1) + "/" + mImageSrcList.size());
                     if (mLoadFailArray.contains(position + "")) {
                         Toast.makeText(ImagePreviewActivity.this, "图片加载失败", Toast.LENGTH_SHORT).show();
                     }
@@ -119,15 +133,17 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             return;
         }
         mViewDataList = (ArrayList<ViewData>) intent.getSerializableExtra(ImageDefine.VIEW_ARRAY);
-        mImageList = (ArrayList<Object>) intent.getSerializableExtra(ImageDefine.IMAGE_ARRAY);
+        mImageSrcList = (ArrayList<Object>) intent.getSerializableExtra(ImageDefine.IMAGE_ARRAY);
         mBeginIndex = intent.getIntExtra(ImageDefine.BEGIN_INDEX, 0);
         mIndexPos = intent.getIntExtra(ImageDefine.INDEX_GRAVITY, Gravity.TOP);
+        isShowProgress = intent.getBooleanExtra(ImageDefine.SHOW_PROGRESS, true);
 
         mScreenSize = getScreenSize(this);
         mCurViewData = mViewDataList.get(mBeginIndex);
         isBeginLoaded = false;
-        isShowAnimEnd = false;
+        isShowLoaded = false;
 
+        mImageCache = new HashMap<Integer, SoftReference<Bitmap>>();
         mLoadFailArray = new LinkedList<String>();
         mViewList = new ArrayList<View>();
 
@@ -135,17 +151,15 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
         iv_show.setX(mCurViewData.x);
         iv_show.setY(mCurViewData.y);
         iv_show.setVisibility(View.GONE);
-        if (!isBeginLoaded) {
-            loadImage(mBeginIndex, mImageList.get(mBeginIndex), iv_show, true);
-        } else {
-            iv_show.setImageDrawable(((PhotoView) mViewList.get(mBeginIndex).findViewById(R.id.photoVi_item_imgViewer)).getDrawable());
-            fullScreen();
-        }
 
-        for (int i = 0; i < mImageList.size(); i++) {
+        for (int i = 0; i < mImageSrcList.size(); i++) {
             View view = LayoutInflater.from(this).inflate(R.layout.item_image_viewer, null);
             final PhotoView photoView = (PhotoView) view.findViewById(R.id.photoVi_item_imgViewer);
-            loadImage(i, mImageList.get(i), photoView, false);
+            if (mImageCache.get(i) != null && mImageCache.get(i).get() != null) {
+                photoView.setImageBitmap(mImageCache.get(i).get());
+            } else {
+                loadImage(i, mImageSrcList.get(i), photoView, false);
+            }
             photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
                 @Override
                 public void onViewTap(View view, float x, float y) {
@@ -158,19 +172,48 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
         viewpager.setCurrentItem(mBeginIndex);
         viewpager.setVisibility(View.GONE);
 
-        tv_index.setText((mBeginIndex + 1) + "/" + mImageList.size());
+        tv_index.setText((mBeginIndex + 1) + "/" + mImageSrcList.size());
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) tv_index.getLayoutParams();
         lp.gravity = mIndexPos;
         tv_index.setLayoutParams(lp);
-//        fullScreen();
+
+        if (mImageCache.get(mBeginIndex) != null && mImageCache.get(mBeginIndex).get() != null) {
+            iv_show.setImageBitmap(mImageCache.get(mBeginIndex).get());
+            isShowLoaded = true;
+            fullScreen();
+        } else {
+            loadImage(mBeginIndex, mImageSrcList.get(mBeginIndex), iv_show, true);
+        }
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!isShowLoaded) {
+                    if (ImageViewer.getBeginImage() != null) {
+                        iv_show.setImageBitmap(ImageViewer.getBeginImage());
+                    }
+                    isShowLoaded = true;
+                    fullScreen();
+                }
+            }
+        }, 300);
     }
 
     @Override
     public void fullScreen() {
-        Drawable d = iv_show.getDrawable();
         // The width and height of the original image
-        float ori_w = d.getIntrinsicWidth();
-        float ori_h = d.getIntrinsicHeight();
+        float ori_w = 1280;
+        float ori_h = 720;
+        Drawable d = iv_show.getDrawable();
+        if (d != null) {
+            ori_w = d.getIntrinsicWidth();
+            ori_h = d.getIntrinsicHeight();
+        } else if (mImageCache.get(mBeginIndex) != null && mImageCache.get(mBeginIndex).get() != null) {
+            iv_show.setImageBitmap(mImageCache.get(mBeginIndex).get());
+            d = iv_show.getDrawable();
+            ori_w = d.getIntrinsicWidth();
+            ori_h = d.getIntrinsicHeight();
+        }
         // Scale of the original image
         float scale = Math.min((mScreenSize.x / ori_w), (mScreenSize.y / ori_h));
         // The width and height of the ImageView now
@@ -193,6 +236,10 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float currentValue = (float) animation.getAnimatedValue();
                 float fraction = currentValue / 100f;
+                if (fraction == 0) {
+                    iv_show.setScaleType(ImageView.ScaleType.FIT_XY);
+                    iv_show.setVisibility(View.VISIBLE);
+                }
                 float width = evaluator.evaluate(fraction, cur_w, img_w);
                 float height = evaluator.evaluate(fraction, cur_h, img_h);
                 float x = evaluator.evaluate(fraction, from_x, to_x);
@@ -205,31 +252,11 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
                 iv_show.setX(x);
                 iv_show.setY(y);
                 v_bg.setAlpha(fraction);
-            }
-        });
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                iv_show.setScaleType(ImageView.ScaleType.FIT_XY);
-                iv_show.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isShowAnimEnd = true;
-                viewpager.setVisibility(View.VISIBLE);
-                tv_index.setVisibility(View.VISIBLE);
-                iv_show.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
+                if (fraction == 1) {
+                    viewpager.setVisibility(View.VISIBLE);
+                    tv_index.setVisibility(View.VISIBLE);
+                    iv_show.setVisibility(View.GONE);
+                }
             }
         });
         animator.setDuration(200);
@@ -269,6 +296,10 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float currentValue = (float) animation.getAnimatedValue();
                 float fraction = currentValue / 100f;
+                if (fraction == 0) {
+                    tv_index.setVisibility(View.GONE);
+                    iv_show.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                }
                 float width = evaluator.evaluate(fraction, cur_w, img_w);
                 float height = evaluator.evaluate(fraction, cur_h, img_h);
                 float x = evaluator.evaluate(fraction, from_x, to_x);
@@ -281,62 +312,64 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
                 iv_show.setX(x);
                 iv_show.setY(y);
                 v_bg.setAlpha(1 - fraction);
-            }
-        });
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                tv_index.setVisibility(View.GONE);
-                iv_show.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                finish();
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
+                if (fraction == 1) {
+                    finish();
+                }
             }
         });
         animator.setDuration(200);
         animator.start();
     }
 
-    private Point getScreenSize(Context context) {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(outMetrics);
-        return new Point(outMetrics.widthPixels, outMetrics.heightPixels);
+    @Override
+    public void clear() {
+        if (mImageCache != null && mImageCache.size() > 0) {
+            mImageCache.clear();
+        }
+        mImageCache = null;
+        ImageViewer.setBeginImage(null);
     }
 
     private void loadImage(final int index, Object src, final ImageView view, final boolean isShow) {
-        final RequestBuilder builder = Glide.with(this).asBitmap().load(src);
+        final RequestBuilder builder = Glide.with(this).asBitmap().load(src).transition(BitmapTransitionOptions.withCrossFade());
         if (ImageViewer.getOptions() != null) {
-            if (isShow) {
+            if (index == mBeginIndex && isShow) {
                 builder.apply(ImageViewer.getOptions().priority(Priority.IMMEDIATE));
             } else {
                 builder.apply(ImageViewer.getOptions().priority(Priority.NORMAL));
             }
+            builder.apply(ImageViewer.getOptions());
         }
         builder.into(new ImageViewTarget<Bitmap>(view) {
+
             @Override
             protected void setResource(@Nullable Bitmap resource) {
 
             }
 
             @Override
+            public void onLoadStarted(@Nullable Drawable placeholder) {
+                super.onLoadStarted(placeholder);
+                ProgressBar progressBar = (ProgressBar) mViewList.get(index).findViewById(R.id.proBar_item_imgViewer);
+                if (isShowProgress) {
+                    if (ImageViewer.getProgressDrawable() != null) {
+                        progressBar.setIndeterminateDrawable(ImageViewer.getProgressDrawable());
+                    }
+                    progressBar.setVisibility(View.VISIBLE);
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
             public void onLoadFailed(@Nullable Drawable errorDrawable) {
                 super.onLoadFailed(errorDrawable);
-                mViewList.get(index).findViewById(R.id.cirProBar_item_imgViewer).setVisibility(View.GONE);
+                mImageCache.put(index, new SoftReference<Bitmap>(drawableToBitmap(errorDrawable)));
+                mViewList.get(index).findViewById(R.id.proBar_item_imgViewer).setVisibility(View.GONE);
+
                 if (index == mBeginIndex) {
                     if (isShow) {
+                        isShowLoaded = true;
                         if (!isBeginLoaded) {
                             PhotoView photoView = (PhotoView) mViewList.get(index).findViewById(R.id.photoVi_item_imgViewer);
                             Glide.with(ImagePreviewActivity.this).clear(photoView);
@@ -353,10 +386,12 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             @Override
             public void onResourceReady(Bitmap resource, @Nullable Transition transition) {
                 super.onResourceReady(resource, transition);
-                view.setImageBitmap(resource);
-                mViewList.get(index).findViewById(R.id.cirProBar_item_imgViewer).setVisibility(View.GONE);
+                mImageCache.put(index, new SoftReference<Bitmap>(resource));
+                mViewList.get(index).findViewById(R.id.proBar_item_imgViewer).setVisibility(View.GONE);
+
                 if (index == mBeginIndex) {
                     if (isShow) {
+                        isShowLoaded = true;
                         if (!isBeginLoaded) {
                             PhotoView photoView = (PhotoView) mViewList.get(index).findViewById(R.id.photoVi_item_imgViewer);
                             Glide.with(ImagePreviewActivity.this).clear(photoView);
@@ -389,6 +424,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
     @Override
     public void finish() {
         super.finish();
+        clear();
         overridePendingTransition(0, 0);
     }
 
@@ -400,5 +436,30 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             restoreImage();
         }
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        clear();
+        super.onDestroy();
+    }
+
+    private Point getScreenSize(Context context) {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(outMetrics);
+        return new Point(outMetrics.widthPixels, outMetrics.heightPixels);
+    }
+
+    private Bitmap drawableToBitmap(Drawable drawable) {
+        Bitmap bitmap = Bitmap.createBitmap(
+                drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(),
+                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bitmap);
+        // canvas.setBitmap(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas);
+        return bitmap;
     }
 }
