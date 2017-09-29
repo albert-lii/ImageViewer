@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -48,6 +49,8 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 
 public class ImagePreviewActivity extends Activity implements IImagePreview {
+    private final String TAG = this.getClass().getSimpleName();
+
     private View v_bg;
     private ViewPager viewpager;
     private ImageView iv_show;
@@ -130,6 +133,7 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
     @Override
     public void handleIntent(Intent intent) {
         if (intent == null) {
+            Log.w(TAG, "The intent is null");
             return;
         }
         mViewDataList = (ArrayList<ViewData>) intent.getSerializableExtra(ImageDefine.VIEW_ARRAY);
@@ -213,6 +217,8 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
             d = iv_show.getDrawable();
             ori_w = d.getIntrinsicWidth();
             ori_h = d.getIntrinsicHeight();
+        } else {
+            Log.w(TAG, "The width and length of the image were not obtained");
         }
         // Scale of the original image
         float scale = Math.min((mScreenSize.x / ori_w), (mScreenSize.y / ori_h));

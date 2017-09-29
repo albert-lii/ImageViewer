@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 
@@ -16,6 +17,8 @@ import com.liyi.viewer.view.ImagePreviewActivity;
 import java.util.ArrayList;
 
 public class ImageViewer {
+    private final String TAG = this.getClass().getSimpleName();
+
     private ArrayList<ViewData> mViewDatas;
     private ArrayList<Object> mImageDatas;
     private int mBeginIndex;
@@ -94,6 +97,14 @@ public class ImageViewer {
     }
 
     public void show(@NonNull Context context) {
+        if (mImageDatas == null || mImageDatas.size() == 0 || mViewDatas == null || mViewDatas.size() == 0) {
+            Log.w(TAG, "ImageDatas or ViewDatas is null or length 0");
+            return;
+        }
+        if (mViewDatas.size() < mImageDatas.size()) {
+            Log.w(TAG, "ViewDatas is less than ImageDatas in length");
+            return;
+        }
         Intent intent = new Intent(context, ImagePreviewActivity.class);
         intent.putExtra(ImageDefine.BEGIN_INDEX, mBeginIndex);
         intent.putExtra(ImageDefine.VIEW_ARRAY, mViewDatas);

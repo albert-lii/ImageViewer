@@ -50,7 +50,9 @@ public class PicActivity extends AppCompatActivity {
         mViewDatas = new ArrayList<>();
         mOptions = new RequestOptions();
         mOptions.placeholder(R.drawable.img_viewer_placeholder).error(R.drawable.img_viewer_error);
-        imageViewer = ImageViewer.newInstance().indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL).imageData(mImageDatas);
+        imageViewer = ImageViewer.newInstance()
+                .indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL)
+                .imageData(mImageDatas);
         autoGridView.setAdapter(new MyAdapter());
     }
 
