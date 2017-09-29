@@ -31,7 +31,7 @@ public class ImageViewer {
         this.mIndexPos = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
         this.isShowProgress = true;
         this.mOptions = new RequestOptions()
-//                .placeholder(R.drawable.img_viewer_placeholder)
+                .placeholder(R.drawable.img_viewer_placeholder)
                 .error(R.drawable.img_viewer_error);
         this.mBeginImage = null;
     }

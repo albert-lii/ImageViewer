@@ -27,8 +27,9 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.github.albert-lii:AutoGridView:1.0.0'
+    implementation 'com.github.albert-lii:AutoGridView:1.0.0'
     implementation 'com.github.bumptech.glide:glide:4.1.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.1.1'
-    implementation project(':image-viewer')
+    implementation 'com.github.albert-lii:ImageViewer:1.0.4'
+//    implementation project(':image-viewer')
 }
