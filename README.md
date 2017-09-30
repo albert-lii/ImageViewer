@@ -6,6 +6,7 @@
 
 ## 演示
 ![demo](https://github.com/albert-lii/ImageViewer/blob/master/screenshot/demo.gif)
+> **博客详情链接：http://blog.csdn.net/liyi1009365545/article/details/78135394**
 
 ## 添加依赖
 ```java
