@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import com.liyi.autogrid.AutoGridView;
 import com.liyi.autogrid.BaseGridAdapter;
 import com.liyi.viewer.ImageViewer;
 import com.liyi.viewer.data.ViewData;
+import com.liyi.viewer.listener.OnImageLoadListener;
 
 import java.util.ArrayList;
 
@@ -50,9 +50,9 @@ public class PicActivity extends AppCompatActivity {
         mViewDatas = new ArrayList<>();
         mOptions = new RequestOptions();
         mOptions.placeholder(R.drawable.img_viewer_placeholder).error(R.drawable.img_viewer_error);
-        imageViewer = ImageViewer.newInstance()
-                .indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL)
-                .imageData(mImageDatas);
+//        imageViewer = ImageViewer.getInstance()
+//                .indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL)
+//                .imageData(mImageDatas);
         autoGridView.setAdapter(new MyAdapter());
     }
 
@@ -66,15 +66,28 @@ public class PicActivity extends AppCompatActivity {
                     // 获取在整个屏幕内的绝对坐标
                     autoGridView.getChildAt(j).getLocationOnScreen(location);
                     ViewData viewData = new ViewData();
-                    viewData.x = location[0];
-                    viewData.y = location[1];
-                    viewData.width = autoGridView.getChildAt(j).getMeasuredWidth();
-                    viewData.height = autoGridView.getChildAt(j).getMeasuredHeight();
+                    viewData.setX(location[0]);
+                    viewData.setY(location[1]);
+                    viewData.setImageWidth(50);
+                    viewData.setImageHeight(50);
+                    viewData.setWidth(autoGridView.getChildAt(j).getMeasuredWidth());
+                    viewData.setHeight(autoGridView.getChildAt(j).getMeasuredHeight());
                     mViewDatas.add(viewData);
                 }
-                imageViewer.beginIndex(i)
+                ImageViewer.getInstance()
+                        .clickPosition(i)
+                        .imageData(mImageDatas)
+                        .imageLoadListener(new OnImageLoadListener() {
+                            @Override
+                            public void displayImage(int position, Object src, ImageView view) {
+                                    Glide.with(PicActivity.this)
+                                            .load(src)
+                                            .apply(mOptions)
+                                            .into(view);
+                            }
+                        })
                         .viewData(mViewDatas)
-                        .show(PicActivity.this);
+                        .preview(PicActivity.this);
             }
         });
     }

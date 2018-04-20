@@ -5,15 +5,13 @@ import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-
-import uk.co.senab.photoview.PhotoView;
+import java.util.List;
 
 
-public class SimpleAdapter extends PagerAdapter {
-    private ArrayList<View> mViews;
+public class ImageAdapter extends PagerAdapter {
+    private List<View> mViews;
 
-    public SimpleAdapter(ArrayList<View> views) {
+    public ImageAdapter(List<View> views) {
         this.mViews = views;
     }
 

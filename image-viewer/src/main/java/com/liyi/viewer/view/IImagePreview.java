@@ -1,24 +1,19 @@
 package com.liyi.viewer.view;
 
 
-import android.content.Intent;
-
 public interface IImagePreview {
-    void initUI();
-
-    void addListener();
-
-    void handleIntent(Intent intent);
+    /**
+     * 处理预览数据信息
+     */
+    void handlePreviewInfo();
 
     /**
-     * The image is animated after the click
+     * 执行开始动画
      */
-    void fullScreen();
+    void excuteEnterAnim();
 
     /**
-     * Animation of the image when exiting
+     * 执行结束动画
      */
-    void restoreImage();
-
-    void clear();
+    void excuteExitAnim();
 }

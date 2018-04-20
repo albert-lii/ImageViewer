@@ -4,96 +4,126 @@ package com.liyi.viewer.view;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.Priority;
-import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
-import com.bumptech.glide.request.target.ImageViewTarget;
-import com.bumptech.glide.request.transition.Transition;
-import com.liyi.viewer.ImageDefine;
+import com.github.chrisbanes.photoview.OnViewTapListener;
+import com.github.chrisbanes.photoview.PhotoView;
 import com.liyi.viewer.ImageViewer;
 import com.liyi.viewer.R;
+import com.liyi.viewer.Utils;
+import com.liyi.viewer.data.PreviewData;
 import com.liyi.viewer.data.ViewData;
+import com.liyi.viewer.listener.OnImageChangedListener;
+import com.liyi.viewer.listener.OnImageLoadListener;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
+import java.util.List;
 
 
 public class ImagePreviewActivity extends Activity implements IImagePreview {
-    private final String TAG = this.getClass().getSimpleName();
-
-    private View v_bg;
-    private ViewPager viewpager;
-    private ImageView iv_show;
+    private View view_background;
+    private ViewPager viewPager;
     private TextView tv_index;
+    // 执行过渡动画的 view
+    private ImageView iv_transition;
 
-    private ArrayList<View> mViewList;
-    private ArrayList<ViewData> mViewDataList;
-    private ArrayList<Object> mImageSrcList;
-    private HashMap<Integer, SoftReference<Bitmap>> mImageCache;
-    private ViewData mCurViewData;
-
+    private LayoutInflater mInflater;
     private Point mScreenSize;
-    private int mBeginIndex;
-    private int mIndexPos;
-    private boolean isShowProgress;
-    // Determine if the first picture you need to display is loaded
-    private boolean isBeginLoaded;
-    // Determines whether the ImageView executing the animation has loaded the picture
-    private boolean isShowLoaded;
-    private LinkedList<String> mLoadFailArray;
+
+    // 存储所有的图片视图
+    private List<View> mViews;
+    // 所有的预览数据
+    private PreviewData mPreviewData;
+    // 过渡 view 的位置
+    private int mClickPosition;
+    // 图片资源列表
+    private List<Object> mImageList;
+    // view 的数据列表
+    private List<ViewData> mViewDataList;
+    // 图片加载监听
+    private OnImageLoadListener mImageLoadListener;
+    // 图片切换监听
+    private OnImageChangedListener mImageChangedListener;
+    // 是否执行启动动画
+    private boolean doEnterAnim;
+    // 是否执行关闭动画
+    private boolean doExitAnim;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_preview);
-        initUI();
-        addListener();
-        handleIntent(getIntent());
+        setContentView(R.layout.imageviewer_aty_image_preview);
+        initView();
+        handlePreviewInfo();
     }
 
-    @Override
-    public void initUI() {
-        v_bg = findViewById(R.id.v_preview_bg);
-        viewpager = (ViewPager) findViewById(R.id.vp_preview);
-        iv_show = (ImageView) findViewById(R.id.iv_preview_show);
+    private void initView() {
+        view_background = findViewById(R.id.view_preview_bg);
+        viewPager = (ViewPager) findViewById(R.id.vp_preview);
         tv_index = (TextView) findViewById(R.id.tv_preview_index);
 
-        v_bg.setAlpha(0f);
+        view_background.setAlpha(0f);
+        mInflater = LayoutInflater.from(this);
+        mViews = new ArrayList<>();
+        mScreenSize = Utils.getScreenSize(this);
     }
 
     @Override
-    public void addListener() {
-        viewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+    public void handlePreviewInfo() {
+        mPreviewData = ImageViewer.getInstance().getPreviewData();
+        if (mPreviewData == null) return;
+        mClickPosition = mPreviewData.getClickPosition();
+        mImageList = mPreviewData.getImageList();
+        mViewDataList = mPreviewData.getViewDataList();
+        mImageLoadListener = mPreviewData.getImageLoadListener();
+        mImageChangedListener = mPreviewData.getImageChangedListener();
+        doEnterAnim = mPreviewData.isDoEnterAnim();
+        doExitAnim = mPreviewData.isDoExitAnim();
+
+        // 创建 item view
+        for (int i = 0, len = mImageList.size(); i < len; i++) {
+            View view = mInflater.inflate(R.layout.imageviewer_viewpager_item_display, null);
+            final PhotoView photoView = (PhotoView) view.findViewById(R.id.photoView_image);
+            // 自定义图片加载方式
+            if (mImageLoadListener != null) {
+                mImageLoadListener.displayImage(i, mImageList.get(i), photoView);
+            }
+            // 单击图片，退出浏览
+            photoView.setOnViewTapListener(new OnViewTapListener() {
+                @Override
+                public void onViewTap(View view, float x, float y) {
+                    if (doExitAnim) {
+                        excuteExitAnim();
+                    } else {
+                        finish();
+                    }
+                }
+            });
+            if (doEnterAnim && (i == mClickPosition)) {
+                iv_transition = photoView;
+                // 设置过渡 view
+                final ViewData viewData = mViewDataList.get(i);
+                iv_transition.setX(viewData.getX());
+                iv_transition.setY(viewData.getY());
+                FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) iv_transition.getLayoutParams();
+                layoutParams.width = (int) viewData.getWidth();
+                layoutParams.height = (int) viewData.getHeight();
+                iv_transition.setLayoutParams(layoutParams);
+            }
+            mViews.add(view);
+        }
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -101,25 +131,15 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
 
             @Override
             public void onPageSelected(int position) {
-                if (position < mViewDataList.size()) {
-                    mCurViewData = mViewDataList.get(position);
-                    // Prevent click event failure
-                    PhotoView photoView = (PhotoView) mViewList.get(position).findViewById(R.id.photoVi_item_imgViewer);
-                    if (mImageCache.get(position) != null && mImageCache.get(position).get() != null) {
-                        photoView.setImageBitmap(mImageCache.get(position).get());
-                    } else {
-                        loadImage(position, mImageSrcList.get(position), photoView, false);
+                final PhotoView photoView = (PhotoView) mViews.get(position).findViewById(R.id.photoView_image);
+                photoView.setOnViewTapListener(new OnViewTapListener() {
+                    @Override
+                    public void onViewTap(View view, float x, float y) {
+                        excuteExitAnim();
                     }
-                    photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
-                        @Override
-                        public void onViewTap(View view, float x, float y) {
-                            restoreImage();
-                        }
-                    });
-                    tv_index.setText((position + 1) + "/" + mImageSrcList.size());
-                    if (mLoadFailArray.contains(position + "")) {
-                        Toast.makeText(ImagePreviewActivity.this, "图片加载失败", Toast.LENGTH_SHORT).show();
-                    }
+                });
+                if (mImageChangedListener != null) {
+                    mImageChangedListener.onImageSelected(position, photoView);
                 }
             }
 
@@ -128,297 +148,181 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
 
             }
         });
+        viewPager.setOffscreenPageLimit(2);
+        viewPager.setAdapter(new ImageAdapter(mViews));
+        viewPager.setCurrentItem(mClickPosition);
+
+        // 判断是否执行过渡动画
+        if (doEnterAnim) {
+            excuteEnterAnim();
+        }
     }
 
     @Override
-    public void handleIntent(Intent intent) {
-        if (intent == null) {
-            Log.w(TAG, "The intent is null");
-            return;
-        }
-        mViewDataList = (ArrayList<ViewData>) intent.getSerializableExtra(ImageDefine.VIEW_ARRAY);
-        mImageSrcList = (ArrayList<Object>) intent.getSerializableExtra(ImageDefine.IMAGE_ARRAY);
-        mBeginIndex = intent.getIntExtra(ImageDefine.BEGIN_INDEX, 0);
-        mIndexPos = intent.getIntExtra(ImageDefine.INDEX_GRAVITY, Gravity.TOP);
-        isShowProgress = intent.getBooleanExtra(ImageDefine.SHOW_PROGRESS, true);
-
-        mScreenSize = getScreenSize(this);
-        mCurViewData = mViewDataList.get(mBeginIndex);
-        isBeginLoaded = false;
-        isShowLoaded = false;
-
-        mImageCache = new HashMap<Integer, SoftReference<Bitmap>>();
-        mLoadFailArray = new LinkedList<String>();
-        mViewList = new ArrayList<View>();
-
-        iv_show.setLayoutParams(new FrameLayout.LayoutParams((int) mCurViewData.width, (int) mCurViewData.height));
-        iv_show.setX(mCurViewData.x);
-        iv_show.setY(mCurViewData.y);
-        iv_show.setVisibility(View.GONE);
-
-        for (int i = 0; i < mImageSrcList.size(); i++) {
-            View view = LayoutInflater.from(this).inflate(R.layout.item_image_viewer, null);
-            final PhotoView photoView = (PhotoView) view.findViewById(R.id.photoVi_item_imgViewer);
-            if (mImageCache.get(i) != null && mImageCache.get(i).get() != null) {
-                photoView.setImageBitmap(mImageCache.get(i).get());
-            } else {
-                loadImage(i, mImageSrcList.get(i), photoView, false);
-            }
-            photoView.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
-                @Override
-                public void onViewTap(View view, float x, float y) {
-                    restoreImage();
-                }
-            });
-            mViewList.add(view);
-        }
-        viewpager.setAdapter(new SimpleAdapter(mViewList));
-        viewpager.setCurrentItem(mBeginIndex);
-        viewpager.setVisibility(View.GONE);
-
-        tv_index.setText((mBeginIndex + 1) + "/" + mImageSrcList.size());
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) tv_index.getLayoutParams();
-        lp.gravity = mIndexPos;
-        tv_index.setLayoutParams(lp);
-
-        if (mImageCache.get(mBeginIndex) != null && mImageCache.get(mBeginIndex).get() != null) {
-            iv_show.setImageBitmap(mImageCache.get(mBeginIndex).get());
-            isShowLoaded = true;
-            fullScreen();
+    public void excuteEnterAnim() {
+        // 获取 view 的数据
+        final ViewData viewData = mViewDataList.get(mClickPosition);
+        // 缩放前的过渡 view 的宽度
+        final float beforeScale_width = viewData.getWidth();
+        // 缩放前的过渡 view 的高度
+        final float beforeScale_height = viewData.getHeight();
+        // 缩放后的过渡 view 的宽度
+        final float afterScale_width;
+        // 缩放后的过渡 view 的高度
+        final float afterScale_heigt;
+        // 过渡 view 缩放前的 x 轴，y 轴的坐标
+        final float from_x = viewData.getX();
+        final float from_y = viewData.getY();
+        // 是否定义了图片尺寸
+        final boolean hasImageSize;
+        if (viewData.getImageWidth() == 0 || viewData.getImageHeight() == 0) {
+            afterScale_width = mScreenSize.x;
+            afterScale_heigt = mScreenSize.y;
+            hasImageSize = false;
         } else {
-            loadImage(mBeginIndex, mImageSrcList.get(mBeginIndex), iv_show, true);
+            float scale = Math.min(mScreenSize.x / viewData.getImageWidth(), mScreenSize.y / viewData.getImageHeight());
+            afterScale_width = viewData.getImageWidth() * scale;
+            afterScale_heigt = viewData.getImageHeight() * scale;
+            iv_transition.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            hasImageSize = true;
         }
+        // 过渡 view 缩放后的 x 轴，y 轴的坐标
+        final float to_x = (mScreenSize.x - afterScale_width) / 2;
+        final float to_y = (mScreenSize.y - afterScale_heigt) / 2;
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!isShowLoaded) {
-                    if (ImageViewer.getBeginImage() != null) {
-                        iv_show.setImageBitmap(ImageViewer.getBeginImage());
-                    }
-                    isShowLoaded = true;
-                    fullScreen();
-                }
-            }
-        }, 300);
-    }
-
-    @Override
-    public void fullScreen() {
-        // The width and height of the original image
-        float ori_w = 1280;
-        float ori_h = 720;
-        Drawable d = iv_show.getDrawable();
-        if (d != null) {
-            ori_w = d.getIntrinsicWidth();
-            ori_h = d.getIntrinsicHeight();
-        } else if (mImageCache.get(mBeginIndex) != null && mImageCache.get(mBeginIndex).get() != null) {
-            iv_show.setImageBitmap(mImageCache.get(mBeginIndex).get());
-            d = iv_show.getDrawable();
-            ori_w = d.getIntrinsicWidth();
-            ori_h = d.getIntrinsicHeight();
-        } else {
-            Log.w(TAG, "The width and length of the image were not obtained");
-        }
-        // Scale of the original image
-        float scale = Math.min((mScreenSize.x / ori_w), (mScreenSize.y / ori_h));
-        // The width and height of the ImageView now
-        final float cur_w = mCurViewData.width;
-        final float cur_h = mCurViewData.height;
-        // The width and height of the zoomed ImageView
-        final float img_w = ori_w * scale;
-        final float img_h = ori_h * scale;
-        // Initial coordinates of the ImageView
-        final float from_x = mCurViewData.x;
-        final float from_y = mCurViewData.y;
-        // Destination coordinates of ImageView
-        final float to_x = (mScreenSize.x - img_w) / 2;
-        final float to_y = (mScreenSize.y - img_h) / 2;
         ValueAnimator animator = ValueAnimator.ofFloat(0, 100);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             FloatEvaluator evaluator = new FloatEvaluator();
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) iv_transition.getLayoutParams();
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                float currentValue = (float) animation.getAnimatedValue();
-                float fraction = currentValue / 100f;
-                if (fraction == 0) {
-                    iv_show.setScaleType(ImageView.ScaleType.FIT_XY);
-                    iv_show.setVisibility(View.VISIBLE);
-                }
-                float width = evaluator.evaluate(fraction, cur_w, img_w);
-                float height = evaluator.evaluate(fraction, cur_h, img_h);
-                float x = evaluator.evaluate(fraction, from_x, to_x);
-                float y = evaluator.evaluate(fraction, from_y, to_y);
+                final float currentValue = (float) animation.getAnimatedValue();
+                final float fraction = currentValue / 100f;
+                final float x = evaluator.evaluate(fraction, from_x, to_x);
+                final float y = evaluator.evaluate(fraction, from_y, to_y);
+                final float width = evaluator.evaluate(fraction, beforeScale_width, afterScale_width);
+                final float height = evaluator.evaluate(fraction, beforeScale_height, afterScale_heigt);
 
-                FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) iv_show.getLayoutParams();
+                iv_transition.setX(x);
+                iv_transition.setY(y);
                 layoutParams.width = (int) width;
                 layoutParams.height = (int) height;
-                iv_show.setLayoutParams(layoutParams);
-                iv_show.setX(x);
-                iv_show.setY(y);
-                v_bg.setAlpha(fraction);
+                iv_transition.setLayoutParams(layoutParams);
+                view_background.setAlpha(fraction);
                 if (fraction == 1) {
-                    viewpager.setVisibility(View.VISIBLE);
-                    tv_index.setVisibility(View.VISIBLE);
-                    iv_show.setVisibility(View.GONE);
+                    if (hasImageSize) {
+                        iv_transition.setX(0);
+                        iv_transition.setX(0);
+                        layoutParams.width = mScreenSize.x;
+                        layoutParams.height = mScreenSize.y;
+                        iv_transition.setLayoutParams(layoutParams);
+                        iv_transition.setScaleType(ImageView.ScaleType.FIT_XY);
+                    }
                 }
             }
         });
-        animator.setDuration(200);
+        animator.setDuration(240);
         animator.start();
     }
 
     @Override
-    public void restoreImage() {
-        PhotoView photoView = (PhotoView) mViewList.get(viewpager.getCurrentItem()).findViewById(R.id.photoVi_item_imgViewer);
-        Drawable d = photoView.getDrawable();
-        // The width and height of the original image
-        float ori_w = d.getIntrinsicWidth();
-        float ori_h = d.getIntrinsicHeight();
-        // Scale of the original image
-        float scale = Math.min((mScreenSize.x / ori_w), (mScreenSize.y / ori_h));
-        // The width and height of the ImageView now
-        final float cur_w = ori_w * scale;
-        final float cur_h = ori_h * scale;
-        // The width and height of the zoomed ImageView
-        final float img_w = mCurViewData.width;
-        final float img_h = mCurViewData.height;
-        // Initial coordinates of the ImageView
-        final float from_x = (mScreenSize.x - cur_w) / 2;
-        final float from_y = (mScreenSize.y - cur_h) / 2;
-        // Destination coordinates of ImageView
-        final float to_x = mCurViewData.x;
-        final float to_y = mCurViewData.y;
-        iv_show.setImageDrawable(d);
-        viewpager.setVisibility(View.GONE);
-        iv_show.setVisibility(View.VISIBLE);
+    public void excuteExitAnim() {
+        final int position = viewPager.getCurrentItem();
+        final ViewData viewData = mViewDataList.get(position);
+        final PhotoView photoView = (PhotoView) mViews.get(position).findViewById(R.id.photoView_image);
+        iv_transition = photoView;
+        final Drawable drawable = iv_transition.getDrawable();
 
-        ValueAnimator animator = ValueAnimator.ofFloat(0, 100);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        float curImg_width = 0, curImg_height = 0;
+        if (drawable != null) {
+            // 图片原始的宽度和高度
+            int oriImg_width = drawable.getIntrinsicWidth();
+            int oriImg_height = drawable.getIntrinsicHeight();
+            float scale = Math.min(mScreenSize.x / oriImg_width, mScreenSize.y / oriImg_height);
+            // 图片当前的宽度与高度
+            curImg_width = oriImg_width * scale;
+            curImg_height = oriImg_height * scale;
+        }
+        // 缩放前的过渡 view 的宽度和高度
+        final float beforeScale_width1 = iv_transition.getWidth();
+        final float beforeScale_height1 = iv_transition.getHeight();
+        // 经历第一步缩放后的 view 的宽度和高度
+        final float afterScale_width1 = curImg_width;
+        final float afterScale_heigt1 = curImg_height;
+
+        // 第二步缩放前的 view 的宽度和高度
+        final float beforeScale_width2 = afterScale_width1;
+        final float beforeScale_height2 = afterScale_heigt1;
+        // 经历第二步缩放后的 view 的宽度和高度
+        final float afterScale_width2 = viewData.getWidth();
+        final float afterScale_heigt2 = viewData.getHeight();
+        // 第二步缩放前的 view 的 x 轴，y 轴的坐标
+        final float from_x = (mScreenSize.x - beforeScale_width2) / 2;
+        final float from_y = (mScreenSize.y - beforeScale_height2) / 2;
+        // 经历第二步缩放后的 view 的 x 轴，y 轴的坐标
+        final float to_x = viewData.getX();
+        final float to_y = viewData.getY();
+        // 图片处于自适应模式时的动画
+        ValueAnimator animator1 = ValueAnimator.ofFloat(0, 100);
+        animator1.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             FloatEvaluator evaluator = new FloatEvaluator();
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) iv_transition.getLayoutParams();
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                float currentValue = (float) animation.getAnimatedValue();
-                float fraction = currentValue / 100f;
-                if (fraction == 0) {
-                    tv_index.setVisibility(View.GONE);
-                    iv_show.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                final float currentValue = (float) animation.getAnimatedValue();
+                final float fraction = currentValue / 100f;
+                final float width = evaluator.evaluate(fraction, beforeScale_width1, afterScale_width1);
+                final float height = evaluator.evaluate(fraction, beforeScale_height1, afterScale_heigt1);
+                layoutParams.width = (int) width;
+                layoutParams.height = (int) height;
+                iv_transition.setLayoutParams(layoutParams);
+                if (fraction == 1) {
+                    iv_transition.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 }
-                float width = evaluator.evaluate(fraction, cur_w, img_w);
-                float height = evaluator.evaluate(fraction, cur_h, img_h);
+            }
+        });
+        animator1.setDuration(0);
+        animator1.start();
+        // 图片由自适应转为 CENTER_CROP 时的动画
+        ValueAnimator animator2 = ValueAnimator.ofFloat(0, 100);
+        animator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            FloatEvaluator evaluator = new FloatEvaluator();
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) iv_transition.getLayoutParams();
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float currentValue = (float) animation.getAnimatedValue();
+                final float fraction = currentValue / 100f;
                 float x = evaluator.evaluate(fraction, from_x, to_x);
                 float y = evaluator.evaluate(fraction, from_y, to_y);
+                float width = evaluator.evaluate(fraction, beforeScale_width2, afterScale_width2);
+                float height = evaluator.evaluate(fraction, beforeScale_height2, afterScale_heigt2);
 
-                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) iv_show.getLayoutParams();
-                lp.width = (int) width;
-                lp.height = (int) height;
-                iv_show.setLayoutParams(lp);
-                iv_show.setX(x);
-                iv_show.setY(y);
-                v_bg.setAlpha(1 - fraction);
+                iv_transition.setX(x);
+                iv_transition.setY(y);
+                layoutParams.width = (int) width;
+                layoutParams.height = (int) height;
+                iv_transition.setLayoutParams(layoutParams);
+                view_background.setAlpha(1 - fraction);
                 if (fraction == 1) {
                     finish();
                 }
             }
         });
-        animator.setDuration(200);
-        animator.start();
+        animator2.setDuration(240);
+        animator2.start();
     }
 
     @Override
-    public void clear() {
-        if (mImageCache != null && mImageCache.size() > 0) {
-            mImageCache.clear();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (doExitAnim) {
+                excuteExitAnim();
+            }
         }
-        mImageCache = null;
-        ImageViewer.setBeginImage(null);
-    }
-
-    private void loadImage(final int index, Object src, final ImageView view, final boolean isShow) {
-        final RequestBuilder builder = Glide.with(this).asBitmap().load(src).transition(BitmapTransitionOptions.withCrossFade());
-        if (ImageViewer.getOptions() != null) {
-            if (index == mBeginIndex && isShow) {
-                builder.apply(ImageViewer.getOptions().priority(Priority.IMMEDIATE));
-            } else {
-                builder.apply(ImageViewer.getOptions().priority(Priority.NORMAL));
-            }
-            builder.apply(ImageViewer.getOptions());
-        }
-        builder.into(new ImageViewTarget<Bitmap>(view) {
-
-            @Override
-            protected void setResource(@Nullable Bitmap resource) {
-
-            }
-
-            @Override
-            public void onLoadStarted(@Nullable Drawable placeholder) {
-                super.onLoadStarted(placeholder);
-                ProgressBar progressBar = (ProgressBar) mViewList.get(index).findViewById(R.id.proBar_item_imgViewer);
-                if (isShowProgress) {
-                    if (ImageViewer.getProgressDrawable() != null) {
-                        progressBar.setIndeterminateDrawable(ImageViewer.getProgressDrawable());
-                    }
-                    progressBar.setVisibility(View.VISIBLE);
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                super.onLoadFailed(errorDrawable);
-                mImageCache.put(index, new SoftReference<Bitmap>(drawableToBitmap(errorDrawable)));
-                mViewList.get(index).findViewById(R.id.proBar_item_imgViewer).setVisibility(View.GONE);
-
-                if (index == mBeginIndex) {
-                    if (isShow) {
-                        isShowLoaded = true;
-                        if (!isBeginLoaded) {
-                            PhotoView photoView = (PhotoView) mViewList.get(index).findViewById(R.id.photoVi_item_imgViewer);
-                            Glide.with(ImagePreviewActivity.this).clear(photoView);
-                            photoView.setImageDrawable(errorDrawable);
-                        }
-                        fullScreen();
-                    } else {
-                        isBeginLoaded = true;
-                    }
-                }
-                mLoadFailArray.add(index + "");
-            }
-
-            @Override
-            public void onResourceReady(Bitmap resource, @Nullable Transition transition) {
-                super.onResourceReady(resource, transition);
-                mImageCache.put(index, new SoftReference<Bitmap>(resource));
-                mViewList.get(index).findViewById(R.id.proBar_item_imgViewer).setVisibility(View.GONE);
-
-                if (index == mBeginIndex) {
-                    if (isShow) {
-                        isShowLoaded = true;
-                        if (!isBeginLoaded) {
-                            PhotoView photoView = (PhotoView) mViewList.get(index).findViewById(R.id.photoVi_item_imgViewer);
-                            Glide.with(ImagePreviewActivity.this).clear(photoView);
-                            photoView.setImageBitmap(resource);
-                        }
-                        fullScreen();
-                    } else {
-                        isBeginLoaded = true;
-                    }
-                }
-                if (mLoadFailArray.contains(index + "")) {
-                    mLoadFailArray.remove(index + "");
-                }
-            }
-        });
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        handleIntent(intent);
+        return true;
     }
 
     @Override
@@ -430,42 +334,6 @@ public class ImagePreviewActivity extends Activity implements IImagePreview {
     @Override
     public void finish() {
         super.finish();
-        clear();
         overridePendingTransition(0, 0);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            iv_show.setVisibility(View.VISIBLE);
-            viewpager.setVisibility(View.GONE);
-            restoreImage();
-        }
-        return true;
-    }
-
-    @Override
-    protected void onDestroy() {
-        clear();
-        super.onDestroy();
-    }
-
-    private Point getScreenSize(Context context) {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(outMetrics);
-        return new Point(outMetrics.widthPixels, outMetrics.heightPixels);
-    }
-
-    private Bitmap drawableToBitmap(Drawable drawable) {
-        Bitmap bitmap = Bitmap.createBitmap(
-                drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(),
-                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
-        Canvas canvas = new Canvas(bitmap);
-        // canvas.setBitmap(bitmap);
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        drawable.draw(canvas);
-        return bitmap;
     }
 }

@@ -3,16 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <uk.co.senab.photoview.PhotoView
-        android:id="@+id/photoVi_item_imgViewer"
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/photoView_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <ProgressBar
-        android:id="@+id/proBar_item_imgViewer"
+        android:id="@+id/progress_bar_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:elevation="3dp"
-        android:indeterminateDrawable="@drawable/style_loading_default" />
+        android:indeterminateDrawable="@drawable/style_loading_default"
+        android:visibility="gone" />
 </FrameLayout>
