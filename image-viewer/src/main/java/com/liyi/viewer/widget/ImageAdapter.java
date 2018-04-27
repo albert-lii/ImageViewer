@@ -1,4 +1,4 @@
-package com.liyi.viewer.view;
+package com.liyi.viewer.widget;
 
 
 import android.support.v4.view.PagerAdapter;
@@ -11,7 +11,11 @@ import java.util.List;
 public class ImageAdapter extends PagerAdapter {
     private List<View> mViews;
 
-    public ImageAdapter(List<View> views) {
+    public ImageAdapter() {
+
+    }
+
+    public void setData(List<View> views) {
         this.mViews = views;
     }
 

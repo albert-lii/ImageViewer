@@ -1,12 +1,11 @@
-package com.liyi.viewer.listener;
+package com.liyi.viewer.factory;
 
-import android.view.View;
 import android.widget.ImageView;
 
 /**
- * 图片加载监听
+ * 图片加载
  */
-public interface OnImageLoadListener {
+public interface ImageLoader {
     /**
      * 图片显示
      *

@@ -1,15 +1,18 @@
 package com.liyi.viewer.data;
 
 
-import java.io.Serializable;
-
-
-public class ViewData implements Serializable {
+public class ViewData {
+    // 外部 View 在 ImageViewer 中的 X 轴坐标
     private float x;
+    // 外部 View 在 ImageViewer 中的 Y 轴坐标
     private float y;
+    // 外部 View 的宽度
     private float width;
+    // 外部 View 的高度
     private float height;
+    // 图片的实际宽度
     private float imageWidth;
+    // 图片的实际高度
     private float imageHeight;
 
     public ViewData() {
