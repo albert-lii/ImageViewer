@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingLeft="15dp"
-        android:paddingTop="10dp"
+        android:paddingTop="20dp"
         android:text="返回"
         android:textColor="@color/colorAccent"
         android:textSize="16sp" />

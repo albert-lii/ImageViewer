@@ -65,6 +65,12 @@ public class CustomPreviewActivity extends Activity {
                 imageViewer.close();
             }
         });
+//        coverView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                coverView.setVisibility(View.VISIBLE);
+//            }
+//        });
 
         mOptions = new RequestOptions()
                 .placeholder(R.drawable.img_viewer_placeholder)
@@ -127,6 +133,7 @@ public class CustomPreviewActivity extends Activity {
                         mViewDatas.set(i, viewData);
                     }
                 }
+                tv_cover_index.setText("我是图片" + (position + 1) + "号");
                 // 设置图片浏览的起始位置
                 imageViewer.setStartPosition(position);
                 // 设置图片资源
@@ -189,7 +196,7 @@ public class CustomPreviewActivity extends Activity {
                 imageViewer.setOnWatchStatusListener(new OnWatchStatusListener() {
                     @Override
                     public void onWatchStart(int state, int position, ImageView view) {
-                        if (state == State.STATE_START_AFTER) {
+                        if (state == OnWatchStatusListener.State.STATE_START_AFTER) {
                             coverView.setVisibility(View.VISIBLE);
                         }
                     }

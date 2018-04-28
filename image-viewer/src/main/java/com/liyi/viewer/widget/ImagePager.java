@@ -71,7 +71,7 @@ public class ImagePager extends ViewPager {
 
             case MotionEvent.ACTION_MOVE:
                 // 当屏幕上只有一个触摸点时执行
-                if (ev.getPointerCount() <= 1 && mDragger != null && mDragger.getImageScale() <= 1) {
+                if (ev.getPointerCount() == 1 && mDragger != null && mDragger.getImageScale() <= 1) {
                     float deltaX = Math.abs(ev.getX() - mDownX);
                     float deltaY = Math.abs(ev.getY() - mDownY);
                     // 如果 deltaX < deltaY ，则处于拖拽图片状态，否则处于滑动翻页状态

@@ -100,6 +100,8 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     private boolean isPhotoAnimRunning;
     // 判断图片资源数据是否需要更新
     private boolean isNeedUpdate;
+    // 判断图片是否可缩放
+    private boolean isImageZoomable;
 
     public ImageViewer(@NonNull Context context) {
         super(context);
@@ -157,11 +159,13 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                     tv_index.setText((position + 1) + "/" + mImageList.size());
                 }
                 final PhotoView photoView = (PhotoView) ((FrameLayout) mViews.get(position)).getChildAt(0);
+                photoView.setScale(1f, true);
+                photoView.setZoomable(isImageZoomable);
                 photoView.setOnViewTapListener(new ViewTabListener(position));
+                photoView_current = photoView;
                 if (mImageChangedListener != null) {
                     mImageChangedListener.onImageSelected(position, photoView);
                 }
-                photoView_current = photoView;
             }
 
             @Override
@@ -183,6 +187,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         isPhotoClickalbe = true;
         isPhotoAnimRunning = false;
         isNeedUpdate = true;
+        isImageZoomable = true;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -454,7 +459,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     /**
      * 添加图片的 View
      */
-
     private void addImageViews() {
         if (mImageList == null) {
             throw new NullPointerException(" ImageList cannot be empty. ");
@@ -464,12 +468,13 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
             final PhotoView photoView = new PhotoView(getContext());
             // 此处不要共用 LayoutParams，否则改变一个  View 的 LayoutParams，其余的 View 都会受到影响
             photoView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+            photoView.setZoomable(isImageZoomable);
+            photoView.setOnViewTapListener(new ViewTabListener(i));
             container.addView(photoView);
             // 自定义图片加载方式
             if (mImageLoader != null) {
                 mImageLoader.displayImage(i, mImageList.get(i), photoView);
             }
-            photoView.setOnViewTapListener(new ViewTabListener(i));
             if (i == mStartPosition) {
                 photoView_current = photoView;
             }
@@ -571,6 +576,32 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         mImageChangedListener = null;
         mViewClickListener = null;
         mWatchStatusListener = null;
+    }
+
+    @Override
+    public void setImageZoomable(boolean zoomable) {
+        isImageZoomable = zoomable;
+    }
+
+    @Override
+    public boolean isImageZoomable() {
+        return isImageZoomable;
+    }
+
+    @Override
+    public void setCurrentImageZoomable(boolean zoomable) {
+        if (photoView_current != null) {
+            photoView_current.setScale(1f, true);
+            photoView_current.setZoomable(zoomable);
+        }
+    }
+
+    @Override
+    public boolean isCurrentImageZoomable() {
+        if (photoView_current != null) {
+            return photoView_current.isZoomable();
+        }
+        return false;
     }
 
     @Override

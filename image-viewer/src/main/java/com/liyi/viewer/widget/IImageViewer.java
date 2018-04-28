@@ -146,4 +146,32 @@ public interface IImageViewer {
      * 清除所有数据
      */
     void clear();
+
+    /**
+     * 设置图片是否可缩放
+     *
+     * @param zoomable
+     */
+    void setImageZoomable(boolean zoomable);
+
+    /**
+     * 获取图片是否可缩放
+     *
+     * @return
+     */
+    boolean isImageZoomable();
+
+    /**
+     * 设置当前图片是否可缩放
+     *
+     * @param zoomable
+     */
+    void setCurrentImageZoomable(boolean zoomable);
+
+    /**
+     * 获取当前图片是否可缩放
+     *
+     * @return
+     */
+    boolean isCurrentImageZoomable();
 }
