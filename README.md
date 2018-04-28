@@ -7,10 +7,10 @@
 
 ## 演示
 ![demo-simple]  ![demo-custom]
-
+  
 ## apk体验
-[点我下载][demo-apk]
-
+[点我][demo-apk]
+  
 ## 添加依赖
 * Gradle
 ```Java
@@ -148,7 +148,7 @@ limitations under the License.
 
 [demo-simple]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_simple.gif
 [demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_custom.gif
-[demo-apk]:http://www.apache.org/licenses/LICENSE-2.0
+[demo-apk]:https://github.com/albert-lii/ImageViewer/blob/master/apk/release/app-release.apk
 
 
 
