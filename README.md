@@ -1,87 +1,121 @@
 # ImageViewer
-图片查看器，仿微信朋友圈图片查看效果，支持图片手势缩放等操作，采用activity形式实现，只要一句代码即可调用。因为采用了属性动画，所以最低支持版本为11，即Android 3.0
 
-## 联系方式
->电子邮箱：albertlii@163.com
+![releasesvg] ![apisvg] [![license][licensesvg]][license]
+
+## 关于
+图片查看器，仿微信朋友圈图片查看效果，支持图片手势缩放、拖拽等操作，全新2.0版本，由1.0版本的`Activity`模式实现改为`自定义View`的模式显示，更加灵活，易于扩展，最低支持版本为Android 3.0及以上
 
 ## 演示
-![demo](https://github.com/albert-lii/ImageViewer/blob/master/screenshot/demo.gif)
-> **博客详情链接：http://blog.csdn.net/liyi1009365545/article/details/78135394**
+![demo-simple]  ![demo-custom]
 
 ## 添加依赖
-```java
-Step 1:
+* Gradle
+```Java
+   Step 1:
 
    allprojects {
        repositories {
            ...
-           maven { url 'https://jitpack.io' }
+           // 此句maven是为因为项目中使用了jitpack上的开源项目PhotoView
+           maven { url 'https://jitpack.io' }
+           // 如果添加依赖时，报找不到项目时（项目正在审核），可以添加此句maven地址，如果找到项目，可不必添加
+           maven { url "https://dl.bintray.com/albertlii/android-maven/" }
        }
     }
     
-Step 2:
+    
+   Step 2:
+   dependencies {
+       compile 'com.liyi.view:image-viewer:2.0.0'
+   }
+```  
 
-    dependencies {
-        compile 'com.github.albert-lii:ImageViewer:1.0.6'
-    }
+* Maven 
+```Java
+   <dependency>
+      <groupId>com.liyi.view</groupId>
+      <artifactId>image-viewer</artifactId>
+      <version>2.0.0</version>
+      <type>pom</type>
+   </dependency>
 ```
+
+## 自定义属性方法
+| 方法名 | 描述 |
+|:----|:----|
+| void setImageBackground(Drawable drawable) | 设置图片背景 |
+| void setImageBackgroundResource(@DrawableRes int resid) | 设置图片背景 |
+| void setImageBackgroundColor(@ColorInt int color) | 设置图片背景 |
+| void setStartPosition(int position) | 设置开始展示的图片的位置 |
+| void setImageData(List<Object> list) | 设置图片资源 |
+| void setViewData(List<ViewData> list) | 设置 View 数据（尺寸、坐标等信息） |
+| void setImageLoader(ImageLoader loader) | 设置图片加载类 |
+| void setOnImageChangedListener(OnImageChangedListener listener) | 设置图片切换监听 |
+| void setOnViewClickListener(OnViewClickListener listener) | 设置图片的点击监听 |
+| void setOnWatchStatusListener(OnWatchStatusListener listener) | 设置图片浏览状态监听 |
+| void showIndex(boolean show) | 是否显示图片序号 |
+| void doDragAction(boolean isDo) | 是否允许图片被拖拽 |
+| void doEnterAnim(boolean isDo) | 是否开启图片浏览启动动画 |
+| void doExitAnim(boolean isDo) | 是否开启图片浏览退出动画 |
+| void setAnimDuration(int duration) | 设置打开和关闭的动画执行时间 |  
+| void excuteEnterAnim() | 执行开始动画 |
+| void excuteExitAnim() | 执行结束动画 |
+| void watch() | 开启图片浏览 |
+| void close() | 关闭图片浏览 |
+| void clear() | 清除所有数据 |
+| void setImageZoomable(boolean zoomable) | 设置图片是否可缩放 |  
+| boolean isImageZoomable() | 获取图片是否可缩放 |  
+| void setCurrentImageZoomable(boolean zoomable) | 设置当前图片是否可缩放 |  
+| boolean isCurrentImageZoomable() | 获取当前图片是否可缩放 |
+| float getImageScale() | 获取图片当前的缩放级别 |
 
 ## 使用方法
-- Step 1:  
-因为采用Activity方式实现，所以必须在AndroidManifest.Xml中注册`ImagePreviewActivity`
-例如：  
-```java
-  <activity
-      android:name="com.liyi.viewer.view.ImagePreviewActivity"
-      android:launchMode="singleTask"
-      android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
-```  
->注：一定要设置`Activity`的主题样式为透明`@android:style/Theme.Translucent`,至于是否去除标题栏或者是否全屏可按照需求设置  
-
-- Step 2:
-```java
-imageViewer = ImageViewer.newInstance()
-                .indexPos(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL)
-                .imageData(mImageDatas);
-                
-                
- for (int j = 0; j < autoGridView.getChildCount(); j++) {
-     int[] location = new int[2];
-     // 获取在整个屏幕内的绝对坐标
-     autoGridView.getChildAt(j).getLocationOnScreen(location);
-     ViewData viewData = new ViewData();
-     viewData.x = location[0];
-     // 此处注意，如果`ImagePreviewActivity`使用全屏，而当前所在的Activity的状态栏独自占有高度，则还要减去状态栏的高度
-     viewData.y = location[1];
-     viewData.width = autoGridView.getChildAt(j).getMeasuredWidth();
-     viewData.height = autoGridView.getChildAt(j).getMeasuredHeight();
-     mViewDatas.add(viewData);
- }
- imageViewer.beginIndex(i)
-    .viewData(mViewDatas)
-    .show(PicActivity.this);
+#### XML
 ```
-方法详解：
-```java
-  ImageViewer.newInstance()  
-             // 点击的图片的序号（必填）
-             .beginIndex(int index)
-             // 点击的图片（非必填，一般不建议使用，主要是为了防止显示动画获取不到图像）
-             .beginView(ImageView view)
-             // 图片数据
-             .imageData(ArrayList<Object> imageData)
-             // ImageView在当前Activity中的位置信息和尺寸信息
-             .viewData(ArrayList<ViewData> viewDatas)
-             // 图片加载时的效果（采用的是glide4.1）
-             .options(RequestOptions options)
-             // 图片加载时是否显示进度条（默认显示）
-             .showProgress(boolean isShow)
-             // 设置进度条的样式
-             .progressDrawableDrawable drawable()
-             // 设置索引的显示位置
-             .indexPos(int pos)
-             // 实现图片
-             .show(Context context);
+  <com.liyi.viewer.widget.ImageViewer
+        android:id="@+id/imagePreivew"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+```
+
+#### 代码中
+```Java
+  // 图片浏览的起始位置
+  imageViewer.setStartPosition(position);
+  // 图片的数据源
+  imageViewer.setImageData(mImageList);
+  // 外部 View 的位置以及尺寸等信息
+  imageViewer.setViewData(mViewDatas);
+  // 自定义图片的加载方式
+  imageViewer.setImageLoader(new ImageLoader() {
+        @Override
+        public void displayImage(final int position, Object src, final ImageView view) {
+               Glide.with(SimplePreviewActivity.this)
+                    .load(src)
+                    .into(new SimpleTarget<Drawable>() {
+                          @Override
+                          public void onLoadStarted(@Nullable Drawable placeholder) {
+                                 super.onLoadStarted(placeholder);
+                                 view.setImageDrawable(placeholder);
+                          }
+
+                          @Override
+                          public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                 super.onLoadFailed(errorDrawable);
+                                 view.setImageDrawable(errorDrawable);
+                          }
+
+                          @Override
+                          public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                                 view.setImageDrawable(resource);
+                                 mImageList.set(position, resource);
+                                 mViewDatas.get(position).setImageWidth(resource.getIntrinsicWidth());
+                                 mViewDatas.get(position).setImageHeight(resource.getIntrinsicHeight());
+                          }
+                     });
+   }});
+   // 开启图片浏览
+   imageViewer.watch();
 ```
 
 ## 赞赏  
@@ -101,3 +135,16 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+
+
+[releasesvg]: https://img.shields.io/badge/version-2.0.0-brightgreen.svg
+[apisvg]: https://img.shields.io/badge/sdk-14+-brightgreen.svg
+[licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
+[license]:http://www.apache.org/licenses/LICENSE-2.0
+
+[demo-simple]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_simple.gif
+[demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_custom.gif
+
+
+
