@@ -3,7 +3,10 @@
 ![releasesvg] ![apisvg] [![license][licensesvg]][license]
 
 ## 关于
-图片查看器，仿微信朋友圈图片查看效果，支持图片手势缩放、拖拽等操作，全新2.0版本，由1.0版本的`Activity`模式实现改为`自定义View`的模式显示，自定义图片加载方式，更加灵活，易于扩展，最低支持版本为Android 3.0及以上...
+图片查看器，仿微信朋友圈图片查看效果，支持图片手势缩放、拖拽等操作，全新2.0版本，由1.0版本的`Activity`模式实现改为`自定义View`的模式显示，自定义图片加载方式，更加灵活，易于扩展，最低支持版本为Android 3.0及以上...  
+
+## 推荐
+- [AutoGridView][AutoGridView] 宫格控件，QQ空间九宫格、普通宫格模式、点击添加照片...
 
 ## 演示
 ![demo-simple]  ![demo-custom]
@@ -155,6 +158,7 @@ limitations under the License.
 [licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
 [license]:http://www.apache.org/licenses/LICENSE-2.0
 
+[AutoGridView]:https://github.com/albert-lii/AutoGridView
 [demo-simple]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_simple.gif
 [demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_custom.gif
 [demo-apk]:https://github.com/albert-lii/ImageViewer/blob/master/apk/release/app-release.apk
