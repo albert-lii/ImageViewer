@@ -11,7 +11,6 @@ public interface ImageDragger {
      */
     float getImageScale();
 
-
     /**
      * 拖拽图片
      *

@@ -1,17 +1,12 @@
 package com.liyi.example.activity;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -23,7 +18,6 @@ import com.liyi.grid.AutoGridView;
 import com.liyi.grid.adapter.SimpleAutoGridAdapter;
 import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.factory.ImageLoader;
-import com.liyi.viewer.listener.OnViewClickListener;
 import com.liyi.viewer.widget.ImageViewer;
 
 import java.util.ArrayList;

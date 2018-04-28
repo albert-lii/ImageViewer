@@ -3,6 +3,7 @@ package com.liyi.viewer.widget;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 
 import com.github.chrisbanes.photoview.OnViewTapListener;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.liyi.viewer.R;
 import com.liyi.viewer.Utils;
 import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.factory.ImageDragger;
@@ -105,22 +107,48 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
     public ImageViewer(@NonNull Context context) {
         super(context);
-        init();
+        init(null);
     }
 
     public ImageViewer(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs);
     }
 
     public ImageViewer(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs);
     }
 
-    private void init() {
+    private void init(AttributeSet attrs) {
+        initAttr(attrs);
         initView();
-        initData();
+    }
+
+    private void initAttr(AttributeSet attrs) {
+        showIndex = true;
+        doDragAction = true;
+        doEnterAnim = true;
+        doExitAnim = true;
+        mAnimDuration = DEF_ANIM_DURATION;
+        mScreenSize = Utils.getScreenSize(getContext());
+        mViews = new ArrayList<>();
+        isPhotoClickalbe = true;
+        isPhotoAnimRunning = false;
+        isNeedUpdate = true;
+        isImageZoomable = true;
+
+        if (attrs != null) {
+            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ImageViewer);
+            if (a != null) {
+                showIndex = a.getBoolean(R.styleable.ImageViewer_ivr_show_index, true);
+                doDragAction = a.getBoolean(R.styleable.ImageViewer_ivr_drag_enable, true);
+                doEnterAnim = a.getBoolean(R.styleable.ImageViewer_ivr_enter_anim, true);
+                doExitAnim = a.getBoolean(R.styleable.ImageViewer_ivr_exit_anim, true);
+                mAnimDuration = a.getInteger(R.styleable.ImageViewer_ivr_anim_duration, DEF_ANIM_DURATION);
+                a.recycle();
+            }
+        }
     }
 
     private void initView() {
@@ -173,21 +201,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
             }
         });
-    }
-
-    private void initData() {
-        showIndex = true;
-        doDragAction = true;
-        doEnterAnim = true;
-        doExitAnim = true;
-        mAnimDuration = DEF_ANIM_DURATION;
-
-        mScreenSize = Utils.getScreenSize(getContext());
-        mViews = new ArrayList<>();
-        isPhotoClickalbe = true;
-        isPhotoAnimRunning = false;
-        isNeedUpdate = true;
-        isImageZoomable = true;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -605,6 +618,11 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
+    public float getImageScale() {
+        return photoView_current != null ? photoView_current.getScale() : 1;
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         clear();
@@ -645,7 +663,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     public class ImageDragHandler implements ImageDragger {
         @Override
         public float getImageScale() {
-            return photoView_current != null ? photoView_current.getScale() : 1;
+            return ImageViewer.this.getImageScale();
         }
 
         @Override

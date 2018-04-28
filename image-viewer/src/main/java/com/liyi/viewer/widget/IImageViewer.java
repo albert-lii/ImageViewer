@@ -102,14 +102,14 @@ public interface IImageViewer {
     void doDragAction(boolean isDo);
 
     /**
-     * 是否开启图片预览启动动画
+     * 是否开启图片浏览启动动画
      *
      * @param isDo
      */
     void doEnterAnim(boolean isDo);
 
     /**
-     * 是否开启图片预览退出动画
+     * 是否开启图片浏览退出动画
      *
      * @param isDo
      */
@@ -174,4 +174,11 @@ public interface IImageViewer {
      * @return
      */
     boolean isCurrentImageZoomable();
+
+    /**
+     * 获取图片当前的缩放级别
+     *
+     * @return
+     */
+    float getImageScale();
 }

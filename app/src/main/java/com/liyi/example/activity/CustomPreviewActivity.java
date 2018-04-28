@@ -221,7 +221,7 @@ public class CustomPreviewActivity extends Activity {
                 // 设置有启动动画，默认为 true
                 imageViewer.doEnterAnim(true);
                 // 设置有关闭动画，默认为 true
-                imageViewer.doEnterAnim(true);
+                imageViewer.doExitAnim(true);
                 // 设置动画时间，默认 200ms
                 imageViewer.setAnimDuration(240);
                 // 开始浏览
