@@ -3,7 +3,10 @@
 ![releasesvg] ![apisvg] [![license][licensesvg]][license]
 
 ## 关于
-图片查看器，仿微信朋友圈图片查看效果，支持图片手势缩放、拖拽等操作，全新2.0版本，由1.0版本的`Activity`模式实现改为`自定义View`的模式显示，更加灵活，易于扩展，最低支持版本为Android 3.0及以上
+图片查看器，仿微信朋友圈图片查看效果，支持图片手势缩放、拖拽等操作，全新2.0版本，由1.0版本的`Activity`模式实现改为`自定义View`的模式显示，自定义图片加载方式，更加灵活，易于扩展，最低支持版本为Android 3.0及以上...  
+
+## 推荐
+- [AutoGridView][AutoGridView] 宫格控件，QQ空间九宫格、普通宫格模式、点击添加照片...
 
 ## 演示
 ![demo-simple]  ![demo-custom]
@@ -29,7 +32,7 @@
     
    Step 2:
    dependencies {
-       compile 'com.liyi.view:image-viewer:2.0.0'
+       compile 'com.liyi.view:image-viewer:2.0.1'
    }
 ```  
 
@@ -38,12 +41,21 @@
    <dependency>
       <groupId>com.liyi.view</groupId>
       <artifactId>image-viewer</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.1</version>
       <type>pom</type>
    </dependency>
 ```
 
-## 自定义属性方法
+## 自定义属性方法  
+| 属性名 | 描述 |  
+| :---- | :---- |  
+| ivr_show_index | 是否显示图片序号 |
+| ivr_drag_enable | 是否允许图片拖拽 |
+| ivr_enter_anim | 是否开启进入动画 |
+| ivr_exit_anim | 是否开启退出动画 |
+| ivr_anim_duration | 进入与退出动画的执行时间 |
+  
+
 | 方法名 | 描述 |
 |:----|:----|
 | void setImageBackground(Drawable drawable) | 设置图片背景 |
@@ -70,7 +82,7 @@
 | boolean isImageZoomable() | 获取图片是否可缩放 |  
 | void setCurrentImageZoomable(boolean zoomable) | 设置当前图片是否可缩放 |  
 | boolean isCurrentImageZoomable() | 获取当前图片是否可缩放 |
-| float getImageScale() | 获取图片当前的缩放级别 |
+| float getImageScale() | 获取图片当前的缩放级别 |  
 
 ## 使用方法
 #### XML
@@ -141,11 +153,12 @@ limitations under the License.
 
 
 
-[releasesvg]: https://img.shields.io/badge/version-2.0.0-brightgreen.svg
+[releasesvg]: https://img.shields.io/badge/version-2.0.1-brightgreen.svg
 [apisvg]: https://img.shields.io/badge/sdk-14+-brightgreen.svg
 [licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
 [license]:http://www.apache.org/licenses/LICENSE-2.0
 
+[AutoGridView]:https://github.com/albert-lii/AutoGridView
 [demo-simple]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_simple.gif
 [demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_custom.gif
 [demo-apk]:https://github.com/albert-lii/ImageViewer/blob/master/apk/release/app-release.apk
