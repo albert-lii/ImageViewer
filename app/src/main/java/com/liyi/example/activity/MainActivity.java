@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 import com.liyi.example.R;
+import com.liyi.example.adapter.RecyclerAdp;
 
 
 /**
@@ -28,6 +29,7 @@ public class MainActivity extends Activity {
     private void intiView() {
         Button btn_simple = findViewById(R.id.btn_simple);
         Button btn_custom = findViewById(R.id.btn_custom);
+        Button btn_recycler = findViewById(R.id.btn_recycler);
         btn_simple.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,6 +40,12 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this,CustomPreviewActivity.class));
+            }
+        });
+        btn_recycler.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,RecyclerviewActivity.class));
             }
         });
     }

@@ -26,5 +26,9 @@
         <activity
             android:name=".activity.CustomPreviewActivity"
             android:launchMode="singleTask" />
+
+        <activity
+            android:name=".activity.RecyclerviewActivity"
+            android:launchMode="singleTask" />
     </application>
 </manifest>

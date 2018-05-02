@@ -24,4 +24,14 @@
         android:textSize="16sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btn_recycler"
+        android:text="RecyclerView"
+        android:layout_margin="10dp"
+        android:textColor="#ffffff"
+        android:background="#222222"
+        android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

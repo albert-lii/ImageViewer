@@ -42,7 +42,7 @@ import java.util.List;
 public class ImageViewer extends FrameLayout implements IImageViewer {
     private final FrameLayout.LayoutParams FRAME_LAYOUT_PARAMS_MATCH = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
             FrameLayout.LayoutParams.MATCH_PARENT);
-    private final int DEF_ANIM_DURATION = 200;
+    private final int DEF_ANIM_DURATION = 240;
 
     // 背景 View
     private View view_background;
@@ -104,6 +104,8 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     private boolean isNeedUpdate;
     // 判断图片是否可缩放
     private boolean isImageZoomable;
+    // 当前图片的位置
+    private int mCurrentPosition;
 
     public ImageViewer(@NonNull Context context) {
         super(context);
@@ -183,6 +185,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
             @Override
             public void onPageSelected(final int position) {
+                mCurrentPosition = position;
                 if (tv_index.getVisibility() == VISIBLE) {
                     tv_index.setText((position + 1) + "/" + mImageList.size());
                 }
@@ -222,6 +225,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     @Override
     public void setStartPosition(int position) {
         this.mStartPosition = position;
+        this.mCurrentPosition = position;
     }
 
     @Override
@@ -638,6 +642,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
         public ViewTabListener(int position) {
             this.position = position;
+            mCurrentPosition = position;
         }
 
         @Override
