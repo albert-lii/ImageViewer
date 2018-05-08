@@ -27,13 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RecyclerView 与 ImageViewer 的结合使用
+ * 横向列表页面
  */
-public class RecyclerviewActivity extends Activity {
+public class LandListAty extends Activity {
+    private ImageViewer imageViewer;
     private RecyclerView recyclerView;
     private RecyclerAdp mAdapter;
     private LinearLayoutManager mLinearManager;
-    private ImageViewer imageViewer;
 
     private List<Object> mImageList = new ArrayList<>();
     private List<ViewData> mViewDatas = new ArrayList<>();
@@ -44,19 +44,21 @@ public class RecyclerviewActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recyclerview);
+        setContentView(R.layout.aty_list);
         initView();
         addListener();
     }
 
     private void initView() {
-        recyclerView = findViewById(R.id.recyclerview);
         imageViewer = findViewById(R.id.imageViewer);
+        recyclerView = findViewById(R.id.recyclerview);
 
         mLinearManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         // 从底部开始显示
         mLinearManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(mLinearManager);
+
+
         mAdapter = new RecyclerAdp();
         mImageList = DataUtil.getImageData();
         mAdapter.setData(mImageList);
@@ -93,7 +95,7 @@ public class RecyclerviewActivity extends Activity {
                 imageViewer.setImageLoader(new ImageLoader() {
                     @Override
                     public void displayImage(final int position, Object src, final ImageView view) {
-                        Glide.with(RecyclerviewActivity.this)
+                        Glide.with(LandListAty.this)
                                 .load(src)
                                 .into(new SimpleTarget<Drawable>() {
 
@@ -112,7 +114,6 @@ public class RecyclerviewActivity extends Activity {
                                     @Override
                                     public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
                                         view.setImageDrawable(resource);
-                                        mImageList.set(position, resource);
                                         mViewDatas.get(position).setImageWidth(resource.getIntrinsicWidth());
                                         mViewDatas.get(position).setImageHeight(resource.getIntrinsicHeight());
                                     }

@@ -4,6 +4,7 @@ package com.liyi.viewer.widget;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.view.View;
 
 import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.factory.ImageLoader;
@@ -143,6 +144,11 @@ public interface IImageViewer {
     void close();
 
     /**
+     * 移除所有数据（只移除图片资源和 View 信息）
+     */
+    void removeAllData();
+
+    /**
      * 清除所有数据
      */
     void clear();
@@ -162,23 +168,23 @@ public interface IImageViewer {
     boolean isImageZoomable();
 
     /**
-     * 设置当前图片是否可缩放
-     *
-     * @param zoomable
-     */
-    void setCurrentImageZoomable(boolean zoomable);
-
-    /**
-     * 获取当前图片是否可缩放
-     *
-     * @return
-     */
-    boolean isCurrentImageZoomable();
-
-    /**
      * 获取图片当前的缩放级别
      *
      * @return
      */
     float getImageScale();
+
+    /**
+     * 获取当前图片的位置
+     *
+     * @return
+     */
+    int getCurrentPosition();
+
+    /**
+     * 获取当前的 Item 视图
+     *
+     * @return
+     */
+    View getCurrentView();
 }

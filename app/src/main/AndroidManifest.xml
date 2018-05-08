@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainAty">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,15 +20,19 @@
         </activity>
 
         <activity
-            android:name=".activity.SimplePreviewActivity"
+            android:name=".activity.SimplePreviewAty"
             android:launchMode="singleTask" />
 
         <activity
-            android:name=".activity.CustomPreviewActivity"
+            android:name=".activity.CustomPreviewAty"
             android:launchMode="singleTask" />
 
         <activity
-            android:name=".activity.RecyclerviewActivity"
+            android:name=".activity.LandListAty"
+            android:launchMode="singleTask" />
+
+        <activity
+            android:name=".activity.PortListAty"
             android:launchMode="singleTask" />
     </application>
 </manifest>

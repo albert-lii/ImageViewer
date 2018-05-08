@@ -26,10 +26,11 @@ import java.util.List;
 /**
  * 简单的图片预览
  */
-public class SimplePreviewActivity extends Activity {
+public class SimplePreviewAty extends Activity {
     private ImageViewer imageViewer;
     private AutoGridView autoGridView;
     private SimpleAutoGridAdapter mImageAdp;
+    private ImageView iv_test;
 
     private RequestOptions mOptions;
     private List<Object> mImageList;
@@ -39,12 +40,13 @@ public class SimplePreviewActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_simple_preview);
+        setContentView(R.layout.aty_simple_preview);
         initView();
         addListener();
     }
 
     private void initView() {
+        iv_test = findViewById(R.id.iv_test);
         imageViewer = findViewById(R.id.imagePreivew);
         autoGridView = findViewById(R.id.autoGridView);
 
@@ -63,7 +65,7 @@ public class SimplePreviewActivity extends Activity {
         mImageAdp.setImageLoader(new SimpleAutoGridAdapter.ImageLoader() {
             @Override
             public void onLoadImage(final int position, Object source, final ImageView view, int viewType) {
-                Glide.with(SimplePreviewActivity.this)
+                Glide.with(SimplePreviewAty.this)
                         .load(source)
                         .apply(mOptions)
                         .into(new SimpleTarget<Drawable>() {
@@ -115,7 +117,7 @@ public class SimplePreviewActivity extends Activity {
                 imageViewer.setImageLoader(new ImageLoader() {
                     @Override
                     public void displayImage(final int position, Object src, final ImageView view) {
-                        Glide.with(SimplePreviewActivity.this)
+                        Glide.with(SimplePreviewAty.this)
                                 .load(src)
                                 .into(new SimpleTarget<Drawable>() {
 

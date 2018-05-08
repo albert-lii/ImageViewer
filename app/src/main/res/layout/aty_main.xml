@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="20dp">
+
+    <Button
+        android:id="@+id/btn_simple"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="#222222"
+        android:text="简单预览"
+        android:textColor="#ffffff"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/btn_custom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="#222222"
+        android:text="自定义预览"
+        android:textColor="#ffffff"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/btn_land_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="#222222"
+        android:text="横向列表"
+        android:textColor="#ffffff"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/btn_port_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="#222222"
+        android:text="纵向列表"
+        android:textColor="#ffffff"
+        android:textSize="16sp" />
+</LinearLayout>

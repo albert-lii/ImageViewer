@@ -24,6 +24,8 @@ public class ImagePager extends ViewPager {
     private ImageDragger mDragger;
     // 当前是否处于图片拖拽状态
     private boolean isDoDragging;
+    // 判断当前是否左右滑动
+    private boolean isScrollable;
 
     public ImagePager(Context context) {
         super(context);
@@ -38,6 +40,7 @@ public class ImagePager extends ViewPager {
     private void init() {
         mTouchSlop = ViewConfiguration.getTouchSlop();
         isDoDragging = false;
+        isScrollable = true;
     }
 
     /**
@@ -84,7 +87,7 @@ public class ImagePager extends ViewPager {
                 }
                 break;
         }
-        return isIntercept;
+        return isScrollable && isIntercept;
     }
 
     @Override
@@ -113,6 +116,10 @@ public class ImagePager extends ViewPager {
                 mDownY = 0;
                 break;
         }
-        return super.onTouchEvent(ev);
+        return isScrollable && super.onTouchEvent(ev);
+    }
+
+    public void setScrollable(boolean scrollable) {
+        isScrollable = scrollable;
     }
 }

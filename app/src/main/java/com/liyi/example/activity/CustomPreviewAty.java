@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * 自定义图片预览
  */
-public class CustomPreviewActivity extends Activity {
+public class CustomPreviewAty extends Activity {
     private View coverView;
     private TextView tv_cover_back, tv_cover_index;
     private ImageViewer imageViewer;
@@ -46,7 +46,7 @@ public class CustomPreviewActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_custom_preview);
+        setContentView(R.layout.aty_custom_preview);
         initView();
         addListener();
     }
@@ -87,7 +87,7 @@ public class CustomPreviewActivity extends Activity {
         mImageAdp.setImageLoader(new SimpleAutoGridAdapter.ImageLoader() {
             @Override
             public void onLoadImage(final int position, Object source, final ImageView view, int viewType) {
-                Glide.with(CustomPreviewActivity.this)
+                Glide.with(CustomPreviewAty.this)
                         .load(source)
                         .apply(mOptions)
                         .into(new SimpleTarget<Drawable>() {
@@ -144,7 +144,7 @@ public class CustomPreviewActivity extends Activity {
                 imageViewer.setImageLoader(new ImageLoader() {
                     @Override
                     public void displayImage(final int position, Object src, final ImageView view) {
-                        Glide.with(CustomPreviewActivity.this)
+                        Glide.with(CustomPreviewAty.this)
                                 .load(src)
                                 .into(new SimpleTarget<Drawable>() {
 

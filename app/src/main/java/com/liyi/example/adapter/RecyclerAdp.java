@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.liyi.example.R;
-import com.liyi.viewer.widget.ImageViewer;
 
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class RecyclerAdp extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item_preview, parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_preview, parent,false);
         return new ItemHolder(view);
     }
 

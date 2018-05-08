@@ -2,9 +2,13 @@ package com.liyi.viewer;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 public class Utils {
 
@@ -44,5 +48,24 @@ public class Utils {
     public static int dp2px(Context context, float dpVal) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpVal * scale + 0.5f);
+    }
+
+    /**
+     * 回收 ImageView 占用的图像内存
+     *
+     * @param view
+     */
+    public static void recycleImageView(ImageView view) {
+//        if (view == null) return;
+//        Drawable drawable = view.getDrawable();
+//        if (drawable != null && drawable instanceof BitmapDrawable) {
+//            Bitmap bmp = ((BitmapDrawable) drawable).getBitmap();
+//            if (bmp != null && !bmp.isRecycled()) {
+//                view.setImageDrawable(null);
+//                bmp.recycle();
+//                bmp = null;
+//            }
+//        }
+//        System.gc();
     }
 }

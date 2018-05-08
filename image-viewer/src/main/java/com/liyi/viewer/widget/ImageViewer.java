@@ -33,7 +33,6 @@ import com.liyi.viewer.listener.OnImageChangedListener;
 import com.liyi.viewer.listener.OnViewClickListener;
 import com.liyi.viewer.listener.OnWatchStatusListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -92,20 +91,15 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     private ImageDragHandler mImageDragHandler;
     // 屏幕的尺寸
     private Point mScreenSize;
-    // 存储所有的图片视图
-    private List<View> mViews;
-    // 记录上次的图片资源数据
-    private List<Object> mOldImageList;
     // 判断图片是否可以点击
     private boolean isPhotoClickalbe;
     // 判断图片的动画是否正在执行
     private boolean isPhotoAnimRunning;
-    // 判断图片资源数据是否需要更新
-    private boolean isNeedUpdate;
     // 判断图片是否可缩放
     private boolean isImageZoomable;
     // 当前图片的位置
     private int mCurrentPosition;
+
 
     public ImageViewer(@NonNull Context context) {
         super(context);
@@ -134,10 +128,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         doExitAnim = true;
         mAnimDuration = DEF_ANIM_DURATION;
         mScreenSize = Utils.getScreenSize(getContext());
-        mViews = new ArrayList<>();
-        isPhotoClickalbe = true;
-        isPhotoAnimRunning = false;
-        isNeedUpdate = true;
         isImageZoomable = true;
 
         if (attrs != null) {
@@ -176,7 +166,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         addView(tv_index);
 
         // 配置 ViewPager
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(1);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -189,10 +179,8 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                 if (tv_index.getVisibility() == VISIBLE) {
                     tv_index.setText((position + 1) + "/" + mImageList.size());
                 }
-                final PhotoView photoView = (PhotoView) ((FrameLayout) mViews.get(position)).getChildAt(0);
+                final PhotoView photoView = mImageAdapter.getPhotoViewByPosition(position);
                 photoView.setScale(1f, true);
-                photoView.setZoomable(isImageZoomable);
-                photoView.setOnViewTapListener(new ViewTabListener(position));
                 photoView_current = photoView;
                 if (mImageChangedListener != null) {
                     mImageChangedListener.onImageSelected(position, photoView);
@@ -230,18 +218,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
     @Override
     public void setImageData(List<Object> list) {
-        if (mOldImageList == null) {
-            mImageList = mOldImageList = list;
-            isNeedUpdate = true;
-        } else {
-            // 如果传入的数据与上次传入的数据一致，则不更新 View
-            if (mOldImageList.equals(list)) {
-                isNeedUpdate = false;
-            } else {
-                isNeedUpdate = true;
-            }
-            mImageList = mOldImageList = list;
-        }
+        mImageList = list;
     }
 
     @Override
@@ -296,7 +273,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
     @Override
     public void excuteEnterAnim() {
-        isPhotoClickalbe = false;
+        viewPager.setScrollable(false);
         isPhotoAnimRunning = true;
         // 获取当前 View 的数据
         final ViewData viewData = mViewDataList.get(mStartPosition);
@@ -354,17 +331,17 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                 view_background.setAlpha(currentValue);
                 if (currentValue == 1) {
                     handleImageIndex();
-                    isPhotoClickalbe = true;
-                    isPhotoAnimRunning = false;
-                    isNeedUpdate = true;
                     if (hasImageSize) {
                         photoView_current.setX(0);
                         photoView_current.setY(0);
-                        layoutParams.width = mScreenSize.x;
-                        layoutParams.height = mScreenSize.y;
+                        layoutParams.width = getWidth() != 0 ? getWidth() : mScreenSize.x;
+                        layoutParams.height = getHeight() != 0 ? getHeight() : mScreenSize.y;
                         photoView_current.setLayoutParams(layoutParams);
                         photoView_current.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     }
+                    isPhotoClickalbe = true;
+                    isPhotoAnimRunning = false;
+                    viewPager.setScrollable(true);
                     if (mWatchStatusListener != null) {
                         mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_START_AFTER, mStartPosition, photoView_current);
                     }
@@ -377,12 +354,18 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
     @Override
     public void excuteExitAnim() {
-        isPhotoClickalbe = false;
+        viewPager.setScrollable(false);
+        // 设置当前的图片点击事件为空，防止在执行退出动画时，快速点击，多次执行退出本方法
+        photoView_current.setOnViewTapListener(null);
         isPhotoAnimRunning = true;
         final int position = viewPager.getCurrentItem();
         final ViewData viewData = mViewDataList.get(position);
-        final PhotoView photoView = (PhotoView) ((FrameLayout) mViews.get(position)).getChildAt(0);
+        final PhotoView photoView = mImageAdapter.getPhotoViewByPosition(position);
         photoView_current = photoView;
+        if (photoView_current != null && photoView_current.getScale() > 1f) {
+            // 将图片恢复原样
+            photoView_current.setScale(1, false);
+        }
 
         // 获取 PhotoView 的图片
         final Drawable drawable = photoView_current.getDrawable();
@@ -455,14 +438,11 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                 if (currentValue == 1) {
                     // 动画完成后，将 View 恢复原样
                     viewPager.setVisibility(GONE);
-                    photoView_current.setX(from_x);
-                    photoView_current.setY(from_y);
-                    layoutParams.width = (int) beforeScale_width;
-                    layoutParams.height = (int) beforeScale_height;
-                    photoView_current.setLayoutParams(layoutParams);
-                    photoView_current.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                    isPhotoClickalbe = true;
-                    isPhotoAnimRunning = false;
+                    viewPager.setScrollable(true);
+                    mImageAdapter.clear();
+                    mImageAdapter = null;
+                    Utils.recycleImageView(photoView_current);
+                    photoView_current = null;
                     if (mWatchStatusListener != null) {
                         mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
                     }
@@ -473,29 +453,86 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         animator.start();
     }
 
-    /**
-     * 添加图片的 View
-     */
-    private void addImageViews() {
-        if (mImageList == null) {
-            throw new NullPointerException(" ImageList cannot be empty. ");
+    @Override
+    public void watch() {
+        isPhotoClickalbe = false;
+        isPhotoAnimRunning = false;
+        viewPager.setMaxTranslateY(getHeight() != 0 ? getHeight() : mScreenSize.y);
+        // 创建一个显示的视图
+        mImageAdapter = new ImageAdapter(this);
+        mImageAdapter.setStartPosition(mStartPosition);
+        mImageAdapter.setImageRes(mImageList);
+        viewPager.setAdapter(mImageAdapter);
+        // 设置图片是否可拖拽
+        if (doDragAction) {
+            if (mImageDragHandler == null) mImageDragHandler = new ImageDragHandler();
+            viewPager.setImageDragger(mImageDragHandler);
+        } else {
+            viewPager.setImageDragger(null);
         }
-        for (int i = 0, len = mImageList.size(); i < len; i++) {
-            final FrameLayout container = new FrameLayout(getContext());
-            final PhotoView photoView = new PhotoView(getContext());
-            // 此处不要共用 LayoutParams，否则改变一个  View 的 LayoutParams，其余的 View 都会受到影响
-            photoView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-            photoView.setZoomable(isImageZoomable);
-            photoView.setOnViewTapListener(new ViewTabListener(i));
-            container.addView(photoView);
-            // 自定义图片加载方式
-            if (mImageLoader != null) {
-                mImageLoader.displayImage(i, mImageList.get(i), photoView);
+        viewPager.setCurrentItem(mStartPosition, false);
+        final PhotoView photoView = mImageAdapter.getPhotoViewByPosition(mStartPosition);
+        photoView_current = photoView;
+        if (mWatchStatusListener != null) {
+            mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_START_BEFORE, mStartPosition, photoView_current);
+        }
+        viewPager.setVisibility(VISIBLE);
+        // 是否有启动动画
+        if (doEnterAnim) {
+            excuteEnterAnim();
+        } else {
+            view_background.setAlpha(1f);
+            handleImageIndex();
+            isPhotoClickalbe = true;
+            isPhotoAnimRunning = false;
+            if (mWatchStatusListener != null) {
+                mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_START_AFTER, mStartPosition, photoView_current);
             }
-            if (i == mStartPosition) {
-                photoView_current = photoView;
-            }
-            mViews.add(container);
+        }
+    }
+
+    /**
+     * 创建 Item 视图
+     *
+     * @return
+     */
+    public View createItemView(int position) {
+        final FrameLayout container = new FrameLayout(getContext());
+        final PhotoView photoView = new PhotoView(getContext());
+        photoView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        photoView.setX(0);
+        photoView.setY(0);
+        photoView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        photoView.setOnViewTapListener(new ViewTabListener(position));
+        photoView.setZoomable(isImageZoomable);
+        photoView.setScale(1f, false);
+        photoView.setId(position);
+        // 自定义的图片加载方式
+        if (mImageLoader != null) {
+            mImageLoader.displayImage(position, mImageList.get(position), photoView);
+        }
+        container.addView(photoView);
+        return container;
+    }
+
+    /**
+     * 初始化 Item 视图的配置
+     *
+     * @param position
+     * @param itemView
+     */
+    public void initItemViewConfig(int position, View itemView) {
+        final PhotoView photoView = (PhotoView) ((FrameLayout) itemView).getChildAt(0);
+        photoView.setX(0);
+        photoView.setY(0);
+        photoView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        photoView.setOnViewTapListener(new ViewTabListener(position));
+        photoView.setZoomable(isImageZoomable);
+        photoView.setScale(1f, true);
+        photoView.setId(position);
+        // 自定义的图片加载方式
+        if (mImageLoader != null) {
+            mImageLoader.displayImage(position, mImageList.get(position), photoView);
         }
     }
 
@@ -516,52 +553,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public void watch() {
-        // 是否已经更新 View
-        boolean hasUpdate = false;
-        // 如果数据更新，则重新添加图片
-        if (isNeedUpdate || mViews == null || mViews.size() == 0) {
-            hasUpdate = true;
-            if (mViews == null) mViews = new ArrayList<>();
-            if (mViews.size() > 0) mViews.clear();
-            addImageViews();
-            viewPager.setMaxTranslateY(getHeight() != 0 ? getHeight() : mScreenSize.y);
-        }
-        if (mImageAdapter == null) {
-            mImageAdapter = new ImageAdapter();
-            mImageAdapter.setData(mViews);
-            viewPager.setAdapter(mImageAdapter);
-        } else {
-            if (hasUpdate) {
-                mImageAdapter.setData(mViews);
-                mImageAdapter.notifyDataSetChanged();
-            }
-        }
-        if (doDragAction) {
-            if (mImageDragHandler == null) mImageDragHandler = new ImageDragHandler();
-            viewPager.setImageDragger(mImageDragHandler);
-        } else {
-            viewPager.setImageDragger(null);
-        }
-        viewPager.setCurrentItem(mStartPosition, false);
-        if (mWatchStatusListener != null) {
-            mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_START_BEFORE, mStartPosition, photoView_current);
-        }
-        viewPager.setVisibility(VISIBLE);
-        if (doEnterAnim) {
-            excuteEnterAnim();
-        } else {
-            view_background.setAlpha(1f);
-            handleImageIndex();
-            isNeedUpdate = true;
-            if (mWatchStatusListener != null) {
-                mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_START_AFTER, mStartPosition, photoView_current);
-            }
-        }
-    }
-
-    @Override
     public void close() {
+        isPhotoClickalbe = false;
+        isPhotoAnimRunning = false;
         if (mWatchStatusListener != null) {
             mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_BEFORE);
         }
@@ -571,6 +565,10 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
             view_background.setAlpha(0);
             viewPager.setVisibility(GONE);
             tv_index.setVisibility(GONE);
+            Utils.recycleImageView(photoView_current);
+            photoView_current = null;
+            mImageAdapter.clear();
+            mImageAdapter = null;
             if (mWatchStatusListener != null) {
                 mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
             }
@@ -578,16 +576,19 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public void clear() {
-        if (mViews != null && mViews.size() > 0) {
-            mViews.clear();
+    public void removeAllData() {
+        if (mImageList != null && mImageList.size() > 0) {
+            mImageList.clear();
         }
         if (mViewDataList != null && mViewDataList.size() > 0) {
             mViewDataList.clear();
         }
-        if (mImageList != null && mImageList.size() > 0) {
-            mImageList.clear();
-        }
+    }
+
+    @Override
+    public void clear() {
+        removeAllData();
+        mImageAdapter = null;
         mImageDragHandler = null;
         mImageLoader = null;
         mImageChangedListener = null;
@@ -606,24 +607,21 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public void setCurrentImageZoomable(boolean zoomable) {
-        if (photoView_current != null) {
-            photoView_current.setScale(1f, true);
-            photoView_current.setZoomable(zoomable);
-        }
-    }
-
-    @Override
-    public boolean isCurrentImageZoomable() {
-        if (photoView_current != null) {
-            return photoView_current.isZoomable();
-        }
-        return false;
-    }
-
-    @Override
     public float getImageScale() {
         return photoView_current != null ? photoView_current.getScale() : 1;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        return mCurrentPosition;
+    }
+
+    @Override
+    public View getCurrentView() {
+        if (mImageAdapter != null) {
+            return mImageAdapter.getViewByPosition(getCurrentPosition());
+        }
+        return null;
     }
 
     @Override
@@ -637,7 +635,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
      * ==== PhotoView 的点击事件
      * =============================================================================================
      */
-    private class ViewTabListener implements OnViewTapListener {
+    public class ViewTabListener implements OnViewTapListener {
         private int position;
 
         public ViewTabListener(int position) {
@@ -647,7 +645,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
         @Override
         public void onViewTap(View view, float x, float y) {
-            if (isPhotoClickalbe) {
+            if (isPhotoClickalbe && !isPhotoAnimRunning) {
                 if (mViewClickListener != null) {
                     final boolean b = mViewClickListener.onViewClick(position, view, x, y);
                     // 判断是否消费点击事件，若消费，则后续方法不执行
@@ -692,13 +690,13 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         @Override
         public void releaseImage(final float maxTranslateY) {
             if (photoView_current != null && !isPhotoAnimRunning) {
-                if (mWatchStatusListener != null) {
-                    mWatchStatusListener.onWatchReset(OnWatchStatusListener.State.STATE_RESET_BEFORE, photoView_current);
-                }
-                isPhotoClickalbe = false;
+                viewPager.setScrollable(false);
                 isPhotoAnimRunning = true;
                 final float curY = photoView_current.getY();
                 if (Math.abs(curY) <= maxTranslateY) {
+                    if (mWatchStatusListener != null) {
+                        mWatchStatusListener.onWatchReset(OnWatchStatusListener.State.STATE_RESET_BEFORE, photoView_current);
+                    }
                     ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
                     animator.setDuration(150);
                     animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -714,6 +712,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                             if (currentValue == 1) {
                                 isPhotoClickalbe = true;
                                 isPhotoAnimRunning = false;
+                                viewPager.setScrollable(true);
                                 if (mWatchStatusListener != null) {
                                     mWatchStatusListener.onWatchReset(OnWatchStatusListener.State.STATE_RESET_AFTER, photoView_current);
                                 }
@@ -725,6 +724,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                     if (mWatchStatusListener != null) {
                         mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_BEFORE);
                     }
+                    photoView_current.setOnViewTapListener(null);
                     final int position = viewPager.getCurrentItem();
                     final ViewData viewData = mViewDataList.get(position);
                     final Drawable drawable = photoView_current.getDrawable();
@@ -764,10 +764,12 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                             photoView_current.setY(y);
                             view_background.setAlpha(alpha);
                             if (currentValue == 1) {
-                                isPhotoClickalbe = true;
-                                isPhotoAnimRunning = false;
                                 viewPager.setVisibility(GONE);
-                                photoView_current.setY(0);
+                                viewPager.setScrollable(true);
+                                Utils.recycleImageView(photoView_current);
+                                photoView_current = null;
+                                mImageAdapter.clear();
+                                mImageAdapter = null;
                                 if (mWatchStatusListener != null) {
                                     mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
                                 }
