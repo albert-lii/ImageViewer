@@ -79,10 +79,10 @@ public class ImageAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         // 回收图片，释放内存
-//        if (object != null) {
-//            final PhotoView photoView = (PhotoView) ((FrameLayout) object).getChildAt(0);
-//            Utils.recycleImageView(photoView);
-//        }
+        if (object != null) {
+            final PhotoView photoView = (PhotoView) ((FrameLayout) object).getChildAt(0);
+            Utils.recycleImage(photoView);
+        }
         // 移除页面
         container.removeView((View) object);
     }
@@ -137,15 +137,16 @@ public class ImageAdapter extends PagerAdapter {
     public void clear() {
         if (mActiveViews != null && mActiveViews.size() > 0) {
             for (int i = 0, len = mActiveViews.size(); i < len; i++) {
-                final View itemView = mActiveViews.get(i);
+                View itemView = mActiveViews.get(i);
                 final PhotoView photoView = (PhotoView) ((FrameLayout) itemView).getChildAt(0);
-                Utils.recycleImageView(photoView);
+                Utils.recycleImage(photoView);
+                itemView = null;
             }
             mActiveViews.clear();
         }
         if (currentView != null) {
             final PhotoView photoView = (PhotoView) ((FrameLayout) currentView).getChildAt(0);
-            Utils.recycleImageView(photoView);
+            Utils.recycleImage(photoView);
             currentView = null;
         }
     }

@@ -16,13 +16,14 @@ import java.util.List;
 /**
  * Created by albertlii on 2018/5/2.
  */
-
 public class RecyclerAdp extends RecyclerView.Adapter {
     private List<Object> mImgList;
     private RequestOptions mOptions;
+    private int mOrientation;
     private OnItemClickCallback mCallback;
 
-    public RecyclerAdp() {
+    public RecyclerAdp(int orientation) {
+        mOrientation = orientation;
         mOptions = new RequestOptions()
                 .placeholder(R.drawable.img_viewer_placeholder)
                 .error(R.drawable.img_viewer_placeholder);
@@ -35,7 +36,12 @@ public class RecyclerAdp extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_preview, parent,false);
+        View view;
+        if (mOrientation == 0) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_land, parent, false);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_port, parent, false);
+        }
         return new ItemHolder(view);
     }
 
@@ -66,7 +72,7 @@ public class RecyclerAdp extends RecyclerView.Adapter {
 
         public ItemHolder(View itemView) {
             super(itemView);
-            iv_preview = itemView.findViewById(R.id.iv_recycler);
+            iv_preview = itemView.findViewById(R.id.iv_preview);
         }
     }
 
@@ -75,6 +81,6 @@ public class RecyclerAdp extends RecyclerView.Adapter {
     }
 
     public interface OnItemClickCallback {
-        void onItemClick(int position,ImageView view);
+        void onItemClick(int position, ImageView view);
     }
 }

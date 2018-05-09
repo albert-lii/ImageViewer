@@ -58,20 +58,6 @@ public class CustomPreviewAty extends Activity {
         imageViewer = findViewById(R.id.imagePreivew);
         autoGridView = findViewById(R.id.autoGridView);
 
-        tv_cover_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 退出浏览
-                imageViewer.close();
-            }
-        });
-//        coverView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                coverView.setVisibility(View.VISIBLE);
-//            }
-//        });
-
         mOptions = new RequestOptions()
                 .placeholder(R.drawable.img_viewer_placeholder)
                 .error(R.drawable.img_viewer_placeholder);
@@ -116,6 +102,13 @@ public class CustomPreviewAty extends Activity {
     }
 
     private void addListener() {
+        tv_cover_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 退出浏览
+                imageViewer.close();
+            }
+        });
         autoGridView.setOnItemClickListener(new AutoGridView.OnItemClickListener() {
             @Override
             public void onItemClick(int position, View view) {
@@ -163,7 +156,6 @@ public class CustomPreviewAty extends Activity {
                                     @Override
                                     public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
                                         view.setImageDrawable(resource);
-                                        mImageList.set(position, resource);
                                         mViewDatas.get(position).setImageWidth(resource.getIntrinsicWidth());
                                         mViewDatas.get(position).setImageHeight(resource.getIntrinsicHeight());
                                     }

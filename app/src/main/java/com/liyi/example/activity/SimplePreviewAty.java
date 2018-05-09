@@ -30,7 +30,6 @@ public class SimplePreviewAty extends Activity {
     private ImageViewer imageViewer;
     private AutoGridView autoGridView;
     private SimpleAutoGridAdapter mImageAdp;
-    private ImageView iv_test;
 
     private RequestOptions mOptions;
     private List<Object> mImageList;
@@ -46,7 +45,6 @@ public class SimplePreviewAty extends Activity {
     }
 
     private void initView() {
-        iv_test = findViewById(R.id.iv_test);
         imageViewer = findViewById(R.id.imagePreivew);
         autoGridView = findViewById(R.id.autoGridView);
 
@@ -136,7 +134,6 @@ public class SimplePreviewAty extends Activity {
                                     @Override
                                     public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
                                         view.setImageDrawable(resource);
-                                        mImageList.set(position, resource);
                                         mViewDatas.get(position).setImageWidth(resource.getIntrinsicWidth());
                                         mViewDatas.get(position).setImageHeight(resource.getIntrinsicHeight());
                                     }

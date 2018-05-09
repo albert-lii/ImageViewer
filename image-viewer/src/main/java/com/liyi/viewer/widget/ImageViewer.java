@@ -64,7 +64,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     private List<Object> mImageList;
     // View 的数据列表
     private List<ViewData> mViewDataList;
-    // 图片加载监听
+    // 图片加载类
     private ImageLoader mImageLoader;
     // 图片切换监听
     private OnImageChangedListener mImageChangedListener;
@@ -97,8 +97,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     private boolean isPhotoAnimRunning;
     // 判断图片是否可缩放
     private boolean isImageZoomable;
-    // 当前图片的位置
-    private int mCurrentPosition;
 
 
     public ImageViewer(@NonNull Context context) {
@@ -175,7 +173,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
             @Override
             public void onPageSelected(final int position) {
-                mCurrentPosition = position;
                 if (tv_index.getVisibility() == VISIBLE) {
                     tv_index.setText((position + 1) + "/" + mImageList.size());
                 }
@@ -213,7 +210,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     @Override
     public void setStartPosition(int position) {
         this.mStartPosition = position;
-        this.mCurrentPosition = position;
     }
 
     @Override
@@ -273,8 +269,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
     @Override
     public void excuteEnterAnim() {
-        viewPager.setScrollable(false);
         isPhotoAnimRunning = true;
+        // 动画执行时，设置 ViewPager 不可滑动
+        viewPager.setScrollable(false);
         // 获取当前 View 的数据
         final ViewData viewData = mViewDataList.get(mStartPosition);
         // 缩放前的 View 的宽度
@@ -331,6 +328,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                 view_background.setAlpha(currentValue);
                 if (currentValue == 1) {
                     handleImageIndex();
+                    // 如果自定义了图片尺寸，在动画完成后，将 PhotoView 恢复到全屏状态
                     if (hasImageSize) {
                         photoView_current.setX(0);
                         photoView_current.setY(0);
@@ -354,14 +352,19 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
     @Override
     public void excuteExitAnim() {
+        // 设置图片动画正在执行中
+        isPhotoAnimRunning = true;
+        // 退出动画执行时设置 ViewPager 不可滑动
         viewPager.setScrollable(false);
+        // 隐藏图片索引号
+        tv_index.setVisibility(GONE);
         // 设置当前的图片点击事件为空，防止在执行退出动画时，快速点击，多次执行退出本方法
         photoView_current.setOnViewTapListener(null);
-        isPhotoAnimRunning = true;
         final int position = viewPager.getCurrentItem();
         final ViewData viewData = mViewDataList.get(position);
         final PhotoView photoView = mImageAdapter.getPhotoViewByPosition(position);
         photoView_current = photoView;
+        // 如果图片处于放大状态，则先将图片恢复原样，再执行退出动画
         if (photoView_current != null && photoView_current.getScale() > 1f) {
             // 将图片恢复原样
             photoView_current.setScale(1, false);
@@ -413,8 +416,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         // 缩放后的 View 的 X 轴，Y 轴的坐标
         final float to_x = viewData.getX();
         final float to_y = viewData.getY();
-
-        tv_index.setVisibility(GONE);
         // 图片由自适应转为 CENTER_CROP 时的动画
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -436,13 +437,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                 photoView_current.setLayoutParams(layoutParams);
                 view_background.setAlpha(1 - currentValue);
                 if (currentValue == 1) {
-                    // 动画完成后，将 View 恢复原样
                     viewPager.setVisibility(GONE);
                     viewPager.setScrollable(true);
-                    mImageAdapter.clear();
-                    mImageAdapter = null;
-                    Utils.recycleImageView(photoView_current);
-                    photoView_current = null;
+                    releaseMemory();
                     if (mWatchStatusListener != null) {
                         mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
                     }
@@ -458,7 +455,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         isPhotoClickalbe = false;
         isPhotoAnimRunning = false;
         viewPager.setMaxTranslateY(getHeight() != 0 ? getHeight() : mScreenSize.y);
-        // 创建一个显示的视图
         mImageAdapter = new ImageAdapter(this);
         mImageAdapter.setStartPosition(mStartPosition);
         mImageAdapter.setImageRes(mImageList);
@@ -565,10 +561,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
             view_background.setAlpha(0);
             viewPager.setVisibility(GONE);
             tv_index.setVisibility(GONE);
-            Utils.recycleImageView(photoView_current);
-            photoView_current = null;
-            mImageAdapter.clear();
-            mImageAdapter = null;
+            releaseMemory();
             if (mWatchStatusListener != null) {
                 mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
             }
@@ -585,10 +578,22 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         }
     }
 
+    /**
+     * 释放内存
+     */
+    private void releaseMemory() {
+        if (mImageAdapter != null) {
+            mImageAdapter.clear();
+            mImageAdapter = null;
+        }
+        Utils.recycleImage(photoView_current);
+        photoView_current = null;
+    }
+
     @Override
     public void clear() {
         removeAllData();
-        mImageAdapter = null;
+        releaseMemory();
         mImageDragHandler = null;
         mImageLoader = null;
         mImageChangedListener = null;
@@ -613,7 +618,10 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
     @Override
     public int getCurrentPosition() {
-        return mCurrentPosition;
+        if (viewPager != null) {
+            return viewPager.getCurrentItem();
+        }
+        return 0;
     }
 
     @Override
@@ -640,7 +648,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
         public ViewTabListener(int position) {
             this.position = position;
-            mCurrentPosition = position;
         }
 
         @Override
@@ -693,6 +700,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                 viewPager.setScrollable(false);
                 isPhotoAnimRunning = true;
                 final float curY = photoView_current.getY();
+                // 如果当前 Y 轴坐标的绝对值，小于等于最大极限值，则将图片恢复原位，否则移除屏幕
                 if (Math.abs(curY) <= maxTranslateY) {
                     if (mWatchStatusListener != null) {
                         mWatchStatusListener.onWatchReset(OnWatchStatusListener.State.STATE_RESET_BEFORE, photoView_current);
@@ -766,10 +774,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                             if (currentValue == 1) {
                                 viewPager.setVisibility(GONE);
                                 viewPager.setScrollable(true);
-                                Utils.recycleImageView(photoView_current);
-                                photoView_current = null;
-                                mImageAdapter.clear();
-                                mImageAdapter = null;
+                                releaseMemory();
                                 if (mWatchStatusListener != null) {
                                     mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
                                 }

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -19,8 +18,7 @@ import com.liyi.example.adapter.RecyclerAdp;
 import com.liyi.viewer.Utils;
 import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.factory.ImageLoader;
-import com.liyi.viewer.listener.OnImageChangedListener;
-import com.liyi.viewer.listener.OnViewClickListener;
+import com.liyi.viewer.listener.OnWatchStatusListener;
 import com.liyi.viewer.widget.ImageViewer;
 
 import java.util.ArrayList;
@@ -37,14 +35,12 @@ public class LandListAty extends Activity {
 
     private List<Object> mImageList = new ArrayList<>();
     private List<ViewData> mViewDatas = new ArrayList<>();
-    // 当前的图片位置
-    private int mCurrentPos;
     private Point mScreenSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.aty_list);
+        setContentView(R.layout.aty_list_land);
         initView();
         addListener();
     }
@@ -59,7 +55,7 @@ public class LandListAty extends Activity {
         recyclerView.setLayoutManager(mLinearManager);
 
 
-        mAdapter = new RecyclerAdp();
+        mAdapter = new RecyclerAdp(0);
         mImageList = DataUtil.getImageData();
         mAdapter.setData(mImageList);
 
@@ -125,23 +121,32 @@ public class LandListAty extends Activity {
         });
         recyclerView.setAdapter(mAdapter);
         mLinearManager.scrollToPositionWithOffset(0, 0);
-        imageViewer.setOnImageChangedListener(new OnImageChangedListener() {
+        imageViewer.setOnWatchStatusListener(new OnWatchStatusListener() {
             @Override
-            public void onImageSelected(int position, ImageView view) {
-                // 获取当前的坐标
-                mCurrentPos = position;
+            public void onWatchStart(int state, int position, ImageView view) {
+
             }
-        });
-        imageViewer.setOnViewClickListener(new OnViewClickListener() {
+
             @Override
-            public boolean onViewClick(int position, View view, float x, float y) {
-                // 每次退出浏览时，都将图片显示在中间位置
-                ViewData viewData = mViewDatas.get(position);
-                viewData.setX(0);
-                mViewDatas.set(position, viewData);
-                imageViewer.setViewData(mViewDatas);
-                mLinearManager.scrollToPositionWithOffset(mCurrentPos, (int) (viewData.getX() / 2));
-                return false;
+            public void onWatchDragging(ImageView view) {
+
+            }
+
+            @Override
+            public void onWatchReset(int state, ImageView view) {
+
+            }
+
+            @Override
+            public void onWatchEnd(int state) {
+                if (state == State.STATE_END_BEFORE) {
+                    // 每次退出浏览时，都将图片显示在中间位置
+                    ViewData viewData = mViewDatas.get(imageViewer.getCurrentPosition());
+                    viewData.setX(0);
+                    mViewDatas.set(imageViewer.getCurrentPosition(), viewData);
+                    imageViewer.setViewData(mViewDatas);
+                    mLinearManager.scrollToPositionWithOffset(imageViewer.getCurrentPosition(), (int) (viewData.getX() / 2));
+                }
             }
         });
     }
