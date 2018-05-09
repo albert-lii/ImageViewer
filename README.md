@@ -3,13 +3,14 @@
 ![releasesvg] ![apisvg] [![license][licensesvg]][license]
 
 ## 关于
-图片查看器，仿微信朋友圈图片查看效果，支持图片手势缩放、拖拽等操作，全新2.0版本，由1.0版本的`Activity`模式实现改为`自定义View`的模式显示，自定义图片加载方式，更加灵活，易于扩展，最低支持版本为Android 3.0及以上...  
+图片查看器，仿微信朋友圈图片查看效果，支持图片手势缩放、拖拽等操作，全新2.0版本，由1.0版本的`Activity`模式实现改为`自定义View`的模式显示，自定义图片加载方式，更加灵活，易于扩展，同时也适用于RecyclerView、ListView的横向和纵向列表模式，最低支持版本为Android 3.0及以上...  
 
 ## 推荐
 - [AutoGridView][AutoGridView] 宫格控件，QQ空间九宫格、普通宫格模式、点击添加照片...
 
 ## 演示
-![demo-simple]  ![demo-custom]
+![demo-simple]  ![demo-custom]  
+![demo-land]  ![demo-port]
   
 ## apk体验
 ### [点我][demo-apk]
@@ -32,7 +33,7 @@
     
    Step 2:
    dependencies {
-       compile 'com.liyi.view:image-viewer:2.0.1'
+       compile 'com.liyi.view:image-viewer:2.0.2'
    }
 ```  
 
@@ -80,9 +81,9 @@
 | void clear() | 清除所有数据 |
 | void setImageZoomable(boolean zoomable) | 设置图片是否可缩放 |  
 | boolean isImageZoomable() | 获取图片是否可缩放 |  
-| void setCurrentImageZoomable(boolean zoomable) | 设置当前图片是否可缩放 |  
-| boolean isCurrentImageZoomable() | 获取当前图片是否可缩放 |
 | float getImageScale() | 获取图片当前的缩放级别 |  
+| int getCurrentPosition() | 获取当前图片的位置 |  
+| View getCurrentView() | 获取当前 Item 的视图 |
 
 ## 使用方法
 #### XML
@@ -153,7 +154,7 @@ limitations under the License.
 
 
 
-[releasesvg]: https://img.shields.io/badge/version-2.0.1-brightgreen.svg
+[releasesvg]: https://img.shields.io/badge/version-2.0.2-brightgreen.svg
 [apisvg]: https://img.shields.io/badge/sdk-14+-brightgreen.svg
 [licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
 [license]:http://www.apache.org/licenses/LICENSE-2.0
@@ -161,6 +162,8 @@ limitations under the License.
 [AutoGridView]:https://github.com/albert-lii/AutoGridView
 [demo-simple]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_simple.gif
 [demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_custom.gif
+[demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_land.gif
+[demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_port.gif
 [demo-apk]:https://github.com/albert-lii/ImageViewer/blob/master/apk/release/app-release.apk
 
 
