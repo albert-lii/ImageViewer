@@ -162,8 +162,8 @@ limitations under the License.
 [AutoGridView]:https://github.com/albert-lii/AutoGridView
 [demo-simple]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_simple.gif
 [demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_custom.gif
-[demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_land.gif
-[demo-custom]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_port.gif
+[demo-land]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_land.gif
+[demo-port]:https://github.com/albert-lii/ImageViewer/blob/master/snapshot/demo_port.gif
 [demo-apk]:https://github.com/albert-lii/ImageViewer/blob/master/apk/release/app-release.apk
 
 
