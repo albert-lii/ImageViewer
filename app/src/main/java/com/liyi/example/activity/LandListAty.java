@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.liyi.example.DataUtil;
@@ -35,6 +36,7 @@ public class LandListAty extends Activity {
 
     private List<Object> mImageList = new ArrayList<>();
     private List<ViewData> mViewDatas = new ArrayList<>();
+    private RequestOptions mOptions;
     private Point mScreenSize;
 
     @Override
@@ -54,11 +56,13 @@ public class LandListAty extends Activity {
         mLinearManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(mLinearManager);
 
-
         mAdapter = new RecyclerAdp(0);
         mImageList = DataUtil.getImageData();
         mAdapter.setData(mImageList);
 
+        mOptions = new RequestOptions()
+                .placeholder(R.drawable.img_viewer_placeholder)
+                .error(R.drawable.img_viewer_placeholder);
         mScreenSize = Utils.getScreenSize(this);
         initViewData();
     }
@@ -93,6 +97,7 @@ public class LandListAty extends Activity {
                     public void displayImage(final int position, Object src, final ImageView view) {
                         Glide.with(LandListAty.this)
                                 .load(src)
+                                .apply(mOptions)
                                 .into(new SimpleTarget<Drawable>() {
 
                                     @Override

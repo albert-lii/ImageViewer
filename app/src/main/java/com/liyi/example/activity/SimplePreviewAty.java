@@ -117,6 +117,7 @@ public class SimplePreviewAty extends Activity {
                     public void displayImage(final int position, Object src, final ImageView view) {
                         Glide.with(SimplePreviewAty.this)
                                 .load(src)
+                                .apply(mOptions)
                                 .into(new SimpleTarget<Drawable>() {
 
                                     @Override

@@ -11,6 +11,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.liyi.example.DataUtil;
@@ -37,6 +38,7 @@ public class PortListAty extends Activity {
     private List<Object> mImageList = new ArrayList<>();
     private List<ViewData> mViewDatas = new ArrayList<>();
     private Point mScreenSize;
+    private RequestOptions mOptions;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +63,9 @@ public class PortListAty extends Activity {
         mImageList = DataUtil.getImageData();
         mAdapter.setData(mImageList);
 
+        mOptions = new RequestOptions()
+                .placeholder(R.drawable.img_viewer_placeholder)
+                .error(R.drawable.img_viewer_placeholder);
         mScreenSize = Utils.getScreenSize(this);
         initViewData();
     }
@@ -96,6 +101,7 @@ public class PortListAty extends Activity {
                     public void displayImage(final int position, Object src, final ImageView view) {
                         Glide.with(PortListAty.this)
                                 .load(src)
+                                .apply(mOptions)
                                 .into(new SimpleTarget<Drawable>() {
 
                                     @Override
