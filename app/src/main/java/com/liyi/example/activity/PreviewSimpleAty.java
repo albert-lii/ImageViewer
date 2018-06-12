@@ -8,6 +8,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -19,6 +20,7 @@ import com.liyi.grid.AutoGridView;
 import com.liyi.grid.adapter.SimpleAutoGridAdapter;
 import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.factory.ImageLoader;
+import com.liyi.viewer.listener.OnViewLongClickListener;
 import com.liyi.viewer.widget.ImageViewer;
 
 import java.util.ArrayList;
@@ -145,6 +147,13 @@ public class PreviewSimpleAty extends Activity {
             }
         });
         autoGridView.setAdapter(mImageAdp);
+        imageViewer.setOnViewLongClickListener(new OnViewLongClickListener() {
+            @Override
+            public boolean onViewLongClick(int position, View view) {
+                Toast.makeText(PreviewSimpleAty.this, position + "号被长按", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
     }
 
     /**

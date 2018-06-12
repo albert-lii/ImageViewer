@@ -379,6 +379,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         tv_index.setVisibility(GONE);
         // 设置当前的图片点击事件为空，防止在执行退出动画时，快速点击，多次执行退出本方法
         photoView_current.setOnViewTapListener(null);
+        photoView_current.setOnLongClickListener(null);
         final int position = viewPager.getCurrentItem();
         final ViewData viewData = mViewDataList.get(position);
         final PhotoView photoView = mImageAdapter.getPhotoViewByPosition(position);
@@ -521,6 +522,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         photoView.setY(0);
         photoView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         photoView.setOnViewTapListener(new ViewTabListener(position));
+        photoView.setOnLongClickListener(new ViewTabListener(position));
         photoView.setZoomable(isImageZoomable);
         photoView.setScale(1f, false);
         photoView.setId(position);
@@ -544,6 +546,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         photoView.setY(0);
         photoView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         photoView.setOnViewTapListener(new ViewTabListener(position));
+        photoView.setOnLongClickListener(new ViewTabListener(position));
         photoView.setZoomable(isImageZoomable);
         photoView.setScale(1f, true);
         photoView.setId(position);
@@ -808,6 +811,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                         mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_READY_CLOSE);
                     }
                     photoView_current.setOnViewTapListener(null);
+                    photoView_current.setOnLongClickListener(null);
                     final int position = viewPager.getCurrentItem();
                     final ViewData viewData = mViewDataList.get(position);
                     final Drawable drawable = photoView_current.getDrawable();
