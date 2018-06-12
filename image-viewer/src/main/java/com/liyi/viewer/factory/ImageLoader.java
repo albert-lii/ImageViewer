@@ -5,7 +5,7 @@ import android.widget.ImageView;
 /**
  * 图片加载
  */
-public interface ImageLoader {
+public interface ImageLoader<T> {
     /**
      * 图片显示
      *
@@ -13,5 +13,5 @@ public interface ImageLoader {
      * @param src      图片资源
      * @param view
      */
-    void displayImage(int position, Object src, ImageView view);
+    void displayImage(int position, T src, ImageView view);
 }

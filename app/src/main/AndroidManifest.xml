@@ -20,19 +20,19 @@
         </activity>
 
         <activity
-            android:name=".activity.SimplePreviewAty"
+            android:name=".activity.PreviewSimpleAty"
             android:launchMode="singleTask" />
 
         <activity
-            android:name=".activity.CustomPreviewAty"
+            android:name=".activity.PreviewCustomAty"
             android:launchMode="singleTask" />
 
         <activity
-            android:name=".activity.LandListAty"
+            android:name=".activity.ListLandAty"
             android:launchMode="singleTask" />
 
         <activity
-            android:name=".activity.PortListAty"
+            android:name=".activity.ListPortAty"
             android:launchMode="singleTask" />
     </application>
 </manifest>

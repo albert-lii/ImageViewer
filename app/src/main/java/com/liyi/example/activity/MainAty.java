@@ -32,25 +32,25 @@ public class MainAty extends Activity {
         btn_simple.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainAty.this, SimplePreviewAty.class));
+                startActivity(new Intent(MainAty.this, PreviewSimpleAty.class));
             }
         });
         btn_custom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainAty.this, CustomPreviewAty.class));
+                startActivity(new Intent(MainAty.this, PreviewCustomAty.class));
             }
         });
         btn_land.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainAty.this, LandListAty.class));
+                startActivity(new Intent(MainAty.this, ListLandAty.class));
             }
         });
         btn_port.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainAty.this, PortListAty.class));
+                startActivity(new Intent(MainAty.this, ListPortAty.class));
             }
         });
     }

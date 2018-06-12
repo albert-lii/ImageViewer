@@ -17,6 +17,7 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -29,9 +30,13 @@ import com.liyi.viewer.Utils;
 import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.factory.ImageDragger;
 import com.liyi.viewer.factory.ImageLoader;
+import com.liyi.viewer.factory.ImageViewerState;
 import com.liyi.viewer.listener.OnImageChangedListener;
 import com.liyi.viewer.listener.OnViewClickListener;
+import com.liyi.viewer.listener.OnViewLongClickListener;
 import com.liyi.viewer.listener.OnWatchStatusListener;
+import com.liyi.viewer.widget.viewpager.ImageAdapter;
+import com.liyi.viewer.widget.viewpager.ImagePager;
 
 import java.util.List;
 
@@ -39,8 +44,9 @@ import java.util.List;
  * 图片浏览器
  */
 public class ImageViewer extends FrameLayout implements IImageViewer {
-    private final FrameLayout.LayoutParams FRAME_LAYOUT_PARAMS_MATCH = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
+    private final FrameLayout.LayoutParams FRAME_LAYOUT_PARAMS_MATCH = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT);
+    // 默认的动画执行时间
     private final int DEF_ANIM_DURATION = 240;
 
     // 背景 View
@@ -53,36 +59,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     private PhotoView photoView_current;
     // ViewPager 的适配器
     private ImageAdapter mImageAdapter;
-
-
-    /**
-     * 外部传递进来的数据
-     */
-    // 当前的 View 的位置
-    private int mStartPosition;
-    // 图片资源列表
-    private List<Object> mImageList;
-    // View 的数据列表
-    private List<ViewData> mViewDataList;
-    // 图片加载类
-    private ImageLoader mImageLoader;
-    // 图片切换监听
-    private OnImageChangedListener mImageChangedListener;
-    // 图片 View 的点击监听
-    private OnViewClickListener mViewClickListener;
-    // 图片浏览状态监听
-    private OnWatchStatusListener mWatchStatusListener;
-    // 是否显示图片序号
-    private boolean showIndex;
-    // 是否允许图片被拖拽
-    private boolean doDragAction;
-    // 是否执行启动动画
-    private boolean doEnterAnim;
-    // 是否执行关闭动画
-    private boolean doExitAnim;
-    // 动画执行时间
-    private int mAnimDuration;
-
 
     /**
      * 内部数据
@@ -97,6 +73,39 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     private boolean isPhotoAnimRunning;
     // 判断图片是否可缩放
     private boolean isImageZoomable;
+    // 控件当前的状态
+    private int mViewState;
+
+
+    /**
+     * 外部传递进来的数据
+     */
+    // 当前的 View 的位置
+    private int mStartPosition;
+    // 图片资源列表
+    private List mImageList;
+    // View 的数据列表
+    private List<ViewData> mViewDataList;
+    // 图片加载类
+    private ImageLoader mImageLoader;
+    // 是否显示图片序号
+    private boolean showIndex;
+    // 是否允许图片被拖拽
+    private boolean doDragAction;
+    // 是否执行启动动画
+    private boolean doEnterAnim;
+    // 是否执行关闭动画
+    private boolean doExitAnim;
+    // 动画执行时间
+    private int mAnimDuration;
+    // 图片切换监听
+    private OnImageChangedListener mImageChangedListener;
+    // 图片 View 的点击监听
+    private OnViewClickListener mViewClickListener;
+    // 图片 View 的长按点击监听
+    private OnViewLongClickListener mViewLongClickListener;
+    // 图片浏览状态监听
+    private OnWatchStatusListener mWatchStatusListener;
 
 
     public ImageViewer(@NonNull Context context) {
@@ -125,8 +134,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         doEnterAnim = true;
         doExitAnim = true;
         mAnimDuration = DEF_ANIM_DURATION;
-        mScreenSize = Utils.getScreenSize(getContext());
         isImageZoomable = true;
+        mViewState = ImageViewerState.STATE_CLOSED;
+        mScreenSize = Utils.getScreenSize(getContext());
 
         if (attrs != null) {
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ImageViewer);
@@ -189,6 +199,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
             }
         });
+        // 获取焦点，否则 onKeyDown() 方法不执行
+//        setFocusable(true);
+//        setFocusableInTouchMode(true);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -213,7 +226,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public void setImageData(List<Object> list) {
+    public <T> void setImageData(List<T> list) {
         mImageList = list;
     }
 
@@ -225,21 +238,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     @Override
     public void setImageLoader(ImageLoader loader) {
         mImageLoader = loader;
-    }
-
-    @Override
-    public void setOnImageChangedListener(OnImageChangedListener listener) {
-        this.mImageChangedListener = listener;
-    }
-
-    @Override
-    public void setOnViewClickListener(OnViewClickListener listener) {
-        this.mViewClickListener = listener;
-    }
-
-    @Override
-    public void setOnWatchStatusListener(OnWatchStatusListener listener) {
-        this.mWatchStatusListener = listener;
     }
 
     @Override
@@ -265,6 +263,26 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     @Override
     public void setAnimDuration(int duration) {
         this.mAnimDuration = duration;
+    }
+
+    @Override
+    public void setOnImageChangedListener(OnImageChangedListener listener) {
+        this.mImageChangedListener = listener;
+    }
+
+    @Override
+    public void setOnViewClickListener(OnViewClickListener listener) {
+        this.mViewClickListener = listener;
+    }
+
+    @Override
+    public void setOnViewLongClickListener(OnViewLongClickListener listener) {
+        this.mViewLongClickListener = listener;
+    }
+
+    @Override
+    public void setOnWatchStatusListener(OnWatchStatusListener listener) {
+        this.mWatchStatusListener = listener;
     }
 
     @Override
@@ -341,8 +359,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                     isPhotoAnimRunning = false;
                     viewPager.setScrollable(true);
                     if (mWatchStatusListener != null) {
-                        mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_START_AFTER, mStartPosition, photoView_current);
+                        mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_COMPLETE_WATCH, mStartPosition, photoView_current);
                     }
+                    mViewState = ImageViewerState.STATE_WATCHING;
                 }
             }
         });
@@ -441,8 +460,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                     viewPager.setScrollable(true);
                     releaseMemory();
                     if (mWatchStatusListener != null) {
-                        mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
+                        mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_COMPLETE_CLOSE);
                     }
+                    mViewState = ImageViewerState.STATE_CLOSED;
                 }
             }
         });
@@ -470,7 +490,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         final PhotoView photoView = mImageAdapter.getPhotoViewByPosition(mStartPosition);
         photoView_current = photoView;
         if (mWatchStatusListener != null) {
-            mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_START_BEFORE, mStartPosition, photoView_current);
+            mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_READY_WATCH, mStartPosition, photoView_current);
         }
         viewPager.setVisibility(VISIBLE);
         // 是否有启动动画
@@ -482,8 +502,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
             isPhotoClickalbe = true;
             isPhotoAnimRunning = false;
             if (mWatchStatusListener != null) {
-                mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_START_AFTER, mStartPosition, photoView_current);
+                mWatchStatusListener.onWatchStart(OnWatchStatusListener.State.STATE_COMPLETE_WATCH, mStartPosition, photoView_current);
             }
+            mViewState = ImageViewerState.STATE_WATCHING;
         }
     }
 
@@ -553,7 +574,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         isPhotoClickalbe = false;
         isPhotoAnimRunning = false;
         if (mWatchStatusListener != null) {
-            mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_BEFORE);
+            mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_READY_CLOSE);
         }
         if (doExitAnim) {
             excuteExitAnim();
@@ -563,19 +584,26 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
             tv_index.setVisibility(GONE);
             releaseMemory();
             if (mWatchStatusListener != null) {
-                mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
+                mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_COMPLETE_CLOSE);
             }
+            mViewState = ImageViewerState.STATE_CLOSED;
         }
     }
 
     @Override
-    public void removeAllData() {
+    public void clear() {
         if (mImageList != null && mImageList.size() > 0) {
             mImageList.clear();
         }
         if (mViewDataList != null && mViewDataList.size() > 0) {
             mViewDataList.clear();
         }
+        releaseMemory();
+        mImageLoader = null;
+        mImageChangedListener = null;
+        mViewClickListener = null;
+        mWatchStatusListener = null;
+        mImageDragHandler = null;
     }
 
     /**
@@ -588,17 +616,6 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         }
         Utils.recycleImage(photoView_current);
         photoView_current = null;
-    }
-
-    @Override
-    public void clear() {
-        removeAllData();
-        releaseMemory();
-        mImageDragHandler = null;
-        mImageLoader = null;
-        mImageChangedListener = null;
-        mViewClickListener = null;
-        mWatchStatusListener = null;
     }
 
     @Override
@@ -633,6 +650,35 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
+    public int getViewState() {
+        return mViewState;
+    }
+
+    /**
+     * 如果方法不执行，则是因为控件没有获取到焦点
+     * 建议放到外部，手动调用
+     *
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Back 键监听
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (!isPhotoAnimRunning) {
+                if (mViewState == ImageViewerState.STATE_WATCHING) {
+                    // 关闭浏览
+                    close();
+                }
+                // 消耗掉 Back 事件，不向外传递
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         clear();
@@ -643,13 +689,20 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
      * ==== PhotoView 的点击事件
      * =============================================================================================
      */
-    public class ViewTabListener implements OnViewTapListener {
+    private class ViewTabListener implements OnViewTapListener, PhotoView.OnLongClickListener {
         private int position;
 
         public ViewTabListener(int position) {
             this.position = position;
         }
 
+        /**
+         * 单击事件
+         *
+         * @param view
+         * @param x
+         * @param y
+         */
         @Override
         public void onViewTap(View view, float x, float y) {
             if (isPhotoClickalbe && !isPhotoAnimRunning) {
@@ -663,6 +716,22 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                 close();
             }
         }
+
+        /**
+         * 长按事件
+         *
+         * @param v
+         * @return
+         */
+        @Override
+        public boolean onLongClick(View v) {
+            if (isPhotoClickalbe && !isPhotoAnimRunning) {
+                if (mViewLongClickListener != null) {
+                    return mViewLongClickListener.onViewLongClick(position, v);
+                }
+            }
+            return false;
+        }
     }
 
     /**
@@ -670,7 +739,8 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
      * ==== 图片拖动处理类
      * =============================================================================================
      */
-    public class ImageDragHandler implements ImageDragger {
+    private class ImageDragHandler implements ImageDragger {
+
         @Override
         public float getImageScale() {
             return ImageViewer.this.getImageScale();
@@ -679,9 +749,11 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         @Override
         public void dragImage(final float y1, final float y2, final float alphaBase) {
             if (photoView_current != null && !isPhotoAnimRunning) {
+                mViewState = ImageViewerState.STATE_DRAGGING;
                 isPhotoClickalbe = false;
-                // 计算当前的 PhotoView 的 Y 轴坐标
+                // 计算本次拖拽时的 Y 轴坐标与上次拖拽时的 Y 轴坐标的差值
                 final float diff = y2 - y1;
+                // 计算 PhotoView 的当前 Y 轴坐标
                 final float curY = photoView_current.getY() + diff;
                 // 计算当前背景透明度
                 float value = Math.abs(curY) / alphaBase;
@@ -697,13 +769,14 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
         @Override
         public void releaseImage(final float maxTranslateY) {
             if (photoView_current != null && !isPhotoAnimRunning) {
+                // 当 PhotoView 复位时，ViewPager 不可滑动
                 viewPager.setScrollable(false);
                 isPhotoAnimRunning = true;
                 final float curY = photoView_current.getY();
                 // 如果当前 Y 轴坐标的绝对值，小于等于最大极限值，则将图片恢复原位，否则移除屏幕
                 if (Math.abs(curY) <= maxTranslateY) {
                     if (mWatchStatusListener != null) {
-                        mWatchStatusListener.onWatchReset(OnWatchStatusListener.State.STATE_RESET_BEFORE, photoView_current);
+                        mWatchStatusListener.onWatchReset(OnWatchStatusListener.State.STATE_READY_RESET, photoView_current);
                     }
                     ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
                     animator.setDuration(150);
@@ -712,6 +785,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
                         @Override
                         public void onAnimationUpdate(ValueAnimator animation) {
+                            mViewState = ImageViewerState.STATE_RESETTING;
                             final float currentValue = (float) animation.getAnimatedValue();
                             final float y = evaluator.evaluate(currentValue, curY, 0);
                             final float alpha = evaluator.evaluate(currentValue, view_background.getAlpha(), 1);
@@ -722,15 +796,16 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                                 isPhotoAnimRunning = false;
                                 viewPager.setScrollable(true);
                                 if (mWatchStatusListener != null) {
-                                    mWatchStatusListener.onWatchReset(OnWatchStatusListener.State.STATE_RESET_AFTER, photoView_current);
+                                    mWatchStatusListener.onWatchReset(OnWatchStatusListener.State.STATE_COMPLETE_RESET, photoView_current);
                                 }
+                                mViewState = ImageViewerState.STATE_WATCHING;
                             }
                         }
                     });
                     animator.start();
                 } else {
                     if (mWatchStatusListener != null) {
-                        mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_BEFORE);
+                        mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_READY_CLOSE);
                     }
                     photoView_current.setOnViewTapListener(null);
                     final int position = viewPager.getCurrentItem();
@@ -776,8 +851,9 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
                                 viewPager.setScrollable(true);
                                 releaseMemory();
                                 if (mWatchStatusListener != null) {
-                                    mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_END_AFTER);
+                                    mWatchStatusListener.onWatchEnd(OnWatchStatusListener.State.STATE_COMPLETE_CLOSE);
                                 }
+                                mViewState = ImageViewerState.STATE_CLOSED;
                             }
                         }
                     });

@@ -10,6 +10,7 @@ import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.factory.ImageLoader;
 import com.liyi.viewer.listener.OnImageChangedListener;
 import com.liyi.viewer.listener.OnViewClickListener;
+import com.liyi.viewer.listener.OnViewLongClickListener;
 import com.liyi.viewer.listener.OnWatchStatusListener;
 
 import java.util.List;
@@ -47,46 +48,25 @@ public interface IImageViewer {
     void setStartPosition(int position);
 
     /**
-     * 设置图片资源
+     * 设置图片资源集
      *
      * @param list
      */
-    void setImageData(List<Object> list);
+    <T> void setImageData(List<T> list);
 
     /**
-     * 设置 View 数据
+     * 设置 View 数据集
      *
      * @param list
      */
     void setViewData(List<ViewData> list);
 
     /**
-     * 设置图片加载类
+     * 设置图片加载器
      *
      * @param loader
      */
     void setImageLoader(ImageLoader loader);
-
-    /**
-     * 设置图片切换监听
-     *
-     * @param listener
-     */
-    void setOnImageChangedListener(OnImageChangedListener listener);
-
-    /**
-     * 设置图片的 View 容器的单击监听
-     *
-     * @param listener
-     */
-    void setOnViewClickListener(OnViewClickListener listener);
-
-    /**
-     * 设置图片浏览状态监听
-     *
-     * @param listener
-     */
-    void setOnWatchStatusListener(OnWatchStatusListener listener);
 
     /**
      * 是否显示图片序号
@@ -124,6 +104,34 @@ public interface IImageViewer {
     void setAnimDuration(int duration);
 
     /**
+     * 设置图片切换监听
+     *
+     * @param listener
+     */
+    void setOnImageChangedListener(OnImageChangedListener listener);
+
+    /**
+     * 设置图片的 View 容器的单击监听
+     *
+     * @param listener
+     */
+    void setOnViewClickListener(OnViewClickListener listener);
+
+    /**
+     * 设置图片的 View 容器的长按点击监听
+     *
+     * @param listener
+     */
+    void setOnViewLongClickListener(OnViewLongClickListener listener);
+
+    /**
+     * 设置图片浏览状态监听
+     *
+     * @param listener
+     */
+    void setOnWatchStatusListener(OnWatchStatusListener listener);
+
+    /**
      * 执行开始动画
      */
     void excuteEnterAnim();
@@ -142,11 +150,6 @@ public interface IImageViewer {
      * 关闭图片浏览
      */
     void close();
-
-    /**
-     * 移除所有数据（只移除图片资源和 View 信息）
-     */
-    void removeAllData();
 
     /**
      * 清除所有数据
@@ -187,4 +190,11 @@ public interface IImageViewer {
      * @return
      */
     View getCurrentView();
+
+    /**
+     * 获取 ImageViewer 的当前状态
+     *
+     * @return
+     */
+    int getViewState();
 }

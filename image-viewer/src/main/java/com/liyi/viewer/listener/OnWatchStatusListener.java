@@ -28,22 +28,33 @@ public interface OnWatchStatusListener {
      */
     void onWatchEnd(int state);
 
+    /**
+     * 状态类
+     */
     class State {
-        // 开始浏览执行前
-        public static final int STATE_START_BEFORE = 1;
-        // 开始浏览执行完成后
-        public static final int STATE_START_AFTER = 2;
-        // 正常退出浏览执行前
-        public static final int STATE_END_BEFORE = 3;
-        // 正常退出浏览执行结束后
-        public static final int STATE_END_AFTER = 4;
-        // 拖拽退出浏览执行前
-        public static final int STATE_END_DRAG_BEFORE = 5;
-        // 拖拽退出浏览执行结束后
-        public static final int STATE_END_DRAG_AFTER = 6;
-        // 图片复位执行前
-        public static final int STATE_RESET_BEFORE = 7;
-        // 图片复位执行结束后
-        public static final int STATE_RESET_AFTER = 8;
+        /**
+         * 准备开启浏览
+         */
+        public static final int STATE_READY_WATCH = 1;
+        /**
+         * 完成开启浏览
+         */
+        public static final int STATE_COMPLETE_WATCH = 2;
+        /**
+         * 准备关闭浏览
+         */
+        public static final int STATE_READY_CLOSE = 3;
+        /**
+         * 完成关闭浏览
+         */
+        public static final int STATE_COMPLETE_CLOSE = 4;
+        /**
+         * 准备图片复位
+         */
+        public static final int STATE_READY_RESET = 5;
+        /**
+         * 完成图片复位
+         */
+        public static final int STATE_COMPLETE_RESET = 6;
     }
 }

@@ -1,12 +1,15 @@
 package com.liyi.example.activity;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -18,15 +21,20 @@ import com.liyi.grid.AutoGridView;
 import com.liyi.grid.adapter.SimpleAutoGridAdapter;
 import com.liyi.viewer.data.ViewData;
 import com.liyi.viewer.factory.ImageLoader;
+import com.liyi.viewer.listener.OnImageChangedListener;
+import com.liyi.viewer.listener.OnViewClickListener;
+import com.liyi.viewer.listener.OnWatchStatusListener;
 import com.liyi.viewer.widget.ImageViewer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 简单的图片预览
+ * 自定义图片预览
  */
-public class SimplePreviewAty extends Activity {
+public class PreviewCustomAty extends Activity {
+    private View coverView;
+    private TextView tv_cover_back, tv_cover_index;
     private ImageViewer imageViewer;
     private AutoGridView autoGridView;
     private SimpleAutoGridAdapter mImageAdp;
@@ -39,12 +47,15 @@ public class SimplePreviewAty extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.aty_simple_preview);
+        setContentView(R.layout.aty_preview_custom);
         initView();
         addListener();
     }
 
     private void initView() {
+        coverView = findViewById(R.id.icd_cover);
+        tv_cover_back = findViewById(R.id.tv_cover_back);
+        tv_cover_index = findViewById(R.id.tv_cover_index);
         imageViewer = findViewById(R.id.imagePreivew);
         autoGridView = findViewById(R.id.autoGridView);
 
@@ -63,7 +74,7 @@ public class SimplePreviewAty extends Activity {
         mImageAdp.setImageLoader(new SimpleAutoGridAdapter.ImageLoader() {
             @Override
             public void onLoadImage(final int position, Object source, final ImageView view, int viewType) {
-                Glide.with(SimplePreviewAty.this)
+                Glide.with(PreviewCustomAty.this)
                         .load(source)
                         .apply(mOptions)
                         .into(new SimpleTarget<Drawable>() {
@@ -92,6 +103,13 @@ public class SimplePreviewAty extends Activity {
     }
 
     private void addListener() {
+        tv_cover_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 退出浏览
+                imageViewer.close();
+            }
+        });
         autoGridView.setOnItemClickListener(new AutoGridView.OnItemClickListener() {
             @Override
             public void onItemClick(int position, View view) {
@@ -109,13 +127,18 @@ public class SimplePreviewAty extends Activity {
                         mViewDatas.set(i, viewData);
                     }
                 }
+                tv_cover_index.setText("我是图片" + (position + 1) + "号");
+                // 设置图片浏览的起始位置
                 imageViewer.setStartPosition(position);
+                // 设置图片资源
                 imageViewer.setImageData(mImageList);
+                // 设置外部 View 的位置以及大小信息
                 imageViewer.setViewData(mViewDatas);
+                // 设置图片加载方式
                 imageViewer.setImageLoader(new ImageLoader() {
                     @Override
                     public void displayImage(final int position, Object src, final ImageView view) {
-                        Glide.with(SimplePreviewAty.this)
+                        Glide.with(PreviewCustomAty.this)
                                 .load(src)
                                 .apply(mOptions)
                                 .into(new SimpleTarget<Drawable>() {
@@ -141,9 +164,80 @@ public class SimplePreviewAty extends Activity {
                                 });
                     }
                 });
+                // 设置背景色
+                imageViewer.setImageBackgroundColor(Color.DKGRAY);
+                // 设置点击事件
+                imageViewer.setOnViewClickListener(new OnViewClickListener() {
+                    @Override
+                    public boolean onViewClick(int position, View view, float x, float y) {
+                        if (coverView.getVisibility() == View.VISIBLE) {
+                            coverView.setVisibility(View.GONE);
+                        } else {
+                            coverView.setVisibility(View.VISIBLE);
+                        }
+                        // 如果返回 true ，则内部点击事件不会执行，返回 false 则内部点击事件继续执行，退出浏览
+                        return true;
+                    }
+                });
+                // 设置图片的切换监听
+                imageViewer.setOnImageChangedListener(new OnImageChangedListener() {
+                    @Override
+                    public void onImageSelected(int position, ImageView view) {
+                        tv_cover_index.setText("我是图片" + (position + 1) + "号");
+                    }
+                });
+                // 设置图片浏览器的状态监听
+                imageViewer.setOnWatchStatusListener(new OnWatchStatusListener() {
+                    @Override
+                    public void onWatchStart(int state, int position, ImageView view) {
+                        if (state == OnWatchStatusListener.State.STATE_COMPLETE_WATCH) {
+                            coverView.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onWatchDragging(ImageView view) {
+                        coverView.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onWatchReset(int state, ImageView view) {
+
+                    }
+
+                    @Override
+                    public void onWatchEnd(int state) {
+                        coverView.setVisibility(View.GONE);
+                    }
+                });
+                // 设置不可拖拽
+                imageViewer.doDragAction(true);
+                // 设置有启动动画，默认为 true
+                imageViewer.doEnterAnim(true);
+                // 设置有关闭动画，默认为 true
+                imageViewer.doExitAnim(true);
+                // 设置动画时间，默认 200ms
+                imageViewer.setAnimDuration(240);
+                // 开始浏览
                 imageViewer.watch();
             }
         });
         autoGridView.setAdapter(mImageAdp);
+    }
+
+    /**
+     * 监听返回键
+     *
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        boolean b = imageViewer.onKeyDown(keyCode, event);
+        if (b) {
+            return b;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

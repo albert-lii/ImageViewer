@@ -37,6 +37,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
     compile 'com.liyi.view:flowview:1.1.0'
     implementation 'com.liyi.view:auto-gridview:1.0.8'
-    implementation 'com.liyi.view:image-viewer:2.0.2'
-//    implementation project(':image-viewer')
+//    implementation 'com.liyi.view:image-viewer:2.0.2'
+    implementation project(':image-viewer')
 }

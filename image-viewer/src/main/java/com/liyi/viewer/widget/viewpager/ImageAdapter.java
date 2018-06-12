@@ -1,4 +1,4 @@
-package com.liyi.viewer.widget;
+package com.liyi.viewer.widget.viewpager;
 
 
 import android.support.v4.view.PagerAdapter;
@@ -8,6 +8,7 @@ import android.widget.FrameLayout;
 
 import com.github.chrisbanes.photoview.PhotoView;
 import com.liyi.viewer.Utils;
+import com.liyi.viewer.widget.ImageViewer;
 
 import java.util.ArrayList;
 import java.util.List;
