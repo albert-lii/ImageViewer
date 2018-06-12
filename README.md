@@ -33,7 +33,7 @@
     
    Step 2:
    dependencies {
-       compile 'com.liyi.view:image-viewer:2.0.2'
+       compile 'com.liyi.view:image-viewer:2.0.4'
    }
 ```  
 
@@ -42,7 +42,7 @@
    <dependency>
       <groupId>com.liyi.view</groupId>
       <artifactId>image-viewer</artifactId>
-      <version>2.0.2</version>
+      <version>2.0.4</version>
       <type>pom</type>
    </dependency>
 ```
@@ -68,6 +68,7 @@
 | void setImageLoader(ImageLoader loader) | 设置图片加载类 |
 | void setOnImageChangedListener(OnImageChangedListener listener) | 设置图片切换监听 |
 | void setOnViewClickListener(OnViewClickListener listener) | 设置图片的点击监听 |
+| void setOnViewLongClickListener(OnViewLongClickListener listener) | 设置图片的点击监听 |
 | void setOnWatchStatusListener(OnWatchStatusListener listener) | 设置图片浏览状态监听 |
 | void showIndex(boolean show) | 是否显示图片序号 |
 | void doDragAction(boolean isDo) | 是否允许图片被拖拽 |
@@ -84,6 +85,7 @@
 | float getImageScale() | 获取图片当前的缩放级别 |  
 | int getCurrentPosition() | 获取当前图片的位置 |  
 | View getCurrentView() | 获取当前 Item 的视图 |
+| int getViewState() | 获取 ImageViewer 的当前状态 |
 
 ## 使用方法
 #### XML
@@ -154,7 +156,7 @@ limitations under the License.
 
 
 
-[releasesvg]: https://img.shields.io/badge/version-2.0.2-brightgreen.svg
+[releasesvg]: https://img.shields.io/badge/version-2.0.4-brightgreen.svg
 [apisvg]: https://img.shields.io/badge/sdk-14+-brightgreen.svg
 [licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
 [license]:http://www.apache.org/licenses/LICENSE-2.0
