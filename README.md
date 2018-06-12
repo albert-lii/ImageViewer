@@ -68,7 +68,7 @@
 | void setImageLoader(ImageLoader loader) | 设置图片加载类 |
 | void setOnImageChangedListener(OnImageChangedListener listener) | 设置图片切换监听 |
 | void setOnViewClickListener(OnViewClickListener listener) | 设置图片的点击监听 |
-| void setOnViewLongClickListener(OnViewLongClickListener listener) | 设置图片的点击监听 |
+| void setOnViewLongClickListener(OnViewLongClickListener listener) | 设置图片的长按监听 |
 | void setOnWatchStatusListener(OnWatchStatusListener listener) | 设置图片浏览状态监听 |
 | void showIndex(boolean show) | 是否显示图片序号 |
 | void doDragAction(boolean isDo) | 是否允许图片被拖拽 |
