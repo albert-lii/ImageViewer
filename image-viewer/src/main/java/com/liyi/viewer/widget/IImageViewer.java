@@ -1,153 +1,133 @@
 package com.liyi.viewer.widget;
 
 
-import android.graphics.drawable.Drawable;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
 import android.view.View;
+import android.widget.TextView;
 
-import com.liyi.viewer.data.ViewData;
-import com.liyi.viewer.factory.ImageLoader;
+import com.liyi.viewer.ImageLoader;
+import com.liyi.viewer.ImageViewerState;
+import com.liyi.viewer.ViewData;
+import com.liyi.viewer.dragger.ImageDraggerType;
 import com.liyi.viewer.listener.OnImageChangedListener;
-import com.liyi.viewer.listener.OnViewClickListener;
-import com.liyi.viewer.listener.OnViewLongClickListener;
-import com.liyi.viewer.listener.OnWatchStatusListener;
+import com.liyi.viewer.listener.OnItemClickListener;
+import com.liyi.viewer.listener.OnItemLongClickListener;
+import com.liyi.viewer.listener.OnPreviewStatusListener;
 
 import java.util.List;
 
-/**
- * 图片浏览器的主要方法
- */
+
 public interface IImageViewer {
-    /**
-     * 设置图片背景
-     *
-     * @param drawable
-     */
-    void setImageBackground(Drawable drawable);
 
     /**
-     * 设置图片背景
-     *
-     * @param resid
+     * 获取图片索引的 view
      */
-    void setImageBackgroundResource(@DrawableRes int resid);
+    TextView getIndexView();
 
     /**
-     * 设置图片背景
-     *
-     * @param color
-     */
-    void setImageBackgroundColor(@ColorInt int color);
-
-    /**
-     * 设置开始展示的图片的位置
+     * 设置起始位置
      *
      * @param position
      */
-    void setStartPosition(int position);
+    ImageViewer setStartPosition(int position);
 
     /**
-     * 设置图片资源集
+     * 设置图片资源
      *
      * @param list
      */
-    <T> void setImageData(List<T> list);
+    ImageViewer setImageData(List list);
 
     /**
-     * 设置 View 数据集
+     * 设置外部 view 的相关数据
      *
      * @param list
      */
-    void setViewData(List<ViewData> list);
+    ImageViewer setViewData(List<ViewData> list);
 
     /**
      * 设置图片加载器
      *
      * @param loader
      */
-    void setImageLoader(ImageLoader loader);
+    ImageViewer setImageLoader(ImageLoader loader);
 
     /**
-     * 是否显示图片序号
+     * 是否显示图片索引
      *
      * @param show
      */
-    void showIndex(boolean show);
+    ImageViewer showIndex(boolean show);
 
     /**
-     * 是否允许图片被拖拽
+     * 是否允许拖拽图片
      *
      * @param isDo
      */
-    void doDragAction(boolean isDo);
+    ImageViewer doDrag(boolean isDo);
 
     /**
-     * 是否开启图片浏览启动动画
+     * 设置拖拽模式
+     *
+     * @param type
+     */
+    ImageViewer setDragType(@ImageDraggerType int type);
+
+    /**
+     * 是否使用进场动画
      *
      * @param isDo
      */
-    void doEnterAnim(boolean isDo);
+    ImageViewer doEnterAnim(boolean isDo);
 
     /**
-     * 是否开启图片浏览退出动画
+     * 是否使用退场动画
      *
      * @param isDo
      */
-    void doExitAnim(boolean isDo);
+    ImageViewer doExitAnim(boolean isDo);
 
     /**
-     * 设置打开和关闭的动画执行时间
+     * 设置进场与退场动画的执行时间
      *
      * @param duration
      */
-    void setAnimDuration(int duration);
+    ImageViewer setDuration(int duration);
 
     /**
-     * 设置图片切换监听
+     * 设置图片的切换事件监听
      *
      * @param listener
      */
-    void setOnImageChangedListener(OnImageChangedListener listener);
+    ImageViewer setOnImageChangedListener(OnImageChangedListener listener);
 
     /**
-     * 设置图片的 View 容器的单击监听
+     * 设置图片的单击事件监听
      *
      * @param listener
      */
-    void setOnViewClickListener(OnViewClickListener listener);
+    ImageViewer setOnItemClickListener(OnItemClickListener listener);
 
     /**
-     * 设置图片的 View 容器的长按点击监听
+     * 设置图片的长按事件监听
      *
      * @param listener
      */
-    void setOnViewLongClickListener(OnViewLongClickListener listener);
+    ImageViewer setOnItemLongClickListener(OnItemLongClickListener listener);
 
     /**
-     * 设置图片浏览状态监听
+     * 设置图片浏览器的浏览状态监听
      *
      * @param listener
      */
-    void setOnWatchStatusListener(OnWatchStatusListener listener);
+    ImageViewer setOnPreviewStatusListener(OnPreviewStatusListener listener);
 
     /**
-     * 执行开始动画
-     */
-    void excuteEnterAnim();
-
-    /**
-     * 执行结束动画
-     */
-    void excuteExitAnim();
-
-    /**
-     * 开启图片浏览
+     * 打开图片浏览器
      */
     void watch();
 
     /**
-     * 关闭图片浏览
+     * 关闭图片浏览器
      */
     void close();
 
@@ -157,44 +137,73 @@ public interface IImageViewer {
     void clear();
 
     /**
-     * 设置图片是否可缩放
+     * 获取图片浏览器的当前状态
      *
-     * @param zoomable
+     * @return {@link ImageViewerState}
      */
-    void setImageZoomable(boolean zoomable);
+    @ImageViewerState
+    int getViewState();
 
     /**
-     * 获取图片是否可缩放
+     * 是否允许图片缩放
+     *
+     * @param scaleable
+     */
+    ImageViewer setImageScaleable(boolean scaleable);
+
+    /**
+     * 图片是否可缩放
      *
      * @return
      */
-    boolean isImageZoomable();
+    boolean isImageScaleable();
 
     /**
-     * 获取图片当前的缩放级别
+     * 获取图片当前的缩放等级
      *
      * @return
      */
     float getImageScale();
 
     /**
-     * 获取当前图片的位置
+     * 设置图片的最大缩放等级
+     *
+     * @param maxScale
+     */
+    ImageViewer setImageMaxScale(float maxScale);
+
+    /**
+     * 获取图片的最大缩放等级
      *
      * @return
      */
-    int getCurrentPosition();
+    float getImageMaxScale();
 
     /**
-     * 获取当前的 Item 视图
+     * 设置图片的最小缩放等级
+     *
+     * @param minScale
+     */
+    ImageViewer setImageMinScale(float minScale);
+
+    /**
+     * 获取图片的最小缩放等级
+     *
+     * @return
+     */
+    float getImageMinScale();
+
+    /**
+     * 获取当前的 view
      *
      * @return
      */
     View getCurrentView();
 
     /**
-     * 获取 ImageViewer 的当前状态
+     * 获取当前的 view 的位置
      *
      * @return
      */
-    int getViewState();
+    int getCurrentPosition();
 }

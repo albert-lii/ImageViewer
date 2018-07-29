@@ -7,29 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+import com.liyi.example.glide.GlideUtil;
 import com.liyi.example.R;
 
 import java.util.List;
 
-/**
- * Created by albertlii on 2018/5/2.
- */
+
 public class RecyclerAdp extends RecyclerView.Adapter {
-    private List<Object> mImgList;
-    private RequestOptions mOptions;
+    // 0: 水平方向  1: 垂直方向
     private int mOrientation;
+    private List<String> mImgList;
     private OnItemClickCallback mCallback;
 
     public RecyclerAdp(int orientation) {
         mOrientation = orientation;
-        mOptions = new RequestOptions()
-                .placeholder(R.drawable.img_viewer_placeholder)
-                .error(R.drawable.img_viewer_placeholder);
     }
 
-    public void setData(List<Object> list) {
+    public void setData(List<String> list) {
         this.mImgList = list;
     }
 
@@ -38,9 +32,9 @@ public class RecyclerAdp extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
         if (mOrientation == 0) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_land, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_horizontal, parent, false);
         } else {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_port, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_vertical, parent, false);
         }
         return new ItemHolder(view);
     }
@@ -48,15 +42,12 @@ public class RecyclerAdp extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         final ItemHolder itemHolder = (ItemHolder) holder;
-        Glide.with(itemHolder.iv_preview.getContext())
-                .load(mImgList.get(position))
-                .apply(mOptions)
-                .into(itemHolder.iv_preview);
-        itemHolder.iv_preview.setOnClickListener(new View.OnClickListener() {
+        GlideUtil.loadImage(itemHolder.iv_pic.getContext(),mImgList.get(position),itemHolder.iv_pic);
+        itemHolder.iv_pic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mCallback != null) {
-                    mCallback.onItemClick(position, itemHolder.iv_preview);
+                    mCallback.onItemClick(position, itemHolder.iv_pic);
                 }
             }
         });
@@ -68,11 +59,11 @@ public class RecyclerAdp extends RecyclerView.Adapter {
     }
 
     private class ItemHolder extends RecyclerView.ViewHolder {
-        private ImageView iv_preview;
+        private ImageView iv_pic;
 
         public ItemHolder(View itemView) {
             super(itemView);
-            iv_preview = itemView.findViewById(R.id.iv_preview);
+            iv_pic = itemView.findViewById(R.id.iv_pic);
         }
     }
 

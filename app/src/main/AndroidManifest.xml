@@ -14,25 +14,28 @@
         <activity android:name=".activity.MainAty">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".activity.PreviewSimpleAty"
+            android:name=".activity.SimplePreivewAty"
             android:launchMode="singleTask" />
 
         <activity
-            android:name=".activity.PreviewCustomAty"
+            android:name=".activity.CustomPreviewAty"
             android:launchMode="singleTask" />
 
         <activity
-            android:name=".activity.ListLandAty"
+            android:name=".activity.HorizontalListAty"
             android:launchMode="singleTask" />
 
         <activity
-            android:name=".activity.ListPortAty"
+            android:name=".activity.VerticalListAty"
+            android:launchMode="singleTask" />
+
+        <activity
+            android:name=".activity.ImagePagerAty"
             android:launchMode="singleTask" />
     </application>
 </manifest>

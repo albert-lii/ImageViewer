@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 
 import com.liyi.example.R;
 
@@ -21,37 +20,29 @@ public class MainAty extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.aty_main);
-        intiView();
     }
 
-    private void intiView() {
-        Button btn_simple = findViewById(R.id.btn_simple);
-        Button btn_custom = findViewById(R.id.btn_custom);
-        Button btn_land = findViewById(R.id.btn_land_list);
-        Button btn_port = findViewById(R.id.btn_port_list);
-        btn_simple.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainAty.this, PreviewSimpleAty.class));
-            }
-        });
-        btn_custom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainAty.this, PreviewCustomAty.class));
-            }
-        });
-        btn_land.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainAty.this, ListLandAty.class));
-            }
-        });
-        btn_port.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainAty.this, ListPortAty.class));
-            }
-        });
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_simple:
+                startActivity(new Intent(MainAty.this, SimplePreivewAty.class));
+                break;
+
+            case R.id.btn_custom:
+                startActivity(new Intent(MainAty.this, CustomPreviewAty.class));
+                break;
+
+            case R.id.btn_horizontal_list:
+                startActivity(new Intent(MainAty.this, HorizontalListAty.class));
+                break;
+
+            case R.id.btn_vertical_list:
+                startActivity(new Intent(MainAty.this, VerticalListAty.class));
+                break;
+
+            case R.id.btn_image_pager:
+                startActivity(new Intent(MainAty.this, ImagePagerAty.class));
+                break;
+        }
     }
 }

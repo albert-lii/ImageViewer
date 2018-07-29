@@ -1,16 +1,11 @@
 package com.liyi.viewer.listener;
 
-import android.widget.ImageView;
+import com.liyi.viewer.widget.ScaleImageView;
 
 /**
- * 图片切换监听
+ * 图片的切换监听事件
  */
 public interface OnImageChangedListener {
 
-    /**
-     * 监听当前被选中的图片
-     *
-     * @param position
-     */
-    void onImageSelected(int position,ImageView view);
+    void onImageSelected(int position, ScaleImageView view);
 }
