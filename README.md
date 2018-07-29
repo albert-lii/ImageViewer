@@ -160,11 +160,11 @@ limitations under the License.
 [license]:http://www.apache.org/licenses/LICENSE-2.0
 
 [AutoGridView]:https://github.com/albert-lii/AutoGridView
-[demo-simple]:https://github.com/albert-lii/ImageViewer/tree/new/snapshot/demo_simple.gif
-[demo-custom]:https://github.com/albert-lii/ImageViewer/tree/new/snapshot/demo_custom.gif
-[demo-land]:https://github.com/albert-lii/ImageViewer/tree/new/snapshot/demo_land.gif
-[demo-port]:https://github.com/albert-lii/ImageViewer/tree/new/snapshot/demo_port.gif
-[demo-apk]:https://github.com/albert-lii/ImageViewer/tree/new/apk/release/app-release.apk
+[demo-simple]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_simple.gif
+[demo-custom]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_custom.gif
+[demo-land]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_land.gif
+[demo-port]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_port.gif
+[demo-apk]:https://github.com/albert-lii/ImageViewer/blob/new/apk/release/app-release.apk
 
 
 
