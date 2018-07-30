@@ -33,7 +33,7 @@
   
 <h2>apk体验</h2>
 
-<h3>[点我][demo-apk]</h3>
+### [点我][demo-apk]
 
 <h2 id="1">自定义属性</h2>  
 
@@ -113,6 +113,7 @@
 ```
 
 <h2 id="4">简单实例</h2>
+
 #### XML 中添加 ImageViewer
 ```
   <com.liyi.viewer.widget.ImageViewer
