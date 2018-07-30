@@ -112,7 +112,7 @@
    </dependency>
 ```
 
-<h2 id="4">简单实例</h2>
+<h2 id="4">简单示例</h2>
 
 #### XML 中添加 ImageViewer
 ```
