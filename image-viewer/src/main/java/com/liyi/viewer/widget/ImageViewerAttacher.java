@@ -4,6 +4,7 @@ package com.liyi.viewer.widget;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -113,6 +114,12 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         isImageScaleable = true;
         mScreenSize = ImageViewerUtil.getScreenSize(container.getContext());
         mViewState = ImageViewerState.STATE_SILENCE;
+        mPreviewStatusListener = new OnPreviewStatusListener() {
+            @Override
+            public void onPreviewStatus(int state, ScaleImageView imagePager) {
+
+            }
+        };
     }
 
     private void initView() {
@@ -432,9 +439,6 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         return mPreviewAdapter != null ? mPreviewAdapter.getViewByPosition(getCurrentPosition()) : null;
     }
 
-    /**
-     * 注：如要获取状态值，OnPreviewStatusListener 不能为空
-     */
     @ImageViewerState
     public int getViewState() {
         return mViewState;
@@ -460,13 +464,13 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         this.mItemLongClickListener = listener;
     }
 
-    public void setOnPreviewStatusListener(OnPreviewStatusListener listener) {
+    public void setOnPreviewStatusListener(@NonNull OnPreviewStatusListener listener) {
         this.mPreviewStatusListener = listener;
     }
 
     public void setPreviewStatus(int state, ScaleImageView imagePager) {
+        mViewState = state;
         if (mPreviewStatusListener != null) {
-            mViewState = state;
             mPreviewStatusListener.onPreviewStatus(state, imagePager);
         }
     }

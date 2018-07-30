@@ -38,7 +38,7 @@ public interface IImageViewer {
     ImageViewer setImageData(List list);
 
     /**
-     * 设置外部 view 的相关数据
+     * 设置目标 view 的相关数据
      *
      * @param list
      */
@@ -115,19 +115,19 @@ public interface IImageViewer {
     ImageViewer setOnItemLongClickListener(OnItemLongClickListener listener);
 
     /**
-     * 设置图片浏览器的浏览状态监听
+     * 设置图片预览器的预览状态监听
      *
      * @param listener
      */
     ImageViewer setOnPreviewStatusListener(OnPreviewStatusListener listener);
 
     /**
-     * 打开图片浏览器
+     * 打开图片预览器
      */
     void watch();
 
     /**
-     * 关闭图片浏览器
+     * 关闭图片预览器
      */
     void close();
 
@@ -137,7 +137,7 @@ public interface IImageViewer {
     void clear();
 
     /**
-     * 获取图片浏览器的当前状态
+     * 获取图片预览器的当前状态
      *
      * @return {@link ImageViewerState}
      */
