@@ -15,8 +15,8 @@
 - [添加依赖](#1)
 - [自定义属性](#2)
 - [自定义方法](#3)
-- [使用详解](#4)
-- [超巨图加载解决方案}(#5)
+- [简单示例](#4)
+- [超巨图加载解决方案](#5)
 
 ## 推荐
 - [AutoGridView][AutoGridView] 宫格控件，QQ空间九宫格、普通宫格模式、点击添加照片...
@@ -60,17 +60,19 @@
    </dependency>
 ```
 
-<h2 id="2">自定义属性</h2>  
-| 属性名 | 描述 |  
-| :---- | :---- |  
-| ivr_show_index | 是否显示图片位置 |
-| ivr_do_enter | 是否开启进场动画 |
-| ivr_do_exit | 是否开启退场动画 |
-| ivr_duration | 进场与退场动画的执行时间 |
-| ivr_do_drag | 是否允许图片拖拽 |
-| ivr_drag_type | 拖拽模式（classic：今日头条效果 | wechat：微信朋友圈效果） |
+<h2 id="2">自定义属性</h2>  
 
-<h2 id="3">自定义方法</h2>
+| 属性名 | 描述 |    
+| :---- | :---- |    
+| ivr_show_index | 是否显示图片位置 |  
+| ivr_do_enter | 是否开启进场动画 | 
+| ivr_do_exit | 是否开启退场动画 |   
+| ivr_duration | 进场与退场动画的执行时间 |    
+| ivr_do_drag | 是否允许图片拖拽 |    
+| ivr_drag_type | 拖拽模式（classic：今日头条效果 | wechat：微信朋友圈效果） |  
+  
+<h2 id="3">自定义方法</h2>    
+
 | 方法名 | 描述 |
 |:----|:----|
 | setStartPosition(int position) | 设置开始展示的图片的位置 |
@@ -98,12 +100,13 @@
 | getImageMaxScale() | 获取图片的最大缩放等级 |  
 | setImageMinScale(float minScale) | 设置图片的最小缩放等级 | 
 | getImageMinScale() | 获取图片的最小缩放等级 | 
-| View getCurrentView() | 获取当前 Item 的视图 |
-| int getCurrentPosition() | 获取当前图片的位置 |  
+| getCurrentView() | 获取当前 Item 的视图 |
+| getCurrentPosition() | 获取当前图片的位置 |  
+| onKeyDown(int keyCode, KeyEvent event) | 返回键监听（使用方法见demo） | 
 
 
-<h2 id="4">使用详解</h2>
-#### XML
+<h2 id="4">简单实例</h2>
+#### XML 中添加 ImageViewer
 ```
   <com.liyi.viewer.widget.ImageViewer
         android:id="@+id/imagePreivew"
@@ -111,13 +114,13 @@
         android:layout_height="match_parent" />
 ```
 
-#### 代码中
+#### 代码中设置 ImageViewer
 ```Java
   // 图片浏览的起始位置
   imageViewer.setStartPosition(position);
   // 图片的数据源
   imageViewer.setImageData(mImageList);
-  // 外部 View 的位置以及尺寸等信息
+  // 目标 View 的位置以及尺寸等信息
   imageViewer.setViewData(mViewDatas);
   // 自定义图片的加载方式
   imageViewer.setImageLoader(new ImageLoader() {
@@ -141,7 +144,6 @@
                           @Override
                           public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
                                  view.setImageDrawable(resource);
-                                 mImageList.set(position, resource);
                                  mViewDatas.get(position).setImageWidth(resource.getIntrinsicWidth());
                                  mViewDatas.get(position).setImageHeight(resource.getIntrinsicHeight());
                           }
@@ -150,6 +152,10 @@
    // 开启图片浏览
    imageViewer.watch();
 ```
+
+## 超巨图解决方案（进退场动画需重写，且不支持微信朋友圈拖拽，今日头条效果仍然支持）
+1. 使用 [SubsamplingScaleImageView](SubsamplingScaleImageView) 代替 PhotoView（推荐）
+2. 或者使用 [BigImageView](BigImageView) 代替 ScaleImageView
 
 ## 赞赏  
 如果你感觉 `ImageViewer` 帮助到了你，可以点右上角 "Star" 支持一下 谢谢！:blush:
@@ -182,6 +188,9 @@ limitations under the License.
 [demo-land]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_land.gif
 [demo-port]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_port.gif
 [demo-apk]:https://github.com/albert-lii/ImageViewer/blob/new/apk/release/app-release.apk
+
+[SubsamplingScaleImageView]:https://github.com/davemorrissey/subsampling-scale-image-view
+[BigImageView]:https://github.com/Piasy/BigImageViewer
 
 
 
