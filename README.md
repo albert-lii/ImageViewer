@@ -13,10 +13,10 @@
 
 ## 传送门
 - [添加依赖](#1)
-- 自定义属性
-- 自定义方法
-- 使用详解
-- 超巨图加载解决方案
+- [自定义属性](#2)
+- [自定义方法](#3)
+- [使用详解](#4)
+- [超巨图加载解决方案}(#5)
 
 ## 推荐
 - [AutoGridView][AutoGridView] 宫格控件，QQ空间九宫格、普通宫格模式、点击添加照片...
@@ -60,45 +60,49 @@
    </dependency>
 ```
 
-## 自定义属性方法  
+<h2 id="2">自定义属性</h2>  
 | 属性名 | 描述 |  
 | :---- | :---- |  
-| ivr_show_index | 是否显示图片序号 |
-| ivr_drag_enable | 是否允许图片拖拽 |
-| ivr_enter_anim | 是否开启进入动画 |
-| ivr_exit_anim | 是否开启退出动画 |
-| ivr_anim_duration | 进入与退出动画的执行时间 |
-  
+| ivr_show_index | 是否显示图片位置 |
+| ivr_do_enter | 是否开启进场动画 |
+| ivr_do_exit | 是否开启退场动画 |
+| ivr_duration | 进场与退场动画的执行时间 |
+| ivr_do_drag | 是否允许图片拖拽 |
+| ivr_drag_type | 拖拽模式（classic：今日头条效果 | wechat：微信朋友圈效果） |
 
+<h2 id="3">自定义方法</h2>
 | 方法名 | 描述 |
 |:----|:----|
-| void setImageBackground(Drawable drawable) | 设置图片背景 |
-| void setImageBackgroundResource(@DrawableRes int resid) | 设置图片背景 |
-| void setImageBackgroundColor(@ColorInt int color) | 设置图片背景 |
-| void setStartPosition(int position) | 设置开始展示的图片的位置 |
-| void setImageData(List<Object> list) | 设置图片资源 |
-| void setViewData(List<ViewData> list) | 设置 View 数据（尺寸、坐标等信息） |
-| void setImageLoader(ImageLoader loader) | 设置图片加载类 |
-| void setOnImageChangedListener(OnImageChangedListener listener) | 设置图片切换监听 |
-| void setOnViewClickListener(OnViewClickListener listener) | 设置图片的点击监听 |
-| void setOnWatchStatusListener(OnWatchStatusListener listener) | 设置图片浏览状态监听 |
-| void showIndex(boolean show) | 是否显示图片序号 |
-| void doDragAction(boolean isDo) | 是否允许图片被拖拽 |
-| void doEnterAnim(boolean isDo) | 是否开启图片浏览启动动画 |
-| void doExitAnim(boolean isDo) | 是否开启图片浏览退出动画 |
-| void setAnimDuration(int duration) | 设置打开和关闭的动画执行时间 |  
-| void excuteEnterAnim() | 执行开始动画 |
-| void excuteExitAnim() | 执行结束动画 |
-| void watch() | 开启图片浏览 |
-| void close() | 关闭图片浏览 |
-| void clear() | 清除所有数据 |
-| void setImageZoomable(boolean zoomable) | 设置图片是否可缩放 |  
-| boolean isImageZoomable() | 获取图片是否可缩放 |  
-| float getImageScale() | 获取图片当前的缩放级别 |  
-| int getCurrentPosition() | 获取当前图片的位置 |  
+| setStartPosition(int position) | 设置开始展示的图片的位置 |
+| setImageData(List list) | 设置图片资源 |
+| setViewData(List<ViewData> list) | 设置目标 view 的相关数据 |
+| setImageLoader(ImageLoader loader) | 设置图片加载类 |
+| showIndex(boolean show) | 是否显示图片索引 |
+| doDrag(boolean isDo) | 是否允许图片被拖拽 |
+| setDragType(@ImageDraggerType int type) | 设置拖拽模式 |
+| doEnterAnim(boolean isDo) | 是否开启进场动画 |
+| doExitAnim(boolean isDo) | 是否开启退场动画 |
+| setDuration(int duration) | 设置打开和关闭的动画执行时间 | 
+| setOnImageChangedListener(OnImageChangedListener listener) | 设置图片切换监听 |
+| setOnItemClickListener(OnItemClickListener listener) | 设置图片的单击击监听 |
+| setOnItemLongClickListener(OnItemLongClickListener listener) | 设置图片的长按击监听 |
+| setOnPreviewStatusListener(OnPreviewStatusListener listener) | 设置图片预览状态监听 |
+| watch() | 开启图片预览 |
+| close() | 关闭图片预览 |
+| clear() | 清除所有数据 |
+| getViewState() | 获取图片预览器的当前状态 |
+| setImageScaleable(boolean scaleable) | 是否允许图片缩放 |  
+| isImageScaleable() | 图片是否可缩放 |  
+| getImageScale() | 获取图片当前的缩放等级 |  
+| setImageMaxScale | 设置图片的最大缩放等级 |  
+| getImageMaxScale() | 获取图片的最大缩放等级 |  
+| setImageMinScale(float minScale) | 设置图片的最小缩放等级 | 
+| getImageMinScale() | 获取图片的最小缩放等级 | 
 | View getCurrentView() | 获取当前 Item 的视图 |
+| int getCurrentPosition() | 获取当前图片的位置 |  
 
-## 使用方法
+
+<h2 id="4">使用详解</h2>
 #### XML
 ```
   <com.liyi.viewer.widget.ImageViewer
