@@ -1,66 +1,41 @@
-# ImageViewer
+<h1>ImageViewer</h1>
 
 ![releasesvg] ![apisvg] [![license][licensesvg]][license]
 
-## 关于
+<h2>关于</h2>
+
 图片预览器，支持图片手势缩放、拖拽等操作，`自定义View`的模式显示，自定义图片加载方式，更加灵活，易于扩展，同时也适用于RecyclerView、ListView的横向和纵向列表模式，最低支持版本为Android 3.0及以上...  
 
-## 功能
+<h2>功能</h2>
+
+- 图片的基本缩放、滑动
 - 微信朋友圈图片放大预览
 - 微信朋友圈图片拖拽效果
 - 今日头条图片拖拽效果
 - 图片加载进度条
 
-## 传送门
-- [添加依赖](#1)
-- [自定义属性](#2)
-- [自定义方法](#3)
+<h2>传送门</h2>
+
+- [自定义属性](#1)
+- [自定义方法](#2)
+- [添加依赖](#3)
 - [简单示例](#4)
 - [超巨图加载解决方案](#5)
 
-## 推荐
+<h2>推荐</h2>
+
 - [AutoGridView][AutoGridView] 宫格控件，QQ空间九宫格、普通宫格模式、点击添加照片...
 
-## 项目演示
+<h2>项目演示</h2>
+
 ![demo-simple]  ![demo-custom]  
 ![demo-land]  ![demo-port]
   
-## apk体验
-### [点我][demo-apk]
-  
-<h2 id="1">添加依赖</h2>
-* Gradle
-```Java
-   Step 1:
+<h2>apk体验</h2>
 
-   allprojects {
-       repositories {
-           ...
-           // 此句maven是为因为项目中使用了jitpack上的开源项目PhotoView
-           maven { url 'https://jitpack.io' }
-           // 如果添加依赖时，报找不到项目时（项目正在审核），可以添加此句maven地址，如果找到项目，可不必添加
-           maven { url "https://dl.bintray.com/albertlii/android-maven/" }
-       }
-    }
-    
-    
-   Step 2:
-   dependencies {
-       compile 'com.liyi.view:image-viewer:2.1.0'
-   }
-```  
+<h3>[点我][demo-apk]</h3>
 
-* Maven 
-```Java
-   <dependency>
-      <groupId>com.liyi.view</groupId>
-      <artifactId>image-viewer</artifactId>
-      <version>2.1.0</version>
-      <type>pom</type>
-   </dependency>
-```
-
-<h2 id="2">自定义属性</h2>  
+<h2 id="1">自定义属性</h2>  
 
 | 属性名 | 描述 |    
 | :---- | :---- |    
@@ -70,8 +45,8 @@
 | ivr_duration | 进场与退场动画的执行时间 |    
 | ivr_do_drag | 是否允许图片拖拽 |    
 | ivr_drag_type | 拖拽模式（classic：今日头条效果 | wechat：微信朋友圈效果） |  
-  
-<h2 id="3">自定义方法</h2>    
+ 
+<h2 id="2">自定义方法</h2>    
 
 | 方法名 | 描述 |
 |:----|:----|
@@ -104,6 +79,38 @@
 | getCurrentPosition() | 获取当前图片的位置 |  
 | onKeyDown(int keyCode, KeyEvent event) | 返回键监听（使用方法见demo） | 
 
+<h2 id="3">添加依赖</h2> 
+
+- Gradle
+```Java
+   Step 1:
+
+   allprojects {
+       repositories {
+           ...
+           // 此句maven是为因为项目中使用了jitpack上的开源项目PhotoView
+           maven { url 'https://jitpack.io' }
+           // 如果添加依赖时，报找不到项目时（项目正在审核），可以添加此句maven地址，如果找到项目，可不必添加
+           maven { url "https://dl.bintray.com/albertlii/android-maven/" }
+       }
+    }
+    
+    
+   Step 2:
+   dependencies {
+       compile 'com.liyi.view:image-viewer:2.1.1'
+   }
+```  
+
+- Maven 
+```Java
+   <dependency>
+      <groupId>com.liyi.view</groupId>
+      <artifactId>image-viewer</artifactId>
+      <version>2.1.1</version>
+      <type>pom</type>
+   </dependency>
+```
 
 <h2 id="4">简单实例</h2>
 #### XML 中添加 ImageViewer
@@ -152,15 +159,17 @@
    // 开启图片浏览
    imageViewer.watch();
 ```
+<h2 id="5">超巨图解决方案（进退场动画需重写，且不支持微信朋友圈拖拽，今日头条效果仍然支持）</h2>
 
-## 超巨图解决方案（进退场动画需重写，且不支持微信朋友圈拖拽，今日头条效果仍然支持）
 1. 使用 [SubsamplingScaleImageView](SubsamplingScaleImageView) 代替 PhotoView（推荐）
 2. 或者使用 [BigImageView](BigImageView) 代替 ScaleImageView
 
-## 赞赏  
+<h2>赞赏</h2>
+
 如果你感觉 `ImageViewer` 帮助到了你，可以点右上角 "Star" 支持一下 谢谢！:blush:
 
-## LICENSE
+<h2>LICENSE</h2>
+
 Copyright 2017 liyi
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -177,7 +186,7 @@ limitations under the License.
 
 
 
-[releasesvg]: https://img.shields.io/badge/version-2.1.0-brightgreen.svg
+[releasesvg]: https://img.shields.io/badge/version-2.1.1-brightgreen.svg
 [apisvg]: https://img.shields.io/badge/sdk-14+-brightgreen.svg
 [licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
 [license]:http://www.apache.org/licenses/LICENSE-2.0
