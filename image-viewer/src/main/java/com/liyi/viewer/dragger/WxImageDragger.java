@@ -180,7 +180,6 @@ public class WxImageDragger extends ImageDragger {
         final float toY = viewData.getTargetY();
         final float old_width = mAdjustImgWidth * mCurScale;
         final float old_height = mAdjustImgHeight * mCurScale;
-        System.out.println(">>> PP "+mAdjustImgWidth+"  "+mAdjustImgHeight+"   "+mCurScale+"  "+mOriImg_height+"  "+mOriImg_width+"  "+mAdjustScale);
         final float new_width = viewData.getTargetWidth();
         final float new_height = viewData.getTargetHeight();
         // 是否需要改变 imageView 的尺寸
