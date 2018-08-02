@@ -98,7 +98,7 @@
     
    Step 2:
    dependencies {
-       compile 'com.liyi.view:image-viewer:2.1.1'
+       compile 'com.liyi.view:image-viewer:2.1.2'
    }
 ```  
 
@@ -107,12 +107,12 @@
    <dependency>
       <groupId>com.liyi.view</groupId>
       <artifactId>image-viewer</artifactId>
-      <version>2.1.1</version>
+      <version>2.1.2</version>
       <type>pom</type>
    </dependency>
 ```
 
-<h2 id="4">简单实例</h2>
+<h2 id="4">简单示例</h2>
 
 #### XML 中添加 ImageViewer
 ```
@@ -187,7 +187,7 @@ limitations under the License.
 
 
 
-[releasesvg]: https://img.shields.io/badge/version-2.1.1-brightgreen.svg
+[releasesvg]: https://img.shields.io/badge/version-2.1.2-brightgreen.svg
 [apisvg]: https://img.shields.io/badge/sdk-14+-brightgreen.svg
 [licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
 [license]:http://www.apache.org/licenses/LICENSE-2.0
