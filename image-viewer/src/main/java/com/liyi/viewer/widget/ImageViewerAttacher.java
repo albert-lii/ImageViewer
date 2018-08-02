@@ -114,12 +114,6 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         isImageScaleable = true;
         mScreenSize = ImageViewerUtil.getScreenSize(container.getContext());
         mViewState = ImageViewerState.STATE_SILENCE;
-        mPreviewStatusListener = new OnPreviewStatusListener() {
-            @Override
-            public void onPreviewStatus(int state, ScaleImageView imagePager) {
-
-            }
-        };
     }
 
     private void initView() {
@@ -150,11 +144,11 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         if (indexView.getVisibility() == View.VISIBLE) {
             indexView.setText((position + 1) + "/" + mImageDataList.size());
         }
-        final ScaleImageView imagePager = getCurrentView();
-        if (imagePager != null) {
-            imagePager.setScale(1f);
+        final ScaleImageView scaleImageView = getCurrentView();
+        if (scaleImageView != null) {
+            scaleImageView.setScale(1f);
             if (mImageChangedListener != null) {
-                mImageChangedListener.onImageSelected(position, imagePager);
+                mImageChangedListener.onImageSelected(position, scaleImageView);
             }
         }
     }
@@ -213,6 +207,9 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         itemView.setDefSize(mScreenSize.x, mScreenSize.y);
         if (mImageMaxScale > 0) itemView.setMaxScale(mImageMaxScale);
         if (mImageMinScale > 0) itemView.setMinScale(mImageMinScale);
+        if (mViewDataList != null && mViewDataList.size() > position) {
+            itemView.setViewData(mViewDataList.get(position));
+        }
         final PhotoView imageView = (PhotoView) itemView.getImageView();
         imageView.setX(0);
         imageView.setY(0);
@@ -238,56 +235,56 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
      */
     public void watch() {
         viewPager.setScrollable(true);
-        ScaleImageView imagePager = createItemView(mStartPosition);
+        ScaleImageView scaleImageView = createItemView(mStartPosition);
         if (mPreviewAdapter == null) {
             mPreviewAdapter = new PreviewAdapter(this);
-            mPreviewAdapter.setStartView(imagePager);
+            mPreviewAdapter.setStartView(scaleImageView);
             mPreviewAdapter.setImageData(mImageDataList);
             viewPager.setAdapter(mPreviewAdapter);
         } else {
-            mPreviewAdapter.setStartView(imagePager);
+            mPreviewAdapter.setStartView(scaleImageView);
             mPreviewAdapter.setImageData(mImageDataList);
             mPreviewAdapter.notifyDataSetChanged();
         }
         viewPager.setCurrentItem(mStartPosition, false);
-        setPreviewStatus(ImageViewerState.STATE_READY_OPEN, imagePager);
+        setPreviewStatus(ImageViewerState.STATE_READY_OPEN, scaleImageView);
         container.setVisibility(View.VISIBLE);
         if (doEnterAnim) {
-            enterWithAnim(imagePager);
+            enterWithAnim(scaleImageView);
         } else {
-            enter(imagePager);
+            enter(scaleImageView);
         }
     }
 
-    public void enterWithAnim(final ScaleImageView imagePager) {
+    public void enterWithAnim(final ScaleImageView scaleImageView) {
         viewPager.setScrollable(false);
-        imagePager.setPosition(mStartPosition);
-        imagePager.setViewData(mViewDataList.get(mStartPosition));
-        imagePager.setDuration(mDuration);
-        imagePager.setDoBackgroundAlpha(false);
-        imagePager.start(new TransitionCallback() {
+        scaleImageView.setPosition(mStartPosition);
+        scaleImageView.setViewData(mViewDataList.get(mStartPosition));
+        scaleImageView.setDuration(mDuration);
+        scaleImageView.setDoBackgroundAlpha(false);
+        scaleImageView.start(new TransitionCallback() {
 
             @Override
             public void onTransitionRunning(float progress) {
                 super.onTransitionRunning(progress);
                 setBackgroundAlpha((int) (progress * 255));
-                setPreviewStatus(ImageViewerState.STATE_OPENING, imagePager);
+                setPreviewStatus(ImageViewerState.STATE_OPENING, scaleImageView);
             }
 
             @Override
             public void onTransitionEnd() {
                 super.onTransitionEnd();
-                enter(imagePager);
+                enter(scaleImageView);
             }
         });
     }
 
-    private void enter(ScaleImageView imagePager) {
+    private void enter(ScaleImageView scaleImageView) {
         setBackgroundAlpha(255);
         handleImageIndex();
         viewPager.setScrollable(true);
-        setPreviewStatus(ImageViewerState.STATE_COMPLETE_OPEN, imagePager);
-        setPreviewStatus(ImageViewerState.STATE_WATCHING, imagePager);
+        setPreviewStatus(ImageViewerState.STATE_COMPLETE_OPEN, scaleImageView);
+        setPreviewStatus(ImageViewerState.STATE_WATCHING, scaleImageView);
     }
 
     /**
@@ -308,17 +305,17 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         indexView.setVisibility(View.GONE);
         final int position = getCurrentPosition();
         final ViewData viewData = mViewDataList.get(position);
-        final ScaleImageView imagePager = getCurrentView();
-        imagePager.setPosition(position);
-        imagePager.setViewData(viewData);
-        imagePager.setDuration(mDuration);
-        imagePager.setDoBackgroundAlpha(false);
-        imagePager.cancel(new TransitionCallback() {
+        final ScaleImageView scaleImageView = getCurrentView();
+        scaleImageView.setPosition(position);
+        scaleImageView.setViewData(viewData);
+        scaleImageView.setDuration(mDuration);
+        scaleImageView.setDoBackgroundAlpha(false);
+        scaleImageView.cancel(new TransitionCallback() {
             @Override
             public void onTransitionRunning(float progress) {
                 super.onTransitionRunning(progress);
                 setBackgroundAlpha((int) ((1 - progress) * 255));
-                setPreviewStatus(ImageViewerState.STATE_CLOSING, imagePager);
+                setPreviewStatus(ImageViewerState.STATE_CLOSING, scaleImageView);
             }
 
             @Override
@@ -407,8 +404,8 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     }
 
     public float getImageScale() {
-        final ScaleImageView imagePager = getCurrentView();
-        return imagePager != null ? imagePager.getScale() : 1f;
+        final ScaleImageView scaleImageView = getCurrentView();
+        return scaleImageView != null ? scaleImageView.getScale() : 1f;
     }
 
     public void setImageMaxScale(float maxScaleLevel) {
@@ -445,9 +442,9 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     }
 
     public boolean isImageAnimRunning() {
-        ScaleImageView imagePager = getCurrentView();
-        if (imagePager != null) {
-            return imagePager.isImageAnimRunning();
+        ScaleImageView scaleImageView = getCurrentView();
+        if (scaleImageView != null) {
+            return scaleImageView.isImageAnimRunning();
         }
         return false;
     }
@@ -468,10 +465,10 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         this.mPreviewStatusListener = listener;
     }
 
-    public void setPreviewStatus(int state, ScaleImageView imagePager) {
+    public void setPreviewStatus(int state, ScaleImageView scaleImageView) {
         mViewState = state;
         if (mPreviewStatusListener != null) {
-            mPreviewStatusListener.onPreviewStatus(state, imagePager);
+            mPreviewStatusListener.onPreviewStatus(state, scaleImageView);
         }
     }
 
@@ -479,10 +476,10 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
      * 图片手势类事件监听类
      */
     private class ImageGestureListener implements View.OnClickListener, View.OnLongClickListener {
-        private ScaleImageView imagePager;
+        private ScaleImageView scaleImageView;
 
-        public ImageGestureListener(ScaleImageView imagePager) {
-            this.imagePager = imagePager;
+        public ImageGestureListener(ScaleImageView scaleImageView) {
+            this.scaleImageView = scaleImageView;
         }
 
         /**
@@ -490,9 +487,9 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
          */
         @Override
         public void onClick(View v) {
-            if (!imagePager.isImageAnimRunning() && !imagePager.isImageDragging()) {
+            if (!scaleImageView.isImageAnimRunning() && !scaleImageView.isImageDragging()) {
                 if (mItemClickListener != null) {
-                    final boolean result = mItemClickListener.onItemClick(imagePager.getPosition(), imagePager.getImageView());
+                    final boolean result = mItemClickListener.onItemClick(scaleImageView.getPosition(), scaleImageView.getImageView());
                     // 判断是否消费了单击事件，如果消费了，则单击事件的后续方法不执行
                     if (result) return;
                 }
@@ -505,8 +502,8 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
          */
         @Override
         public boolean onLongClick(View v) {
-            if (!imagePager.isImageAnimRunning() && !imagePager.isImageDragging() && mItemLongClickListener != null) {
-                mItemLongClickListener.onItemLongClick(imagePager.getPosition(), imagePager.getImageView());
+            if (!scaleImageView.isImageAnimRunning() && !scaleImageView.isImageDragging() && mItemLongClickListener != null) {
+                mItemLongClickListener.onItemLongClick(scaleImageView.getPosition(), scaleImageView.getImageView());
                 return true;
             }
             return false;

@@ -7,8 +7,8 @@ def build_tool_version = "27.0.3"
 def support_version = "27.1.1"
 def min_sdk_version = 14
 def target_sdk_version = 27
-def version_code = 14
-def version_name = "2.1.0"
+def version_code = 16
+def version_name = "2.1.2"
 
 def bintrayName = "albertlii"
 def bintrayRepoName = "android-maven"
