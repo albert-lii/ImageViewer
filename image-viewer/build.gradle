@@ -1,32 +1,21 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
 
-
-def comiple_sdk_version = 27
-def build_tool_version = "27.0.3"
-def support_version = "27.1.1"
-def min_sdk_version = 14
-def target_sdk_version = 27
-def version_code = 16
-def version_name = "2.1.2"
-
-def bintrayName = "albertlii"
-def bintrayRepoName = "android-maven"
-def bintrayGroupId = "com.liyi.view"
-def bintrayArtifactId = "image-viewer"
-def bintrayDesc = "image-viewer"
-def bintrayWebSite = "https://github.com/albert-lii/ImageViewer"
-def bintrayLicences = ['Apache-2.0']
+def compileSdk = versions.compileSdk
+def minSdk = versions.minSdk
+def targetSdk = versions.targetSdk
+def buildTools = versions.buildTools
+def verCode = 17
+def verName = "2.1.3"
 
 android {
-    compileSdkVersion comiple_sdk_version
-    buildToolsVersion build_tool_version
+    compileSdkVersion compileSdk
+    buildToolsVersion buildTools
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion target_sdk_version
-        versionCode version_code
-        versionName version_name
+        minSdkVersion minSdk
+        targetSdkVersion targetSdk
+        versionCode verCode
+        versionName verName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -37,55 +26,43 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    aaptOptions {
-        cruncherEnabled = false
-        useNewCruncher = false
-    }
-
-    lintOptions {
-        abortOnError false
-        // 防止在发布的时候出现因 MissingTranslation 导致 Build Failed!
-        disable 'MissingTranslation'
-    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.1', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    api 'com.android.support:appcompat-v7:' + support_version
-    api 'com.github.chrisbanes:PhotoView:2.1.4'
-    // 超巨图查看控件
-//    api 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
+    implementation deps.junit
+    androidTestImplementation deps.test.runner
+    androidTestImplementation deps.test.espresso
+
+    implementation deps.support.compatV7
 }
 
+
+apply plugin: 'com.novoda.bintray-release'
+
+def bintrayName = "albertlii"
+def bintrayRepoName = "android-maven"
+def bintrayGroupId = "com.liyi.view"
+def bintrayArtifactId = "image-viewer"
+def bintrayDesc = "This is a library for image browsing."
+def bintrayWebSite = "https://github.com/albert-lii/ImageViewer"
+def bintrayLicences = ['Apache-2.0']
+
 publish {
-    // bintray 用户名
     userOrg = bintrayName
-    // 要传到的 maven 的名字。你可能有多个 maven，要传哪个写哪个。
     repoName = bintrayRepoName
-    // jcenter 上的路径
     groupId = bintrayGroupId
-    // 项目名称
     artifactId = bintrayArtifactId
-    // 版本号
-    publishVersion = version_name
-    // 描述，不重要
+    publishVersion = verName
     desc = bintrayDesc
-    // 网站，不重要；尽量模拟 github 上的地址
     website = bintrayWebSite
     licences = bintrayLicences
 }
 
-// 指定编码
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
-// 打包源码
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
@@ -98,7 +75,6 @@ task javadoc(type: Javadoc) {
     classpath += configurations.compile
 }
 
-// 制作文档(Javadoc)
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir

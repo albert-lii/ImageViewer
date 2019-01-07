@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.github.chrisbanes.photoview.PhotoView;
 import com.liyi.viewer.ImageLoader;
 import com.liyi.viewer.ImageViewerState;
 import com.liyi.viewer.ImageViewerUtil;
@@ -25,6 +24,7 @@ import com.liyi.viewer.listener.OnImageChangedListener;
 import com.liyi.viewer.listener.OnItemClickListener;
 import com.liyi.viewer.listener.OnItemLongClickListener;
 import com.liyi.viewer.listener.OnPreviewStatusListener;
+import com.liyi.viewer.widget.photoview.PhotoView;
 import com.liyi.viewer.widget.viewpager.PreviewAdapter;
 import com.liyi.viewer.widget.viewpager.PreviewPager;
 

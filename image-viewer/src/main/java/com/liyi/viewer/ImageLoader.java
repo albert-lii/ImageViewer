@@ -2,8 +2,6 @@ package com.liyi.viewer;
 
 import android.widget.ImageView;
 
-import com.liyi.viewer.widget.ScaleImageView;
-
 /**
  * 自定义图片加载器
  *

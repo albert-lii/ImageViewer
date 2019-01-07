@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.github.chrisbanes.photoview.PhotoView;
 import com.liyi.viewer.ImageViewerUtil;
 import com.liyi.viewer.TransitionCallback;
 import com.liyi.viewer.ViewData;
@@ -25,6 +24,7 @@ import com.liyi.viewer.dragger.ImageDraggerState;
 import com.liyi.viewer.dragger.ImageDraggerStateListener;
 import com.liyi.viewer.dragger.ImageDraggerType;
 import com.liyi.viewer.dragger.WxImageDragger;
+import com.liyi.viewer.widget.photoview.PhotoView;
 import com.liyi.viewer.widget.progressbar.CircleProgressBar;
 
 /**
