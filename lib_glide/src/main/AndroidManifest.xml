@@ -1,2 +1,2 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="indi.liyi.viewer"></manifest>
+    package="indi.liyi.viewer.glide" />

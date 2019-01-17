@@ -26,6 +26,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+        def dirs = ['p_imageview','p_progressbar']
+        main {
+            dirs.each { dir ->
+                java.srcDir("src/${dir}/main/java")
+                res.srcDir("src/${dir}/main/res")
+            }
+        }
+    }
 }
 
 dependencies {
