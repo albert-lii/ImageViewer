@@ -5,7 +5,7 @@ import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
-import indi.liyi.viewer.widget.ScaleImageView;
+import indi.liyi.viewer.widget.ScaleImagePager;
 import indi.liyi.viewer.widget.ImageViewerAttacher;
 
 import java.util.ArrayList;
@@ -18,11 +18,11 @@ public class PreviewAdapter extends PagerAdapter {
     // 预览的起始位置
     private int mStartPosition;
     // 第一个展示的 View
-    private ScaleImageView mStartView;
+    private ScaleImagePager mStartView;
     // 图片资源
     private List mImageDataList;
     // itemView 集合（在 itemView 被移除后，会被重复使用）
-    private List<ScaleImageView> mActiveViews;
+    private List<ScaleImagePager> mActiveViews;
     private ImageViewerAttacher mAttacher;
 
     public PreviewAdapter(ImageViewerAttacher attacher) {
@@ -30,7 +30,7 @@ public class PreviewAdapter extends PagerAdapter {
         mActiveViews = new ArrayList<>();
     }
 
-    public void setStartView(ScaleImageView itemView) {
+    public void setStartView(ScaleImagePager itemView) {
         mStartPosition = itemView.getPosition();
         // 提前创建 itemView，用作执行图片浏览器的开启动画
         mStartView = itemView;
@@ -52,7 +52,7 @@ public class PreviewAdapter extends PagerAdapter {
 
     @Override
     public View instantiateItem(ViewGroup container, final int position) {
-        ScaleImageView itemView = null;
+        ScaleImagePager itemView = null;
         if (mStartPosition == position) {
             itemView = mStartView;
             mActiveViews.add(itemView);
@@ -61,7 +61,7 @@ public class PreviewAdapter extends PagerAdapter {
         } else if (mActiveViews != null && mActiveViews.size() > 0) {
             if (mActiveViews != null && mActiveViews.size() > 0) {
                 for (int i = 0, len = mActiveViews.size(); i < len; i++) {
-                    ScaleImageView scaleImageView = mActiveViews.get(i);
+                    ScaleImagePager scaleImageView = mActiveViews.get(i);
                     if (scaleImageView.getParent() == null) {
                         itemView = mAttacher.setupItemViewConfig(position, scaleImageView);
                         break;
@@ -82,7 +82,7 @@ public class PreviewAdapter extends PagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         // 回收图片，释放内存
         if (object != null) {
-            ((ScaleImageView) object).recycle();
+            ((ScaleImagePager) object).recycle();
         }
         // 移除页面
         container.removeView((View) object);
@@ -105,8 +105,8 @@ public class PreviewAdapter extends PagerAdapter {
      * @param position
      * @return
      */
-    public ScaleImageView getViewByPosition(int position) {
-        ScaleImageView itemView = null;
+    public ScaleImagePager getViewByPosition(int position) {
+        ScaleImagePager itemView = null;
         if (mStartPosition == INVALID_VALUE) {
             for (int i = 0, len = mActiveViews.size(); i < len; i++) {
                 if (mActiveViews.get(i).getId() == position) {
@@ -123,7 +123,7 @@ public class PreviewAdapter extends PagerAdapter {
     public void clear() {
         if (mActiveViews != null && mActiveViews.size() > 0) {
             for (int i = 0, len = mActiveViews.size(); i < len; i++) {
-                ScaleImageView itemView = mActiveViews.get(i);
+                ScaleImagePager itemView = mActiveViews.get(i);
                 itemView.recycle();
                 itemView = null;
             }

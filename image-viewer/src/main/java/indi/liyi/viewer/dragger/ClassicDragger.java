@@ -11,42 +11,62 @@ import android.widget.ImageView;
 
 import indi.liyi.viewer.ImageViewerState;
 import indi.liyi.viewer.ViewData;
+import indi.liyi.viewer.widget.ScaleImagePager;
 
 
 /**
  * 默认的图片拖拽处理类
  */
-public class DefaultImageDragger extends ImageDragger {
+public class ClassicDragger extends BaseDragger {
     // 恢复原样的动画时间
-    private final int BACK_ANIM_DURATION = 200;
+    private final int REBACK_ANIM_DURATION = 200;
     // 退出预览的动画时间
     private final int EXIT_ANIM_DURATION = 200;
 
-    public DefaultImageDragger() {
+    // 预览界面的宽高
+    private float mPreiWidth;
+    private float mPreiHeight;
+
+    private ScaleImagePager imagePager;
+
+    public ClassicDragger() {
 
     }
 
     @Override
-    public void onDragging(float x1, float y1, float x2, float y2) {
-        super.onDragging(x1, y1, x2, y2);
-        View imageView = scaleImageView.getImageView();
+    public void injectImagePager(ScaleImagePager imagePager) {
+        super.injectImagePager(imagePager);
+        this.imagePager = imagePager;
+    }
+
+    @Override
+    public void onDown(float preiWidth, float preiHeight) {
+        super.onDown(preiWidth, preiHeight);
+        this.mPreiWidth = preiWidth;
+        this.mPreiHeight = preiHeight;
+    }
+
+    @Override
+    public void onDrag(float downX, float downY, float curX, float curY) {
+        super.onDrag(downX, downY, curX, curY);
+        View imageView = imagePager.getImageView();
         // 计算 view 的 Y 轴坐标
-        final float diff = y2 - y1;
-        final float viewY = imageView.getY() + diff;
+        final float diffY = curY - downY;
+        final float oldViewY = imageView.getY();
+        final float newViewY = oldViewY + diffY;
+        imageView.setY(newViewY);
         // 计算背景透明度
-        final float value = Math.abs(viewY) / mAlphaBase;
-        mBackgroundAlpha = ( value < 0.8f ? 1 - value : 0.2f) * DEF_BACKGROUND_ALPHA;
-        imageView.setY(viewY);
-        setBackgroundAlpha((int) mBackgroundAlpha);
+        final float value = Math.abs(newViewY) / getAlphaBase();
+        changeBackgroundAlpha((int) ((value < 0.8f ? 1 - value : 0.2f) * NO_BACKGROUND_ALPHA));
     }
 
     @Override
-    public void onRelease() {
-        super.onRelease();
-        if (!scaleImageView.isImageAnimRunning()) {
-            View imageView = scaleImageView.getImageView();
-            final float imageViewY = imageView.getY();
-            if (Math.abs(imageViewY) <= mMaxDisOnY) {
+    public void onUp() {
+        super.onUp();
+        if (!imagePager.isImageAnimRunning()) {
+            View imageView = imagePager.getImageView();
+            final float disOnY = Math.abs(imageView.getY());
+            if (disOnY <= getMaxMovableDisOnY()) {
                 reback();
             } else {
                 exit();
@@ -58,12 +78,12 @@ public class DefaultImageDragger extends ImageDragger {
      * 图片恢复原样
      */
     private void reback() {
-        setImageDraggerState(ImageDraggerState.DRAG_STATE_BEGIN_REBACK);
-        setPreviewStatus(ImageViewerState.STATE_READY_REBACK, scaleImageView);
-        final View imageView = scaleImageView.getImageView();
+        setDragStatus(DragStatus.STATUS_BEGIN_REBACK);
+        setPreviewStatus(ImageViewerState.STATE_READY_REBACK, imagePager);
+        final View imageView = imagePager.getImageView();
         final float imageViewY = imageView.getY();
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
-        animator.setDuration(BACK_ANIM_DURATION);
+        animator.setDuration(REBACK_ANIM_DURATION);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             FloatEvaluator evaluator = new FloatEvaluator();
 
@@ -72,11 +92,11 @@ public class DefaultImageDragger extends ImageDragger {
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float currentValue = (float) animation.getAnimatedValue();
                 final float y = evaluator.evaluate(currentValue, imageViewY, 0);
-                final float alpha = evaluator.evaluate(currentValue, mBackgroundAlpha, DEF_BACKGROUND_ALPHA);
+                final float alpha = evaluator.evaluate(currentValue, getBackgroundAlpha(), NO_BACKGROUND_ALPHA);
                 imageView.setY(y);
-                setBackgroundAlpha((int) alpha);
-                setImageDraggerState(ImageDraggerState.DRAG_STATE_REBACKING);
-                setPreviewStatus(ImageViewerState.STATE_REBACKING, scaleImageView);
+                changeBackgroundAlpha((int) alpha);
+                setDragStatus(DragStatus.STATUS_REBACKING);
+                setPreviewStatus(ImageViewerState.STATE_REBACKING, imagePager);
             }
         });
         animator.addListener(new AnimatorListenerAdapter() {
@@ -84,12 +104,12 @@ public class DefaultImageDragger extends ImageDragger {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                mBackgroundAlpha = DEF_BACKGROUND_ALPHA;
-                setImageDraggerState(ImageDraggerState.DRAG_STATE_END_REBACK);
+                setBackgroundAlpha(NO_BACKGROUND_ALPHA);
+                setDragStatus(DragStatus.STATUS_END_REBACK);
                 if (checkAttacherNotNull()) {
-                    mAttacher.setViewPagerScrollable(true);
-                    setPreviewStatus(ImageViewerState.STATE_COMPLETE_REBACK, scaleImageView);
-                    setPreviewStatus(ImageViewerState.STATE_WATCHING, scaleImageView);
+                    getAttacher().setViewPagerScrollable(true);
+                    setPreviewStatus(ImageViewerState.STATE_COMPLETE_REBACK, imagePager);
+                    setPreviewStatus(ImageViewerState.STATE_WATCHING, imagePager);
                 }
             }
         });
@@ -100,10 +120,10 @@ public class DefaultImageDragger extends ImageDragger {
      * 退出预览
      */
     private void exit() {
-        setImageDraggerState(ImageDraggerState.DRAG_STATE_BEGIN_EXIT);
-        setPreviewStatus(ImageViewerState.STATE_READY_CLOSE, scaleImageView);
-        final ImageView imageView = scaleImageView.getImageView();
-        final ViewData viewData = scaleImageView.getViewData();
+        setDragStatus(DragStatus.STATUS_BEGIN_EXIT);
+        setPreviewStatus(ImageViewerState.STATE_READY_CLOSE, imagePager);
+        final ImageView imageView = imagePager.getImageView();
+        final ViewData viewData = imagePager.getViewData();
         // imageView 当前的 Y 轴坐标
         final float imageViewY = imageView.getY();
         // 图片的原始宽高
@@ -116,15 +136,15 @@ public class DefaultImageDragger extends ImageDragger {
             oriImg_width = viewData.getImageWidth();
             oriImg_height = viewData.getImageHeight();
         }
-        final float scale = Math.min(mPreviewWidth / oriImg_width, mPreviewHeight / oriImg_height);
+        final float scale = Math.min(mPreiWidth / oriImg_width, mPreiHeight / oriImg_height);
         // 图片的缩放等级为 1f 时的图片高度
         final float adjustHeight = oriImg_height * scale;
         // 图片的缩放等级为 1f 且居中时时，在预览界面中的 Y 轴坐标
-        final float adjustImgY = (mPreviewHeight - adjustHeight) / 2;
+        final float adjustImgY = (mPreiHeight - adjustHeight) / 2;
         // 图片在预览界面中的当前 Y 轴坐标
         float currentImgY = imageViewY + adjustImgY;
         // 此处加 20 ,是为了减少误差，防止影响动画美观
-        final float toY = currentImgY > adjustImgY ? imageViewY + (mPreviewHeight - currentImgY + 20) : imageViewY - (currentImgY + adjustHeight + 20);
+        final float toY = currentImgY > adjustImgY ? imageViewY + (mPreiHeight - currentImgY + 20) : imageViewY - (currentImgY + adjustHeight + 20);
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(EXIT_ANIM_DURATION);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -134,11 +154,11 @@ public class DefaultImageDragger extends ImageDragger {
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float progress = (float) animation.getAnimatedValue();
                 final float y = evaluator.evaluate(progress, imageViewY, toY);
-                final float alpha = evaluator.evaluate(progress, mBackgroundAlpha, 0);
+                final float alpha = evaluator.evaluate(progress, getBackgroundAlpha(), 0);
                 imageView.setY(y);
-                setBackgroundAlpha((int) alpha);
-                setImageDraggerState(ImageDraggerState.DRAG_STATE_EXITTING);
-                setPreviewStatus(ImageViewerState.STATE_CLOSING, scaleImageView);
+                changeBackgroundAlpha((int) alpha);
+                setDragStatus(DragStatus.STATUS_EXITTING);
+                setPreviewStatus(ImageViewerState.STATE_CLOSING, imagePager);
             }
         });
         animator.addListener(new AnimatorListenerAdapter() {
@@ -146,12 +166,12 @@ public class DefaultImageDragger extends ImageDragger {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                if (checkAttacherNotNull()) mAttacher.exit();
-                mBackgroundAlpha = DEF_BACKGROUND_ALPHA;
-                setImageDraggerState(ImageDraggerState.DRAG_STATE_END_EXIT);
+                if (checkAttacherNotNull()) getAttacher().exit();
+                setBackgroundAlpha(NO_BACKGROUND_ALPHA);
+                setDragStatus(DragStatus.STATUS_END_EXIT);
                 imageView.setY(0);
-                setBackgroundAlpha((int) mBackgroundAlpha);
-                setPreviewStatus(ImageViewerState.STATE_COMPLETE_CLOSE, scaleImageView);
+                changeBackgroundAlpha((int) getBackgroundAlpha());
+                setPreviewStatus(ImageViewerState.STATE_COMPLETE_CLOSE, imagePager);
                 setPreviewStatus(ImageViewerState.STATE_SILENCE, null);
             }
         });

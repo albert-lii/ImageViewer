@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.liyi.example.R;
 import com.liyi.example.glide.GlideUtil;
 import com.liyi.grid.AutoGridView;
 import com.liyi.grid.adapter.SimpleAutoGridAdapter;
@@ -23,11 +22,11 @@ import indi.liyi.example.glide.GlideUtil;
 import indi.liyi.viewer.ImageLoader;
 import indi.liyi.viewer.ImageViewerState;
 import indi.liyi.viewer.ViewData;
-import indi.liyi.viewer.listener.OnImageChangedListener;
+import indi.liyi.viewer.listener.OnPageChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
 import indi.liyi.viewer.widget.ImageViewer;
-import indi.liyi.viewer.widget.ScaleImageView;
+import indi.liyi.viewer.widget.ScaleImagePager;
 
 /**
  * 自定义图片预览
@@ -86,9 +85,9 @@ public class CustomPreviewAty extends BaseActivity {
             }
         });
         // 设置图片的切换监听
-        imagePreview.setOnImageChangedListener(new OnImageChangedListener() {
+        imagePreview.setOnImageChangedListener(new OnPageChangedListener() {
             @Override
-            public void onImageSelected(int position, ScaleImageView view) {
+            public void onPageChanged(int position, ScaleImagePager view) {
                 tv_cover_index.setText("我是图片" + (position + 1) + "号");
             }
         });
@@ -108,7 +107,7 @@ public class CustomPreviewAty extends BaseActivity {
         // 设置图片预览器的状态监听
         imagePreview.setOnPreviewStatusListener(new OnPreviewStatusListener() {
             @Override
-            public void onPreviewStatus(int state, ScaleImageView imagePager) {
+            public void onPreviewStatus(int state, ScaleImagePager imagePager) {
                 if (state == ImageViewerState.STATE_COMPLETE_OPEN) {
                     coverView.setVisibility(View.VISIBLE);
                 } else if (state == ImageViewerState.STATE_COMPLETE_CLOSE) {

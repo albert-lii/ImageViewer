@@ -9,28 +9,26 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import indi.liyi.viewer.ImageViewerUtil;
 import indi.liyi.viewer.TransitionCallback;
 import indi.liyi.viewer.ViewData;
-import indi.liyi.viewer.dragger.DefaultImageDragger;
-import indi.liyi.viewer.dragger.ImageDragger;
-import indi.liyi.viewer.dragger.ImageDraggerState;
-import indi.liyi.viewer.dragger.ImageDraggerStateListener;
-import indi.liyi.viewer.dragger.ImageDraggerType;
-import indi.liyi.viewer.dragger.WxImageDragger;
+import indi.liyi.viewer.dragger.ClassicDragger;
+import indi.liyi.viewer.dragger.DragStatus;
+import indi.liyi.viewer.dragger.OnDragStatusListener;
+import indi.liyi.viewer.dragger.DragMode;
+import indi.liyi.viewer.dragger.DragHandler;
+import indi.liyi.viewer.dragger.AgileDragger;
 import indi.liyi.viewer.imgv.PhotoView;
 
 /**
  * 可缩放图片的自定义 View（即 viewPager 的 item）
  */
-public class ScaleImageView extends FrameLayout {
+public class ScaleImagePager extends FrameLayout {
     // 图片的位置
     private int mPosition;
     // view 的相关数据
@@ -40,7 +38,7 @@ public class ScaleImageView extends FrameLayout {
     // 默认的预览界面的宽高
     private float mDefWidth, mDefHeight;
     // 图片拖拽处理类
-    private ImageDragger mImageDragger;
+    private DragHandler mDragAdapter;
     // 图片拖拽模式
     private int mDragType;
     // 是否执行背景透明度渐变
@@ -62,20 +60,20 @@ public class ScaleImageView extends FrameLayout {
     // 是否定义了图片尺寸
     private boolean hasImageSize;
     // 图片拖拽状态监听
-    private ImageDraggerStateListener mStateListener;
+    private OnDragStatusListener mStateListener;
 
 
-    public ScaleImageView(@NonNull Context context) {
+    public ScaleImagePager(@NonNull Context context) {
         super(context);
         initView(context);
     }
 
-    public ScaleImageView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public ScaleImagePager(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initView(context);
     }
 
-    public ScaleImageView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ScaleImagePager(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(context);
     }
@@ -100,32 +98,32 @@ public class ScaleImageView extends FrameLayout {
      * 初始化图片拖拽状态监测
      */
     private void initDragStateMonitor() {
-        mStateListener = new ImageDraggerStateListener() {
+        mStateListener = new OnDragStatusListener() {
             @Override
-            public void onImageDraggerState(int state) {
-                switch (state) {
-                    case ImageDraggerState.DRAG_STATE_READY:
+            public void onDragStatusChanged(int status) {
+                switch (status) {
+                    case DragStatus.STATUS_READY:
                         isImageDragging = true;
                         break;
-                    case ImageDraggerState.DRAG_STATE_DRAGGING:
+                    case DragStatus.STATUS_DRAGGING:
                         isImageDragging = true;
                         break;
-                    case ImageDraggerState.DRAG_STATE_BEGIN_REBACK:
+                    case DragStatus.STATUS_BEGIN_REBACK:
                         isImageAnimRunning = true;
                         isImageDragging = false;
                         break;
-                    case ImageDraggerState.DRAG_STATE_REBACKING:
+                    case DragStatus.STATUS_REBACKING:
                         break;
-                    case ImageDraggerState.DRAG_STATE_END_REBACK:
+                    case DragStatus.STATUS_END_REBACK:
                         isImageAnimRunning = false;
                         break;
-                    case ImageDraggerState.DRAG_STATE_BEGIN_EXIT:
+                    case DragStatus.STATUS_BEGIN_EXIT:
                         isImageAnimRunning = true;
                         isImageDragging = false;
                         break;
-                    case ImageDraggerState.DRAG_STATE_EXITTING:
+                    case DragStatus.STATUS_EXITTING:
                         break;
-                    case ImageDraggerState.DRAG_STATE_END_EXIT:
+                    case DragStatus.STATUS_END_EXIT:
                         isImageAnimRunning = false;
                         setVisibility(View.GONE);
                         break;
@@ -157,14 +155,14 @@ public class ScaleImageView extends FrameLayout {
                  * 2、图片的缩放等级为 1f
                  * 3、拖拽处理类不为空
                  */
-                if (ev.getPointerCount() == 1 && getScale() <= 1f && mImageDragger != null) {
+                if (ev.getPointerCount() == 1 && getScale() <= 1f && mDragAdapter != null) {
                     float diffX = ev.getX() - mDownX;
                     float diffY = ev.getY() - mDownY;
                     // 上下滑动手势
                     if (Math.abs(diffX) < Math.abs(diffY)) {
-                        if ((mDragType == ImageDraggerType.DRAG_TYPE_DEFAULT) || (mDragType == ImageDraggerType.DRAG_TYPE_WX && diffY > 0)) {
-                            mImageDragger.bindScaleImageView(this);
-                            mImageDragger.onReady(getWidth() != 0 ? getWidth() : mDefWidth, getHeight() != 0 ? getHeight() : mDefHeight);
+                        if ((mDragType == DragMode.MODE_CLASSIC) || (mDragType == DragMode.MODE_AGLIE && diffY > 0)) {
+                            mDragAdapter.injectImagePager(this);
+                            mDragAdapter.onDown(getWidth() != 0 ? getWidth() : mDefWidth, getHeight() != 0 ? getHeight() : mDefHeight);
                             isIntercept = true;
                         }
                     }
@@ -199,8 +197,8 @@ public class ScaleImageView extends FrameLayout {
 
     private void onActionMove(MotionEvent event) {
         // 拖拽图片，只有一个触摸点时触发
-        if (event.getPointerCount() == 1 && getScale() <= 1f && isImageDragging && mImageDragger != null) {
-            mImageDragger.onDragging(mDownX, mDownY, event.getX(), event.getY());
+        if (event.getPointerCount() == 1 && getScale() <= 1f && isImageDragging && mDragAdapter != null) {
+            mDragAdapter.onDrag(mDownX, mDownY, event.getX(), event.getY());
         }
         mDownX = event.getX();
         mDownY = event.getY();
@@ -208,8 +206,8 @@ public class ScaleImageView extends FrameLayout {
 
     private void onActionUp(MotionEvent event) {
         // 释放图片
-        if (getScale() <= 1f && isImageDragging && mImageDragger != null) {
-            mImageDragger.onRelease();
+        if (getScale() <= 1f && isImageDragging && mDragAdapter != null) {
+            mDragAdapter.onUp();
         }
         mDownX = 0;
         mDownY = 0;
@@ -262,27 +260,27 @@ public class ScaleImageView extends FrameLayout {
         this.mDuration = duration;
     }
 
-    public void setImageDraggerType(@ImageDraggerType int type) {
+    public void setImageDraggerType(@DragMode int type) {
         setImageDraggerType(type, null, getBackground());
     }
 
-    public void setImageDraggerType(@ImageDraggerType int type, ImageViewerAttacher attacher, Drawable background) {
+    public void setImageDraggerType(@DragMode int type, ImageViewerAttacher attacher, Drawable background) {
         mDragType = type;
-        if (mDragType == ImageDraggerType.DRAG_TYPE_DEFAULT) {
-            mImageDragger = new DefaultImageDragger();
-        } else if (mDragType == ImageDraggerType.DRAG_TYPE_WX) {
-            mImageDragger = new WxImageDragger();
+        if (mDragType == DragMode.MODE_CLASSIC) {
+            mDragAdapter = new ClassicDragger();
+        } else if (mDragType == DragMode.MODE_AGLIE) {
+            mDragAdapter = new AgileDragger();
         }
-        if (mImageDragger != null) {
-            mImageDragger.setBackground(background);
-            if (attacher != null) mImageDragger.bindImageViewerAttacher(attacher);
-            mImageDragger.setImageDraggerStateListener(mStateListener);
+        if (mDragAdapter != null) {
+            mDragAdapter.changeBackground(background);
+            if (attacher != null) mDragAdapter.injectImageViewerAttacher(attacher);
+            mDragAdapter.addDragStatusListener(mStateListener);
         }
     }
 
     public void clearImageDragger() {
-        if (mImageDragger != null) {
-            mImageDragger = null;
+        if (mDragAdapter != null) {
+            mDragAdapter = null;
         }
     }
 

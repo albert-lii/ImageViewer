@@ -18,23 +18,16 @@ import indi.liyi.viewer.ImageViewerState;
 import indi.liyi.viewer.ImageViewerUtil;
 import indi.liyi.viewer.TransitionCallback;
 import indi.liyi.viewer.ViewData;
-import indi.liyi.viewer.dragger.ImageDraggerType;
+import indi.liyi.viewer.dragger.DragMode;
 import indi.liyi.viewer.imgv.PhotoView;
-import indi.liyi.viewer.listener.OnImageChangedListener;
+import indi.liyi.viewer.listener.OnPageChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
 import indi.liyi.viewer.widget.viewpager.PreviewAdapter;
-import indi.liyi.viewer.widget.viewpager.PreviewPager;
+import indi.liyi.viewer.widget.viewpager.PreviewViewPager;
 
 import java.util.List;
-
-import indi.liyi.viewer.listener.OnImageChangedListener;
-import indi.liyi.viewer.listener.OnItemClickListener;
-import indi.liyi.viewer.listener.OnItemLongClickListener;
-import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.widget.viewpager.PreviewAdapter;
-import indi.liyi.viewer.widget.viewpager.PreviewPager;
 
 
 public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
@@ -45,7 +38,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     private FrameLayout container;
     // 图片序号
     private TextView indexView;
-    private PreviewPager viewPager;
+    private PreviewViewPager viewPager;
     private PreviewAdapter mPreviewAdapter;
 
     // 屏幕尺寸
@@ -78,7 +71,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     // 图片加载器
     private ImageLoader mImageLoader;
     // 图片切换监听器
-    private OnImageChangedListener mImageChangedListener;
+    private OnPageChangedListener mImageChangedListener;
     // 图片点击监听器
     private OnItemClickListener mItemClickListener;
     // 图片长按监听器
@@ -100,7 +93,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
             if (a != null) {
                 showIndex = a.getBoolean(indi.liyi.viewer.R.styleable.ImageViewer_ivr_show_index, true);
                 doDrag = a.getBoolean(indi.liyi.viewer.R.styleable.ImageViewer_ivr_do_drag, true);
-                mDragType = a.getInteger(indi.liyi.viewer.R.styleable.ImageViewer_ivr_drag_type, ImageDraggerType.DRAG_TYPE_DEFAULT);
+                mDragType = a.getInteger(indi.liyi.viewer.R.styleable.ImageViewer_ivr_drag_type, DragMode.MODE_CLASSIC);
                 doEnterAnim = a.getBoolean(indi.liyi.viewer.R.styleable.ImageViewer_ivr_do_enter, true);
                 doExitAnim = a.getBoolean(indi.liyi.viewer.R.styleable.ImageViewer_ivr_do_exit, true);
                 mDuration = a.getInteger(indi.liyi.viewer.R.styleable.ImageViewer_ivr_duration, DEF_DURATION);
@@ -113,7 +106,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     private void initData() {
         showIndex = true;
         doDrag = true;
-        mDragType = ImageDraggerType.DRAG_TYPE_DEFAULT;
+        mDragType = DragMode.MODE_CLASSIC;
         doEnterAnim = true;
         doExitAnim = true;
         mDuration = DEF_DURATION;
@@ -123,7 +116,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     }
 
     private void initView() {
-        viewPager = new PreviewPager(container.getContext());
+        viewPager = new PreviewViewPager(container.getContext());
         viewPager.setOffscreenPageLimit(1);
         viewPager.addOnPageChangeListener(this);
         container.addView(viewPager, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
@@ -150,11 +143,11 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         if (indexView.getVisibility() == View.VISIBLE) {
             indexView.setText((position + 1) + "/" + mImageDataList.size());
         }
-        final ScaleImageView scaleImageView = getCurrentView();
+        final ScaleImagePager scaleImageView = getCurrentView();
         if (scaleImageView != null) {
             scaleImageView.setScale(1f);
             if (mImageChangedListener != null) {
-                mImageChangedListener.onImageSelected(position, scaleImageView);
+                mImageChangedListener.onPageChanged(position, scaleImageView);
             }
         }
     }
@@ -195,8 +188,8 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
      *
      * @return
      */
-    public ScaleImageView createItemView(final int position) {
-        final ScaleImageView itemView = new ScaleImageView(container.getContext());
+    public ScaleImagePager createItemView(final int position) {
+        final ScaleImagePager itemView = new ScaleImagePager(container.getContext());
         return setupItemViewConfig(position, itemView);
     }
 
@@ -206,7 +199,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
      * @param position
      * @param itemView
      */
-    public ScaleImageView setupItemViewConfig(int position, ScaleImageView itemView) {
+    public ScaleImagePager setupItemViewConfig(int position, ScaleImagePager itemView) {
         itemView.setId(position);
         itemView.setPosition(position);
         itemView.setScaleable(isImageScaleable);
@@ -241,7 +234,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
      */
     public void watch() {
         viewPager.setScrollable(true);
-        ScaleImageView scaleImageView = createItemView(mStartPosition);
+        ScaleImagePager scaleImageView = createItemView(mStartPosition);
         if (mPreviewAdapter == null) {
             mPreviewAdapter = new PreviewAdapter(this);
             mPreviewAdapter.setStartView(scaleImageView);
@@ -262,7 +255,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         }
     }
 
-    public void enterWithAnim(final ScaleImageView scaleImageView) {
+    public void enterWithAnim(final ScaleImagePager scaleImageView) {
         viewPager.setScrollable(false);
         scaleImageView.setPosition(mStartPosition);
         scaleImageView.setViewData(mViewDataList.get(mStartPosition));
@@ -285,7 +278,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         });
     }
 
-    private void enter(ScaleImageView scaleImageView) {
+    private void enter(ScaleImagePager scaleImageView) {
         setBackgroundAlpha(255);
         handleImageIndex();
         viewPager.setScrollable(true);
@@ -311,7 +304,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         indexView.setVisibility(View.GONE);
         final int position = getCurrentPosition();
         final ViewData viewData = mViewDataList.get(position);
-        final ScaleImageView scaleImageView = getCurrentView();
+        final ScaleImagePager scaleImageView = getCurrentView();
         scaleImageView.setPosition(position);
         scaleImageView.setViewData(viewData);
         scaleImageView.setDuration(mDuration);
@@ -381,7 +374,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         this.doDrag = isDo;
     }
 
-    public void setDragType(@ImageDraggerType int type) {
+    public void setDragType(@DragMode int type) {
         this.mDragType = type;
     }
 
@@ -410,7 +403,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     }
 
     public float getImageScale() {
-        final ScaleImageView scaleImageView = getCurrentView();
+        final ScaleImagePager scaleImageView = getCurrentView();
         return scaleImageView != null ? scaleImageView.getScale() : 1f;
     }
 
@@ -438,7 +431,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         return viewPager != null ? viewPager.getCurrentItem() : 0;
     }
 
-    public ScaleImageView getCurrentView() {
+    public ScaleImagePager getCurrentView() {
         return mPreviewAdapter != null ? mPreviewAdapter.getViewByPosition(getCurrentPosition()) : null;
     }
 
@@ -448,14 +441,14 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     }
 
     public boolean isImageAnimRunning() {
-        ScaleImageView scaleImageView = getCurrentView();
+        ScaleImagePager scaleImageView = getCurrentView();
         if (scaleImageView != null) {
             return scaleImageView.isImageAnimRunning();
         }
         return false;
     }
 
-    public void setOnImageChangedListener(OnImageChangedListener listener) {
+    public void setOnImageChangedListener(OnPageChangedListener listener) {
         this.mImageChangedListener = listener;
     }
 
@@ -471,7 +464,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         this.mPreviewStatusListener = listener;
     }
 
-    public void setPreviewStatus(int state, ScaleImageView scaleImageView) {
+    public void setPreviewStatus(int state, ScaleImagePager scaleImageView) {
         mViewState = state;
         if (mPreviewStatusListener != null) {
             mPreviewStatusListener.onPreviewStatus(state, scaleImageView);
@@ -482,9 +475,9 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
      * 图片手势类事件监听类
      */
     private class ImageGestureListener implements View.OnClickListener, View.OnLongClickListener {
-        private ScaleImageView scaleImageView;
+        private ScaleImagePager scaleImageView;
 
-        public ImageGestureListener(ScaleImageView scaleImageView) {
+        public ImageGestureListener(ScaleImagePager scaleImageView) {
             this.scaleImageView = scaleImageView;
         }
 

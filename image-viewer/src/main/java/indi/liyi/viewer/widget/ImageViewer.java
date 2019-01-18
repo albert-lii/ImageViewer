@@ -14,7 +14,7 @@ import java.util.List;
 import indi.liyi.viewer.ImageLoader;
 import indi.liyi.viewer.ImageViewerState;
 import indi.liyi.viewer.ViewData;
-import indi.liyi.viewer.listener.OnImageChangedListener;
+import indi.liyi.viewer.listener.OnPageChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
@@ -108,7 +108,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public ImageViewer setOnImageChangedListener(OnImageChangedListener listener) {
+    public ImageViewer setOnImageChangedListener(OnPageChangedListener listener) {
         mAttacher.setOnImageChangedListener(listener);
         return this;
     }

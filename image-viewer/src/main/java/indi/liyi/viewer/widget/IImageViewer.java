@@ -9,8 +9,8 @@ import java.util.List;
 import indi.liyi.viewer.ImageLoader;
 import indi.liyi.viewer.ImageViewerState;
 import indi.liyi.viewer.ViewData;
-import indi.liyi.viewer.dragger.ImageDraggerType;
-import indi.liyi.viewer.listener.OnImageChangedListener;
+import indi.liyi.viewer.dragger.DragMode;
+import indi.liyi.viewer.listener.OnPageChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
@@ -69,7 +69,7 @@ public interface IImageViewer {
      *
      * @param type
      */
-    ImageViewer setDragType(@ImageDraggerType int type);
+    ImageViewer setDragType(@DragMode int type);
 
     /**
      * 是否使用进场动画
@@ -97,7 +97,7 @@ public interface IImageViewer {
      *
      * @param listener
      */
-    ImageViewer setOnImageChangedListener(OnImageChangedListener listener);
+    ImageViewer setOnImageChangedListener(OnPageChangedListener listener);
 
     /**
      * 设置图片的单击事件监听

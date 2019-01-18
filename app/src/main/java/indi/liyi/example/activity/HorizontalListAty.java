@@ -12,7 +12,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.liyi.example.R;
 import com.liyi.example.adapter.RecyclerAdp;
 import com.liyi.example.glide.GlideUtil;
 import com.liyi.viewer.ImageLoader;
@@ -29,7 +28,7 @@ import indi.liyi.viewer.ImageViewerUtil;
 import indi.liyi.viewer.ViewData;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
 import indi.liyi.viewer.widget.ImageViewer;
-import indi.liyi.viewer.widget.ScaleImageView;
+import indi.liyi.viewer.widget.ScaleImagePager;
 
 /**
  * 横向列表页面
@@ -112,7 +111,7 @@ public class HorizontalListAty extends BaseActivity {
 
         imagePreview.setOnPreviewStatusListener(new OnPreviewStatusListener() {
             @Override
-            public void onPreviewStatus(int state, ScaleImageView imagePager) {
+            public void onPreviewStatus(int state, ScaleImagePager imagePager) {
                 if (state == com.liyi.viewer.ImageViewerState.STATE_READY_CLOSE) {
                     // 每次退出浏览时，都将图片显示在中间位置
                     ViewData viewData = mViewList.get(imagePreview.getCurrentPosition());

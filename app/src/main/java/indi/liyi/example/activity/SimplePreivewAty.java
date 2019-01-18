@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.liyi.example.R;
 import com.liyi.example.glide.GlideUtil;
 import com.liyi.grid.AutoGridView;
 import com.liyi.grid.adapter.SimpleAutoGridAdapter;
@@ -25,10 +24,10 @@ import com.liyi.viewer.widget.ScaleImageView;
 import indi.liyi.example.glide.GlideUtil;
 import indi.liyi.viewer.ImageLoader;
 import indi.liyi.viewer.ViewData;
-import indi.liyi.viewer.dragger.ImageDraggerType;
+import indi.liyi.viewer.dragger.DragMode;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.widget.ImageViewer;
-import indi.liyi.viewer.widget.ScaleImageView;
+import indi.liyi.viewer.widget.ScaleImagePager;
 
 /**
  * 简单的图片预览
@@ -84,13 +83,13 @@ public class SimplePreivewAty extends BaseActivity {
             }
         });
         imagePreview.doDrag(true);
-        imagePreview.setDragType(ImageDraggerType.DRAG_TYPE_WX);
+        imagePreview.setDragType(DragMode.MODE_AGLIE);
         imagePreview.setImageData(mImageList);
         imagePreview.setImageLoader(new ImageLoader<String>() {
 
             @Override
             public void displayImage(final int position, String src, final ImageView imageView) {
-                final ScaleImageView scaleImageView= (ScaleImageView) imageView.getParent();
+                final ScaleImagePager scaleImageView= (ScaleImagePager) imageView.getParent();
                 GlideUtil.loadImage(SimplePreivewAty.this, src, new SimpleTarget<Drawable>() {
 
                     @Override
