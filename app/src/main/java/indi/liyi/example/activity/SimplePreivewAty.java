@@ -11,23 +11,17 @@ import android.widget.Toast;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.liyi.example.glide.GlideUtil;
 import com.liyi.grid.AutoGridView;
 import com.liyi.grid.adapter.SimpleAutoGridAdapter;
-import com.liyi.viewer.ImageLoader;
-import com.liyi.viewer.ViewData;
-import com.liyi.viewer.dragger.ImageDraggerType;
-import com.liyi.viewer.listener.OnItemLongClickListener;
-import com.liyi.viewer.widget.ImageViewer;
-import com.liyi.viewer.widget.ScaleImageView;
 
+import indi.liyi.example.R;
 import indi.liyi.example.glide.GlideUtil;
 import indi.liyi.viewer.ImageLoader;
-import indi.liyi.viewer.ViewData;
-import indi.liyi.viewer.dragger.DragMode;
+import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.sipr.dragger.DragMode;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
-import indi.liyi.viewer.widget.ImageViewer;
-import indi.liyi.viewer.widget.ScaleImagePager;
+import indi.liyi.viewer.ImageViewer;
+import indi.liyi.viewer.sipr.ScaleImagePager;
 
 /**
  * 简单的图片预览
@@ -40,7 +34,7 @@ public class SimplePreivewAty extends BaseActivity {
 
     @Override
     int onBindLayoutResID() {
-        return indi.liyi.example.R.layout.aty_simple_preview;
+        return R.layout.aty_simple_preview;
     }
 
     @Override
@@ -50,8 +44,8 @@ public class SimplePreivewAty extends BaseActivity {
     }
 
     private void initView() {
-        imagePreview = findViewById(indi.liyi.example.R.id.imagePreivew);
-        autoGridView = findViewById(indi.liyi.example.R.id.autoGridView);
+        imagePreview = findViewById(R.id.imagePreivew);
+        autoGridView = findViewById(R.id.autoGridView);
 
         mGridAdp = new SimpleAutoGridAdapter();
         mGridAdp.setSource(mImageList);
@@ -95,20 +89,17 @@ public class SimplePreivewAty extends BaseActivity {
                     @Override
                     public void onLoadStarted(@Nullable Drawable placeholder) {
                         super.onLoadStarted(placeholder);
-                        scaleImageView.showProgess();
                         imageView.setImageDrawable(placeholder);
                     }
 
                     @Override
                     public void onLoadFailed(@Nullable Drawable errorDrawable) {
                         super.onLoadFailed(errorDrawable);
-                        scaleImageView.removeProgressView();
                         imageView.setImageDrawable(errorDrawable);
                     }
 
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        scaleImageView.removeProgressView();
                         imageView.setImageDrawable(resource);
                     }
                 });

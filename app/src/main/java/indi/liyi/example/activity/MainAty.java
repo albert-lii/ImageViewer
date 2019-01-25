@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.liyi.example.R;
+import indi.liyi.example.R;
 
 
 /**

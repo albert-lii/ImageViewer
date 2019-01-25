@@ -7,13 +7,15 @@ import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+
 
 public class Utils {
 
     /**
-     * 获取屏幕尺寸
+     * 获取屏幕的尺寸
      *
      * @param context
      * @return
@@ -28,7 +30,7 @@ public class Utils {
     /**
      * 获取状态栏的高度
      *
-     * @return 状态栏的高度
+     * @return
      */
     public static int getStatusBarHeight(Context context) {
         int result = 0;
@@ -40,10 +42,22 @@ public class Utils {
     }
 
     /**
+     * 获取 View 在屏幕坐标系中的坐标
+     *
+     * @param view 需要定位位置的 View
+     * @return 坐标系数组
+     */
+    public static int[] getViewLocation(View view) {
+        int[] location = new int[2];
+        view.getLocationInWindow(location);
+        return location;
+    }
+
+    /**
      * dp 转 px
      *
-     * @param dpVal dp 值
-     * @return px 值
+     * @param dpVal
+     * @return
      */
     public static int dp2px(Context context, float dpVal) {
         final float scale = context.getResources().getDisplayMetrics().density;
@@ -51,28 +65,31 @@ public class Utils {
     }
 
     /**
-     * 回收 ImageView 占用的图像内存
+     * 释放 imageView 占据的内存
+     * <p>
+     * Bitmap 的存储分为两部分，一部分是 Bitmap 的数据，一部分是 Bitmap 的引用。
+     * 在 Android2.3 时代，Bitmap 的引用是放在堆中的，而 Bitmap 的数据部分是放在栈中的，需要用户调用 recycle 方法手动进行内存回收；
+     * 在 Android2.3 之后，整个 Bitmap（包括数据和引用）都放在了堆中，整个 Bitmap 的回收就全部交给GC了，不用在手动调用 recycle 方法回收内存。
      *
-     * @param view
+     * @param imageView
      */
-    public static void recycleImage(ImageView view) {
-        if (view == null) return;
-        Drawable drawable = view.getDrawable();
-        if (drawable != null && drawable instanceof BitmapDrawable) {
-            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-            if (bitmap != null && !bitmap.isRecycled()) {
-                /**
-                 *  一些具有缓存机制的图片加载框架在加载图片时，会缓存 Bitmap；
-                 *  当 Bitmap 被 recycle 后，框架不知道 Bitmap 已被回收；
-                 *  加载相同的 url 时，可能会返回被 recycle 的图片，
-                 *  出现异常 BitmapDrawable: Canvas: trying to use a recycled bitmap，
-                 *  故此处暂且先注释掉 bitmap.recycle() 方法
-                 */
+    public static void recycleImage(ImageView imageView) {
+//        Drawable drawable = imageView.getDrawable();
+//        if (drawable != null && drawable instanceof BitmapDrawable) {
+//            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+//            if (bitmap != null && !bitmap.isRecycled()) {
+//                /**
+//                 * 当 bitmap 已经被回收，但是 canvas 在 draw 时，继续使用被回收的 bitmap，会抛出异常：
+//                 * a BitmapDrawable: Canvas: trying to use a recycled bitmap.
+//                 * 故此处不使用 bitmap.recycle() 方法。
+//                 */
 //                bitmap.recycle();
-                bitmap = null;
-            }
-        }
-        // 调用 setImageDrawable(null)，对应图片的回收会有 GC 来完成
-        view.setImageDrawable(null);
+//                bitmap = null;
+//            }
+//        }
+        // 调用 setImageDrawable(null) 方法,然后 GC 会完成图片的回收
+        imageView.setImageDrawable(null);
+        // 手动调用 GC（但是 GC 并不一定是马上执行的，只能说是加速 GC 回收）
+        System.gc();
     }
 }

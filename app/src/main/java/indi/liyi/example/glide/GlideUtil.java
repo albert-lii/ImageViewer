@@ -4,11 +4,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.liyi.example.R;
 
-import java.io.File;
+import indi.liyi.example.R;
 
 public class GlideUtil {
 

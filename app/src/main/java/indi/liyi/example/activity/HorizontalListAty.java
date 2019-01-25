@@ -12,23 +12,19 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.liyi.example.adapter.RecyclerAdp;
-import com.liyi.example.glide.GlideUtil;
-import com.liyi.viewer.ImageLoader;
-import com.liyi.viewer.ImageViewerUtil;
-import com.liyi.viewer.ViewData;
-import com.liyi.viewer.listener.OnPreviewStatusListener;
-import com.liyi.viewer.widget.ScaleImageView;
-import com.liyi.viewer.widget.ImageViewer;
 
+import indi.liyi.example.R;
 import indi.liyi.example.adapter.RecyclerAdp;
 import indi.liyi.example.glide.GlideUtil;
 import indi.liyi.viewer.ImageLoader;
-import indi.liyi.viewer.ImageViewerUtil;
-import indi.liyi.viewer.ViewData;
+import indi.liyi.viewer.ImageViewerStatus;
+import indi.liyi.viewer.Utils;
+import indi.liyi.viewer.sipr.ViewData;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.widget.ImageViewer;
-import indi.liyi.viewer.widget.ScaleImagePager;
+import indi.liyi.viewer.ImageViewer;
+import indi.liyi.viewer.sipr.ScaleImagePager;
+
+import static indi.liyi.viewer.Utils.dp2px;
 
 /**
  * 横向列表页面
@@ -43,7 +39,7 @@ public class HorizontalListAty extends BaseActivity {
 
     @Override
     int onBindLayoutResID() {
-        return indi.liyi.example.R.layout.aty_horizontal_list;
+        return R.layout.aty_horizontal_list;
     }
 
     @Override
@@ -53,8 +49,8 @@ public class HorizontalListAty extends BaseActivity {
     }
 
     private void initView() {
-        imagePreview = findViewById(indi.liyi.example.R.id.imagePreview);
-        recyclerView = findViewById(indi.liyi.example.R.id.recyclerview);
+        imagePreview = findViewById(R.id.imagePreview);
+        recyclerView = findViewById(R.id.recyclerview);
 
         mLinearManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mLinearManager.setStackFromEnd(true);
@@ -80,13 +76,13 @@ public class HorizontalListAty extends BaseActivity {
     }
 
     private void initData() {
-        mScreenSize = ImageViewerUtil.getScreenSize(this);
+        mScreenSize = Utils.getScreenSize(this);
         for (int i = 0, len = mViewList.size(); i < len; i++) {
             ViewData viewData = new ViewData();
             viewData.setTargetX(0);
             viewData.setTargetY(0);
             viewData.setTargetWidth(mScreenSize.x);
-            viewData.setTargetHeight(ImageViewerUtil.dp2px(this, 200));
+            viewData.setTargetHeight(dp2px(this, 200));
             mViewList.set(i, viewData);
         }
     }
@@ -112,7 +108,7 @@ public class HorizontalListAty extends BaseActivity {
         imagePreview.setOnPreviewStatusListener(new OnPreviewStatusListener() {
             @Override
             public void onPreviewStatus(int state, ScaleImagePager imagePager) {
-                if (state == com.liyi.viewer.ImageViewerState.STATE_READY_CLOSE) {
+                if (state == ImageViewerStatus.STATUS_READY_CLOSE) {
                     // 每次退出浏览时，都将图片显示在中间位置
                     ViewData viewData = mViewList.get(imagePreview.getCurrentPosition());
                     viewData.setTargetX(0);

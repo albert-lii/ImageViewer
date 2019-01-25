@@ -7,11 +7,12 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.view.WindowManager;
 
-import com.liyi.example.Utils;
-import com.liyi.viewer.ViewData;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import indi.liyi.example.Utils;
+import indi.liyi.viewer.sipr.ViewData;
 
 public abstract class BaseActivity extends Activity {
     protected List<String> mImageList = new ArrayList<>();

@@ -7,10 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.liyi.example.glide.GlideUtil;
-import com.liyi.example.R;
-
 import java.util.List;
+
+import indi.liyi.example.R;
+import indi.liyi.example.glide.GlideUtil;
 
 
 public class RecyclerAdp extends RecyclerView.Adapter {

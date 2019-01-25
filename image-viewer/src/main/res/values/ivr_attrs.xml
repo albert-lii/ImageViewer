@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ImageViewer">
+        <!--是否开启进场动画-->
+        <attr name="ivr_doEnterAnim" format="boolean" />
+        <!--是否开启退场动画-->
+        <attr name="ivr_doExitAnim" format="boolean" />
+        <!--是否显示图片位置-->
+        <attr name="ivr_showIndex" format="boolean" />
+        <!--是否允许图片拖拽-->
+        <attr name="ivr_canDragged" format="boolean" />
+        <!--是否允许更改背景透明度-->
+        <attr name="ivr_canBgAlpha" format="boolean" />
+        <!--拖拽模式-->
+        <attr name="ivr_dragMode">
+            <enum name="classic" value="1" />
+            <enum name="agile" value="2" />
+        </attr>
+        <!--进场与退场动画的执行时间-->
+        <attr name="ivr_duration" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="ScaleImagePager">
+        <!--是否执行进场动画-->
+        <attr name="sip_doEnterAnim" format="boolean" />
+        <!--是否执行退场动画-->
+        <attr name="sip_doExitAnim" format="boolean" />
+        <!--是否允许拖拽-->
+        <attr name="sip_canDragged" format="boolean" />
+        <!--拖拽模式-->
+        <attr name="sip_dragMode">
+            <enum name="classic" value="1" />
+            <enum name="agile" value="2" />
+        </attr>
+        <!--动画执行时间-->
+        <attr name="sip_duration" format="integer" />
+        <!--是否可以背景渐变-->
+        <attr name="sip_canBgAlpha" format="boolean" />
+        <!--是否显示加载进度-->
+        <attr name="sip_showProgress" format="boolean" />
+    </declare-styleable>
+</resources>

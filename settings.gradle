@@ -1,1 +1,1 @@
-include ':app', ':image-viewer', ':lib_glide'
+include ':app', ':image-viewer', ':lib_glide', ':example'
