@@ -1,19 +1,22 @@
 apply plugin: 'com.android.application'
 
+def compileSdk = versions.compileSdk
+def minSdk = versions.minSdk
+def targetSdk = versions.targetSdk
+def verCode = 4
+def verName = "1.0.3"
+
 android {
-    compileSdkVersion 28
-
-
+    compileSdkVersion compileSdk
 
     defaultConfig {
         applicationId "indi.liyi.example"
-        minSdkVersion 19
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion minSdk
+        targetSdkVersion targetSdk
+        versionCode verCode
+        versionName verName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -22,24 +25,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation deps.junit
+    androidTestImplementation deps.test.runner
+    androidTestImplementation deps.test.espresso
 
     implementation deps.support.compatV7
     implementation deps.support.recyclerview
-
-    implementation deps.glide.glide
-    annotationProcessor deps.glide.processor
     implementation deps.liyi.flowview
     implementation deps.liyi.gridview
     implementation project(':image-viewer')
+    implementation project(':lib_glide')
 }

@@ -29,10 +29,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 go2Activity(SimplePrevActivity.class);
                 break;
             case R.id.btn_customPrev:
-                go2Activity(CustomPrevActivity.class);
+//                go2Activity(CustomPrevActivity.class);
                 break;
             case R.id.btn_singlePager:
-                go2Activity(SinglePagerActivity.class);
+                go2Activity(SinglePrevActivity.class);
                 break;
         }
     }

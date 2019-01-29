@@ -14,14 +14,15 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import indi.liyi.viewer.sipr.OnTransCallback;
-import indi.liyi.viewer.sipr.ViewData;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.dragger.DragMode;
 import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
+import indi.liyi.viewer.sipr.BaseImageLoader;
+import indi.liyi.viewer.sipr.OnTransCallback;
+import indi.liyi.viewer.sipr.ScaleImagePager;
+import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.sipr.dragger.DragMode;
 import indi.liyi.viewer.viewpager.PreviewAdapter;
 import indi.liyi.viewer.viewpager.PreviewViewPager;
 
@@ -66,7 +67,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
     private int mViewStatus;
 
     // 图片加载器
-    private ImageLoader mImageLoader;
+    private BaseImageLoader mImageLoader;
     // 图片切换监听器
     private OnItemChangedListener mItemChangedListener;
     // 图片点击监听器
@@ -212,13 +213,14 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
             item.removeDragger();
         }
         item.canBgAlpha(canBgAlpha);
+        if (mImageLoader != null) {
+            item.setImageLoader(mImageLoader);
+            item.preload(mImageDataList.get(position));
+        }
         final ImageViewerGestureListener imageGestureListener = new ImageViewerGestureListener(
                 this, item, mItemClickListener, mItemLongClickListener);
         item.setOnViewClickListener(imageGestureListener);
         item.setOnViewLongClickListener(imageGestureListener);
-        if (mImageLoader != null) {
-            mImageLoader.displayImage(position, mImageDataList.get(position), item.getImageView());
-        }
         item.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         return item;
     }
@@ -308,7 +310,6 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
 
                 @Override
                 public void onRunning(float progress) {
-//                    changeBackgroundAlpha((int) ((1 - progress) * 255));
                     setPreviewStatus(ImageViewerStatus.STATUS_CLOSING, item);
                 }
 
@@ -392,7 +393,7 @@ public class ImageViewerAttacher implements ViewPager.OnPageChangeListener {
         this.mDuration = duration;
     }
 
-    public void setImageLoader(ImageLoader loader) {
+    public void setImageLoader(BaseImageLoader loader) {
         mImageLoader = loader;
     }
 

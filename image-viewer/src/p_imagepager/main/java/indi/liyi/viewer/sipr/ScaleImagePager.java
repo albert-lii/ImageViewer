@@ -20,17 +20,16 @@ import android.widget.ImageView;
 
 import java.text.DecimalFormat;
 
+import indi.liyi.viewer.ImageViewerAttacher;
 import indi.liyi.viewer.R;
-import indi.liyi.viewer.Utils;
+import indi.liyi.viewer.imgv.PhotoView;
+import indi.liyi.viewer.pgbr.ProgressWheel;
 import indi.liyi.viewer.sipr.dragger.AgileDragger;
 import indi.liyi.viewer.sipr.dragger.ClassicDragger;
 import indi.liyi.viewer.sipr.dragger.DragHandler;
 import indi.liyi.viewer.sipr.dragger.DragMode;
 import indi.liyi.viewer.sipr.dragger.DragStatus;
 import indi.liyi.viewer.sipr.dragger.OnDragStatusListener;
-import indi.liyi.viewer.imgv.PhotoView;
-import indi.liyi.viewer.pgbr.ProgressWheel;
-import indi.liyi.viewer.ImageViewerAttacher;
 
 /**
  * 可缩放图片的自定义 View（即 viewPager 的 item）
@@ -81,6 +80,7 @@ public class ScaleImagePager extends FrameLayout {
     private DragHandler mDragHandler;
     // 图片拖拽状态监听
     private OnDragStatusListener mStatusListener;
+    private BaseImageLoader mImageLoader;
 
 
     public ScaleImagePager(@NonNull Context context) {
@@ -141,8 +141,8 @@ public class ScaleImagePager extends FrameLayout {
         final int barWidth = dp2px(getContext(), 3);
         progressBar.setBarColor(Color.parseColor("#CCFFFFFF"));
         progressBar.setBarWidth(barWidth);
-        progressBar.setBarLength(dp2px(getContext(), 100));
-        progressBar.setRimColor(Color.parseColor("#11FFFFFF"));
+        progressBar.setBarLength(dp2px(getContext(), 50));
+        progressBar.setRimColor(Color.parseColor("#22FFFFFF"));
         progressBar.setRimWidth(barWidth);
         progressBar.setContourColor(Color.parseColor("#10000000"));
         progressBar.setSpinSpeed(3.5f);
@@ -284,6 +284,17 @@ public class ScaleImagePager extends FrameLayout {
         mDownY = 0;
     }
 
+    public void setImageLoader(@NonNull BaseImageLoader loader) {
+        this.mImageLoader = loader;
+    }
+
+    /**
+     * 预加载图片
+     */
+    public void preload(Object src) {
+        mImageLoader.displayImage(src, this);
+    }
+
     /**
      * 开启预览
      */
@@ -304,6 +315,11 @@ public class ScaleImagePager extends FrameLayout {
     public void start(float readyWidth, float readyHeight, OnTransCallback callback) {
         if (doEnterAnim) {
             doEnterAnim(readyWidth, readyHeight, callback);
+        } else {
+            if (showProgress && mImageLoader != null && !mImageLoader.isLoadFinish()) {
+                showProgessBar();
+            }
+            setVisibility(VISIBLE);
         }
     }
 
@@ -320,6 +336,11 @@ public class ScaleImagePager extends FrameLayout {
     public void cancel(OnTransCallback callback) {
         if (doExitAnim) {
             doExitAnim(callback);
+        } else {
+            if (isProgressBarShowing()) {
+                hideProgressBar();
+            }
+            setVisibility(INVISIBLE);
         }
     }
 
@@ -397,9 +418,9 @@ public class ScaleImagePager extends FrameLayout {
      */
     public void updateProgress(float progress) {
         if (showProgress && progressBar.getVisibility() == VISIBLE) {
-            progressBar.setProgress((int) (progress * 360));
             DecimalFormat df = new DecimalFormat("#%");
             progressBar.setText(df.format(progress));
+            progressBar.setProgress((int) (progress * 360));
             if (progress == 1f) {
                 hideProgressBar();
             }
@@ -410,7 +431,7 @@ public class ScaleImagePager extends FrameLayout {
      * 隐藏进度条
      */
     public void hideProgressBar() {
-        progressBar.startSpinning();
+        progressBar.stopSpinning();
         progressBar.setVisibility(GONE);
     }
 
@@ -453,10 +474,13 @@ public class ScaleImagePager extends FrameLayout {
             newHeight = prevHeight;
             hasImageSize = false;
         }
-        final float from_x = mViewData.getTargetX();
-        final float from_y = mViewData.getTargetY();
-        final float to_x = (prevWidth - newWidth) / 2;
-        final float to_y = (prevHeight - newHeight) / 2;
+        final float fromX = mViewData.getTargetX();
+        final float fromY = mViewData.getTargetY();
+        final float toX = (prevWidth - newWidth) / 2;
+        final float toY = (prevHeight - newHeight) / 2;
+        if (showProgress && isProgressBarShowing()) {
+            hideProgressBar();
+        }
         setVisibility(VISIBLE);
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(mDuration);
@@ -483,6 +507,9 @@ public class ScaleImagePager extends FrameLayout {
                     imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 }
                 isAnimRunning = false;
+                if (showProgress && mImageLoader != null && !mImageLoader.isLoadFinish()) {
+                    showProgessBar();
+                }
                 if (callback != null) {
                     callback.onEnd();
                 }
@@ -494,8 +521,8 @@ public class ScaleImagePager extends FrameLayout {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float fraction = animation.getAnimatedFraction();
-                final float x = evaluator.evaluate(fraction, from_x, to_x);
-                final float y = evaluator.evaluate(fraction, from_y, to_y);
+                final float x = evaluator.evaluate(fraction, fromX, toX);
+                final float y = evaluator.evaluate(fraction, fromY, toY);
                 final float width = evaluator.evaluate(fraction, oldWidth, newWidth);
                 final float height = evaluator.evaluate(fraction, oldHeight, newHeight);
 
@@ -544,16 +571,19 @@ public class ScaleImagePager extends FrameLayout {
         final float oldHeight = adjustImageHeight != 0 ? adjustImageHeight : imageView.getHeight();
         final float newWidth = mViewData.getTargetWidth();
         final float newHeight = mViewData.getTargetHeight();
-        final float from_x = (prevWidth - oldWidth) / 2;
-        final float from_y = (prevHeight - oldHeight) / 2;
-        final float to_x = mViewData.getTargetX();
-        final float to_y = mViewData.getTargetY();
-        imageView.setX(from_x);
-        imageView.setY(from_y);
+        final float fromX = (prevWidth - oldWidth) / 2;
+        final float fromY = (prevHeight - oldHeight) / 2;
+        final float toX = mViewData.getTargetX();
+        final float toY = mViewData.getTargetY();
+        imageView.setX(fromX);
+        imageView.setY(fromY);
         mImageViewParams.width = (int) oldWidth;
         mImageViewParams.height = (int) oldHeight;
         imageView.setLayoutParams(mImageViewParams);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        if (isProgressBarShowing()) {
+            hideProgressBar();
+        }
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(mDuration);
         animator.addListener(new AnimatorListenerAdapter() {
@@ -581,8 +611,8 @@ public class ScaleImagePager extends FrameLayout {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float fraction = animation.getAnimatedFraction();
-                float x = evaluator.evaluate(fraction, from_x, to_x);
-                float y = evaluator.evaluate(fraction, from_y, to_y);
+                float x = evaluator.evaluate(fraction, fromX, toX);
+                float y = evaluator.evaluate(fraction, fromY, toY);
                 float width = evaluator.evaluate(fraction, oldWidth, newWidth);
                 float height = evaluator.evaluate(fraction, oldHeight, newHeight);
                 imageView.setX(x);

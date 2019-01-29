@@ -10,7 +10,6 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
-        android:src="@color/colorAccent"
         android:scaleType="centerCrop" />
 
     <indi.liyi.viewer.sipr.ScaleImagePager

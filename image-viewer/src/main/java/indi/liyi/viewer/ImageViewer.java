@@ -11,11 +11,12 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import indi.liyi.viewer.sipr.ViewData;
 import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
+import indi.liyi.viewer.sipr.BaseImageLoader;
+import indi.liyi.viewer.sipr.ViewData;
 
 
 public class ImageViewer extends FrameLayout implements IImageViewer {
@@ -64,7 +65,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public ImageViewer setImageLoader(ImageLoader loader) {
+    public ImageViewer setImageLoader(BaseImageLoader loader) {
         mAttacher.setImageLoader(loader);
         return this;
     }

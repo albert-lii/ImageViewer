@@ -1,4 +1,4 @@
-package indi.liyi.example.utils.glide;
+package indi.liyi.example.utils;
 
 import java.util.ArrayList;
 import java.util.List;

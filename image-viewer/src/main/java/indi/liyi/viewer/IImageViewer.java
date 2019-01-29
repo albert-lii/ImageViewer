@@ -6,12 +6,12 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import indi.liyi.viewer.sipr.ViewData;
-import indi.liyi.viewer.sipr.dragger.DragMode;
 import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
+import indi.liyi.viewer.sipr.BaseImageLoader;
+import indi.liyi.viewer.sipr.ViewData;
 
 
 public interface IImageViewer {
@@ -46,7 +46,7 @@ public interface IImageViewer {
      *
      * @param loader
      */
-    ImageViewer setImageLoader(ImageLoader loader);
+    ImageViewer setImageLoader(BaseImageLoader loader);
 
     /**
      * 是否显示图片索引

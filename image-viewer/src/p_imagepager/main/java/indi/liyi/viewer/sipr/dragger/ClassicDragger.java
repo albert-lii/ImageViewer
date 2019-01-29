@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 import indi.liyi.viewer.ImageViewerStatus;
-import indi.liyi.viewer.sipr.ViewData;
 import indi.liyi.viewer.sipr.ScaleImagePager;
+import indi.liyi.viewer.sipr.ViewData;
 
 
 /**
@@ -88,20 +88,26 @@ public class ClassicDragger extends BaseDragger {
         setDragStatus(DragStatus.STATUS_BEGIN_REBACK);
         setPreviewStatus(ImageViewerStatus.STATUS_READY_REBACK, imagePager);
         final View imageView = imagePager.getImageView();
-        final float viewY = imageView.getY();
+        final float fromY = imageView.getY();
+        final float toY = 0;
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(REBACK_ANIM_DURATION);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            FloatEvaluator evaluator = new FloatEvaluator();
+            final FloatEvaluator evaluator = new FloatEvaluator();
+            final int oldBgAlpha = getBackgroundAlpha();
 
             @SuppressLint("WrongConstant")
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float currentValue = (float) animation.getAnimatedValue();
-                final float y = evaluator.evaluate(currentValue, viewY, 0);
-                final float alpha = evaluator.evaluate(currentValue, getBackgroundAlpha(), NO_BACKGROUND_ALPHA);
-                imageView.setY(y);
-                changeBackgroundAlpha((int) alpha);
+                if (fromY != toY) {
+                    final float y = evaluator.evaluate(currentValue, fromY, toY);
+                    imageView.setY(y);
+                }
+                if (oldBgAlpha != NO_BACKGROUND_ALPHA) {
+                    final float alpha = evaluator.evaluate(currentValue, oldBgAlpha, NO_BACKGROUND_ALPHA);
+                    changeBackgroundAlpha((int) alpha);
+                }
                 setDragStatus(DragStatus.STATUS_REBACKING);
                 setPreviewStatus(ImageViewerStatus.STATUS_REBACKING, imagePager);
             }
@@ -111,8 +117,8 @@ public class ClassicDragger extends BaseDragger {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                setDragStatus(DragStatus.STATUS_END_REBACK);
                 changeBackgroundAlpha(NO_BACKGROUND_ALPHA);
+                setDragStatus(DragStatus.STATUS_END_REBACK);
                 if (checkAttacherNotNull()) {
                     getAttacher().setViewPagerScrollable(true);
                     setPreviewStatus(ImageViewerStatus.STATUS_COMPLETE_REBACK, imagePager);
@@ -132,37 +138,54 @@ public class ClassicDragger extends BaseDragger {
         final ImageView imageView = imagePager.getImageView();
         final ViewData viewData = imagePager.getViewData();
         // imageView 当前的 Y 轴坐标
-        final float viewY = imageView.getY();
+        final float fromY = imageView.getY();
         // 图片的原始宽高
-        float origImageWidth = 0, origImageHeight = 0;
+        float origImageWidth, origImageHeight;
         Drawable drawable = imageView.getDrawable();
         if (drawable != null) {
             origImageWidth = drawable.getIntrinsicWidth();
             origImageHeight = drawable.getIntrinsicHeight();
-        } else if (viewData.getImageWidth() != 0 && viewData.getImageHeight() != 0) {
+        } else {
             origImageWidth = viewData.getImageWidth();
             origImageHeight = viewData.getImageHeight();
         }
         final float scale = Math.min(mPrevWidth / origImageWidth, mPrevHeight / origImageHeight);
         // 图片的缩放等级为 1f 时的图片高度
-        final float adjustHeight = origImageHeight * scale;
+        final float adjustImageHeight = origImageHeight * scale;
         // 图片的缩放等级为 1f 且居中时时，在预览界面中的 Y 轴坐标
-        final float adjustImgY = (mPrevHeight - adjustHeight) / 2;
+        final float adjustImageY = (mPrevHeight - adjustImageHeight) / 2;
         // 图片在预览界面中的当前 Y 轴坐标
-        float currentImgY = viewY + adjustImgY;
+        float currentImageY = fromY + adjustImageY;
+        final boolean isOutOfPreview;
+        if (
+            // 图片已经从顶部滑出预览界面
+                (currentImageY + adjustImageHeight) <= 0
+                        // 图片已经从底部滑出预览界面
+                        || currentImageY >= mPrevHeight) {
+            isOutOfPreview = true;
+        } else {
+            isOutOfPreview = false;
+        }
         // 此处加 20 ,是为了减少误差，防止影响动画美观
-        final float toY = currentImgY > adjustImgY ? viewY + (mPrevHeight - currentImgY + 20) : viewY - (currentImgY + adjustHeight + 20);
+        final float toY = currentImageY > adjustImageY ?
+                // 向下滑动
+                fromY + (mPrevHeight - currentImageY) + 20
+                // 向上滑动
+                : fromY - (currentImageY + adjustImageHeight) - 20;
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(EXIT_ANIM_DURATION);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            FloatEvaluator evaluator = new FloatEvaluator();
+            final FloatEvaluator evaluator = new FloatEvaluator();
+            final int oldBgAlpha = getBackgroundAlpha();
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                final float progress = (float) animation.getAnimatedValue();
-                final float y = evaluator.evaluate(progress, viewY, toY);
-                final float alpha = evaluator.evaluate(progress, getBackgroundAlpha(), 0);
-                imageView.setY(y);
+                final float currentValue = (float) animation.getAnimatedValue();
+                if (!isOutOfPreview) {
+                    final float y = evaluator.evaluate(currentValue, fromY, toY);
+                    imageView.setY(y);
+                }
+                final float alpha = evaluator.evaluate(currentValue, oldBgAlpha, 0);
                 changeBackgroundAlpha((int) alpha);
                 setDragStatus(DragStatus.STATUS_EXITTING);
                 setPreviewStatus(ImageViewerStatus.STATUS_CLOSING, imagePager);

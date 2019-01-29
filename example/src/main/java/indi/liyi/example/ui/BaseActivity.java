@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import indi.liyi.example.utils.glide.SourceUtil;
+import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.viewer.sipr.ViewData;
 
 public abstract class BaseActivity extends Activity {

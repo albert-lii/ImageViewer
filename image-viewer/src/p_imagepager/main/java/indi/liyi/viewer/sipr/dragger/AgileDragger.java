@@ -11,8 +11,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import indi.liyi.viewer.ImageViewerStatus;
-import indi.liyi.viewer.sipr.ViewData;
 import indi.liyi.viewer.sipr.ScaleImagePager;
+import indi.liyi.viewer.sipr.ViewData;
 
 public class AgileDragger extends BaseDragger {
     // 恢复原样的动画时间
@@ -26,17 +26,15 @@ public class AgileDragger extends BaseDragger {
     private float mPrevWidth;
     private float mPrevHeight;
     // 图片的原始宽高
-    private float mOrigImageWidth = 0;
-    private float mOrigImageHeight = 0;
-    private float mAdjustScale;
+    private float mOrigImageWidth;
+    private float mOrigImageHeight;
+    // 图片自适应预览界面时的宽高
     private float mAdjustImageWidth;
     private float mAdjustImageHeight;
     // imageView 的当前缩放比例
     private float mCurScale;
-    private float mCurImageX;
-    private float mCurImageY;
 
-    private FrameLayout.LayoutParams mImageParams;
+    private FrameLayout.LayoutParams mImageViewParams;
     private ScaleImagePager imagePager;
 
     public AgileDragger() {
@@ -48,12 +46,12 @@ public class AgileDragger extends BaseDragger {
         this.imagePager = imagePager;
         final ViewData viewData = imagePager.getViewData();
         final ImageView imageView = imagePager.getImageView();
-        mImageParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+        mImageViewParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
         Drawable drawable = imageView.getDrawable();
         if (drawable != null) {
             mOrigImageWidth = drawable.getIntrinsicWidth();
             mOrigImageHeight = drawable.getIntrinsicHeight();
-        } else if (viewData.getImageWidth() != 0 && viewData.getImageHeight() != 0) {
+        } else {
             mOrigImageWidth = viewData.getImageWidth();
             mOrigImageHeight = viewData.getImageHeight();
         }
@@ -64,9 +62,15 @@ public class AgileDragger extends BaseDragger {
         super.onDown(prevWidth, prevHeight);
         this.mPrevWidth = prevWidth;
         this.mPrevHeight = prevHeight;
-        mAdjustScale = Math.min(prevWidth / mOrigImageWidth, prevHeight / mOrigImageHeight);
-        mAdjustImageWidth = mOrigImageWidth * mAdjustScale;
-        mAdjustImageHeight = mOrigImageHeight * mAdjustScale;
+        if (mOrigImageWidth == 0 || mOrigImageHeight == 0) {
+            mAdjustImageWidth = prevWidth;
+            mAdjustImageHeight = prevHeight;
+        } else {
+            // 图片自适应预览界面时的缩放比例
+            final float adjustImageScale = Math.min(prevWidth / mOrigImageWidth, prevHeight / mOrigImageHeight);
+            mAdjustImageWidth = mOrigImageWidth * adjustImageScale;
+            mAdjustImageHeight = mOrigImageHeight * adjustImageScale;
+        }
     }
 
     @Override
@@ -84,9 +88,9 @@ public class AgileDragger extends BaseDragger {
         // 向上移动
         if (newViewY <= 0) {
             if (mCurScale < 1f) {
-                mImageParams.width = (int) (mPrevWidth * mCurScale);
-                mImageParams.height = (int) (mPrevHeight * mCurScale);
-                imageView.setLayoutParams(mImageParams);
+                mImageViewParams.width = (int) (mPrevWidth * mCurScale);
+                mImageViewParams.height = (int) (mPrevHeight * mCurScale);
+                imageView.setLayoutParams(mImageViewParams);
                 mCurScale = 1f;
             }
             if (getBackgroundAlpha() < NO_BACKGROUND_ALPHA) {
@@ -96,12 +100,12 @@ public class AgileDragger extends BaseDragger {
         // 向下移动
         else {
             // 计算缩放比例
-            mCurScale = Math.min(Math.max(newViewY < 0 ? 1f : (1f - Math.abs(newViewY) / mPrevHeight), MIN_SCALE_RATIO), 1f);
-            mImageParams.width = (int) (mPrevWidth * mCurScale);
-            mImageParams.height = (int) (mPrevHeight * mCurScale);
-            imageView.setLayoutParams(mImageParams);
+            mCurScale = Math.min(Math.max(1f - newViewY / mPrevHeight, MIN_SCALE_RATIO), 1f);
+            mImageViewParams.width = (int) (mPrevWidth * mCurScale);
+            mImageViewParams.height = (int) (mPrevHeight * mCurScale);
+            imageView.setLayoutParams(mImageViewParams);
             // 计算背景透明度
-            final float value = Math.abs(newViewY) / getAlphaBase();
+            final float value = newViewY / getAlphaBase();
             final int backgroundAlpha = (int) ((value <= 0.8f ? 1 - value : 0.2f) * NO_BACKGROUND_ALPHA);
             changeBackgroundAlpha(backgroundAlpha);
         }
@@ -114,11 +118,7 @@ public class AgileDragger extends BaseDragger {
         super.onUp();
         if (!imagePager.isAnimRunning()) {
             View imageView = imagePager.getImageView();
-            final float viewX = imageView.getX();
             final float viewY = imageView.getY();
-            // 图片在预览界面中的当前坐标
-            mCurImageX = viewX + (mPrevWidth - mAdjustImageWidth) / 2 * mCurScale;
-            mCurImageY = viewY + (mPrevHeight - mAdjustImageHeight) / 2 * mCurScale;
             if (viewY <= getMaxMovableDisOnY()) {
                 reback();
             } else {
@@ -141,34 +141,47 @@ public class AgileDragger extends BaseDragger {
         setDragStatus(DragStatus.STATUS_BEGIN_REBACK);
         setPreviewStatus(ImageViewerStatus.STATUS_READY_REBACK, imagePager);
         final View imageView = imagePager.getImageView();
-        final float from_x = imageView.getX();
-        final float from_y = imageView.getY();
-        final float to_x = 0;
-        final float to_y = 0;
-        final float old_width = imageView.getWidth();
-        final float old_height = imageView.getHeight();
-        final float new_width = mPrevWidth;
-        final float new_height = mPrevHeight;
+        final float fromX = imageView.getX();
+        final float fromY = imageView.getY();
+        final float toX = 0;
+        final float toY = 0;
+        final float oldWidth = imageView.getWidth();
+        final float oldHeight = imageView.getHeight();
+        final float newWidth = mPrevWidth;
+        final float newHeight = mPrevHeight;
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(REBACK_ANIM_DURATION);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            FloatEvaluator evaluator = new FloatEvaluator();
+            final FloatEvaluator evaluator = new FloatEvaluator();
+            final int oldBgAlpha = getBackgroundAlpha();
 
             @SuppressLint("WrongConstant")
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float currentValue = (float) animation.getAnimatedValue();
-                final float x = evaluator.evaluate(currentValue, from_x, to_x);
-                final float y = evaluator.evaluate(currentValue, from_y, to_y);
-                final float width = evaluator.evaluate(currentValue, old_width, new_width);
-                final float height = evaluator.evaluate(currentValue, old_height, new_height);
-                final float alpha = evaluator.evaluate(currentValue, getBackgroundAlpha(), NO_BACKGROUND_ALPHA);
-                imageView.setX(x);
-                imageView.setY(y);
-                mImageParams.width = (int) width;
-                mImageParams.height = (int) height;
-                imageView.setLayoutParams(mImageParams);
-                changeBackgroundAlpha((int) alpha);
+                if (fromX != toX) {
+                    final float x = evaluator.evaluate(currentValue, fromX, toX);
+                    imageView.setX(x);
+                }
+                if (fromY != toY) {
+                    final float y = evaluator.evaluate(currentValue, fromY, toY);
+                    imageView.setY(y);
+                }
+                if (oldWidth != newWidth) {
+                    final float width = evaluator.evaluate(currentValue, oldWidth, newWidth);
+                    mImageViewParams.width = (int) width;
+                }
+                if (oldHeight != newHeight) {
+                    final float height = evaluator.evaluate(currentValue, oldHeight, newHeight);
+                    mImageViewParams.height = (int) height;
+                }
+                if (oldWidth != newWidth || oldHeight != newHeight) {
+                    imageView.setLayoutParams(mImageViewParams);
+                }
+                if (oldBgAlpha != NO_BACKGROUND_ALPHA) {
+                    final float alpha = evaluator.evaluate(currentValue, oldBgAlpha, NO_BACKGROUND_ALPHA);
+                    changeBackgroundAlpha((int) alpha);
+                }
                 setDragStatus(DragStatus.STATUS_REBACKING);
                 setPreviewStatus(ImageViewerStatus.STATUS_REBACKING, imagePager);
             }
@@ -198,43 +211,65 @@ public class AgileDragger extends BaseDragger {
         setPreviewStatus(ImageViewerStatus.STATUS_READY_CLOSE, imagePager);
         final ImageView imageView = imagePager.getImageView();
         final ViewData viewData = imagePager.getViewData();
-        final float from_x = mCurImageX;
-        final float from_y = mCurImageY;
+        // 图片在预览界面中的当前坐标
+        final float fromX = imageView.getX() + (mPrevWidth - mAdjustImageWidth) / 2 * mCurScale;
+        final float fromY = imageView.getY() + (mPrevHeight - mAdjustImageHeight) / 2 * mCurScale;
+        // 如果没有设置 view 的 targetX 与 targetY，则将 toX 与 toY 设为当前 view 的 x 与 y 轴坐标，
+        // 直接在原地进行缩放，不做位移动画
         final float toX = viewData.getTargetX();
         final float toY = viewData.getTargetY();
-        final float old_width = mAdjustImageWidth * mCurScale;
-        final float old_height = mAdjustImageHeight * mCurScale;
-        final float new_width = viewData.getTargetWidth();
-        final float new_height = viewData.getTargetHeight();
-        // 是否需要改变 imageView 的尺寸
-        final boolean needChangeImageSize;
-        if ((mCurImageX + mAdjustImageWidth * mCurScale) <= 0 || mCurImageX >= mPrevWidth || mCurImageY >= mPrevHeight) {
-            needChangeImageSize = false;
+        // 将 imageView 的宽高设置为图片的宽高
+        final float oldWidth = mAdjustImageWidth * mCurScale;
+        final float oldHeight = mAdjustImageHeight * mCurScale;
+        final float newWidth = viewData.getTargetWidth();
+        final float newHeight = viewData.getTargetHeight();
+        // 图片是否已经滑出预览界面
+        final boolean isOutOfPreview;
+        if (
+            // imageView 已经从左边滑出预览界面
+                (fromX + oldWidth) <= 0
+                        // imageView 已经从右边滑出预览界面
+                        || fromX >= mPrevWidth
+                        // imageView 已经从底部滑出图片预览界面
+                        || fromY >= mPrevHeight) {
+            isOutOfPreview = true;
         } else {
-            needChangeImageSize = true;
+            isOutOfPreview = false;
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         }
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(EXIT_ANIM_DURATION);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            FloatEvaluator evaluator = new FloatEvaluator();
-            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+            final FloatEvaluator evaluator = new FloatEvaluator();
+            final int oldBgAlpha = getBackgroundAlpha();
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                final float progress = (float) animation.getAnimatedValue();
-                if (needChangeImageSize) {
-                    final float x = evaluator.evaluate(progress, from_x, toX);
-                    final float y = evaluator.evaluate(progress, from_y, toY);
-                    final float width = evaluator.evaluate(progress, old_width, new_width);
-                    final float height = evaluator.evaluate(progress, old_height, new_height);
-                    imageView.setX(x);
-                    imageView.setY(y);
-                    layoutParams.width = (int) width;
-                    layoutParams.height = (int) height;
-                    imageView.setLayoutParams(layoutParams);
+                final float currentValue = (float) animation.getAnimatedValue();
+                // 如果图片已经滑出预览界面，则直接更改背景透明度即可
+                // 否则需要不断更新 imageView 的坐标与大小
+                if (!isOutOfPreview) {
+                    if (fromX != toX) {
+                        final float x = evaluator.evaluate(currentValue, fromX, toX);
+                        imageView.setX(x);
+                    }
+                    if (fromY != toY) {
+                        final float y = evaluator.evaluate(currentValue, fromY, toY);
+                        imageView.setY(y);
+                    }
+                    if (oldWidth != newWidth) {
+                        final float width = evaluator.evaluate(currentValue, oldWidth, newWidth);
+                        mImageViewParams.width = (int) width;
+                    }
+                    if (oldHeight != newHeight) {
+                        final float height = evaluator.evaluate(currentValue, oldHeight, newHeight);
+                        mImageViewParams.height = (int) height;
+                    }
+                    if (oldWidth != newWidth || oldHeight != newHeight) {
+                        imageView.setLayoutParams(mImageViewParams);
+                    }
                 }
-                final float alpha = evaluator.evaluate(progress, getBackgroundAlpha(), 0);
+                final float alpha = evaluator.evaluate(currentValue, oldBgAlpha, 0);
                 changeBackgroundAlpha((int) alpha);
                 setDragStatus(DragStatus.STATUS_EXITTING);
                 setPreviewStatus(ImageViewerStatus.STATUS_CLOSING, imagePager);
@@ -248,13 +283,13 @@ public class AgileDragger extends BaseDragger {
                 if (checkAttacherNotNull()) {
                     getAttacher().exitEnd();
                 }
-                changeBackgroundAlpha(NO_BACKGROUND_ALPHA);
-                setDragStatus(DragStatus.STATUS_END_EXIT);
                 imageView.setX(0);
                 imageView.setY(0);
-                mImageParams.width = (int) mPrevWidth;
-                mImageParams.height = (int) mPrevHeight;
-                imageView.setLayoutParams(mImageParams);
+                mImageViewParams.width = (int) mPrevWidth;
+                mImageViewParams.height = (int) mPrevHeight;
+                imageView.setLayoutParams(mImageViewParams);
+                changeBackgroundAlpha(NO_BACKGROUND_ALPHA);
+                setDragStatus(DragStatus.STATUS_END_EXIT);
                 setPreviewStatus(ImageViewerStatus.STATUS_COMPLETE_CLOSE, imagePager);
                 setPreviewStatus(ImageViewerStatus.STATUS_SILENCE, null);
             }

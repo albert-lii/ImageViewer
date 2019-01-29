@@ -45,6 +45,8 @@ dependencies {
     androidTestImplementation deps.test.espresso
 
     implementation deps.support.compatV7
+
+//    implementation project(':lib_glide')
 }
 
 

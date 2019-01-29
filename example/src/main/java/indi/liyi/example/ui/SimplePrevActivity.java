@@ -14,8 +14,8 @@ import com.liyi.grid.AutoGridView;
 import com.liyi.grid.adapter.SimpleAutoGridAdapter;
 
 import indi.liyi.example.R;
-import indi.liyi.example.utils.glide.GlideUtil;
-import indi.liyi.viewer.ImageLoader;
+import indi.liyi.example.utils.GlideUtil;
+import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.viewer.sipr.ViewData;
 import indi.liyi.viewer.sipr.dragger.DragMode;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
@@ -72,32 +72,33 @@ public class SimplePrevActivity extends BaseActivity {
         imageViewer.doDrag(true);
         imageViewer.setDragType(DragMode.MODE_AGLIE);
         imageViewer.setImageData(mSourceList);
-        imageViewer.setImageLoader(new ImageLoader<String>() {
+        imageViewer.setImageLoader(new PhotoLoader());
+//        imageViewer.setImageLoader(new ImageLoader<String>() {
 
-            @Override
-            public void displayImage(final int position, String src, final ImageView imageView) {
-                final ScaleImagePager scaleImageView= (ScaleImagePager) imageView.getParent();
-                GlideUtil.loadImage(SimplePrevActivity.this, src, new SimpleTarget<Drawable>() {
-
-                    @Override
-                    public void onLoadStarted(@Nullable Drawable placeholder) {
-                        super.onLoadStarted(placeholder);
-                        imageView.setImageDrawable(placeholder);
-                    }
-
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                        imageView.setImageDrawable(errorDrawable);
-                    }
-
-                    @Override
-                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        imageView.setImageDrawable(resource);
-                    }
-                });
-            }
-        });
+//            @Override
+//            public void displayImage(final int position, String src, final ImageView imageView) {
+//                final ScaleImagePager scaleImageView = (ScaleImagePager) imageView.getParent();
+//                GlideUtil.loadImage(SimplePrevActivity.this, src, new SimpleTarget<Drawable>() {
+//
+//                    @Override
+//                    public void onLoadStarted(@Nullable Drawable placeholder) {
+//                        super.onLoadStarted(placeholder);
+//                        imageView.setImageDrawable(placeholder);
+//                    }
+//
+//                    @Override
+//                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+//                        super.onLoadFailed(errorDrawable);
+//                        imageView.setImageDrawable(errorDrawable);
+//                    }
+//
+//                    @Override
+//                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+//                        imageView.setImageDrawable(resource);
+//                    }
+//                });
+//            }
+//        });
     }
 
     @Override
@@ -107,9 +108,6 @@ public class SimplePrevActivity extends BaseActivity {
             public void onItemClick(int position, View view) {
                 if (mViewList.get(position).getTargetWidth() == 0) {
                     for (int i = 0; i < autoGv.getChildCount(); i++) {
-                        int[] location = new int[2];
-                        // 获取在整个屏幕内的绝对坐标
-                        autoGv.getChildAt(i).getLocationOnScreen(location);
                         ViewData viewData = mViewList.get(i);
                         viewData.setTargetX(autoGv.getChildAt(i).getX());
                         // 此处注意，获取 Y 轴坐标时，需要根据实际情况来处理《状态栏》的高度，判断是否需要计算进去

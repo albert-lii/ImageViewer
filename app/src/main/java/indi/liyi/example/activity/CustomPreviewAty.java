@@ -12,7 +12,6 @@ import com.liyi.grid.adapter.SimpleAutoGridAdapter;
 
 import indi.liyi.example.R;
 import indi.liyi.example.glide.GlideUtil;
-import indi.liyi.viewer.ImageLoader;
 import indi.liyi.viewer.ImageViewerStatus;
 import indi.liyi.viewer.sipr.ViewData;
 import indi.liyi.viewer.listener.OnItemChangedListener;
