@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -15,10 +14,10 @@ import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.sipr.BaseImageLoader;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.ViewData;
-import indi.liyi.viewer.sipr.dragger.OnDragStatusListener;
+import indi.liyi.viewer.scip.BaseImageLoader;
+import indi.liyi.viewer.scip.ScaleImagePager;
+import indi.liyi.viewer.scip.ViewData;
+import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
 
 
 public class ImageViewer extends FrameLayout implements IViewer {

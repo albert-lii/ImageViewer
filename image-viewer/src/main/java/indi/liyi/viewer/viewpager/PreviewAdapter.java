@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import indi.liyi.viewer.ViewerAttacher;
-import indi.liyi.viewer.sipr.ScaleImagePager;
+import indi.liyi.viewer.scip.ScaleImagePager;
 
 import java.util.ArrayList;
 import java.util.List;

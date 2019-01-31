@@ -13,8 +13,7 @@ import indi.liyi.example.utils.Utils;
 import indi.liyi.viewer.ImageViewer;
 import indi.liyi.viewer.ViewerStatus;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.scip.ScaleImagePager;
 
 /**
  * 纵向图片列表页面

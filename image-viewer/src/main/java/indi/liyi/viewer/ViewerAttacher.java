@@ -18,12 +18,12 @@ import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.sipr.BaseImageLoader;
-import indi.liyi.viewer.sipr.OnTransCallback;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.ViewData;
-import indi.liyi.viewer.sipr.dragger.DragMode;
-import indi.liyi.viewer.sipr.dragger.OnDragStatusListener;
+import indi.liyi.viewer.scip.BaseImageLoader;
+import indi.liyi.viewer.scip.OnTransCallback;
+import indi.liyi.viewer.scip.ScaleImagePager;
+import indi.liyi.viewer.scip.ViewData;
+import indi.liyi.viewer.scip.dragger.DragMode;
+import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
 import indi.liyi.viewer.viewpager.PreviewAdapter;
 import indi.liyi.viewer.viewpager.PreviewViewPager;
 

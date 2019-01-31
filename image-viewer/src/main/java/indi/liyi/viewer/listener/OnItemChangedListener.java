@@ -1,6 +1,6 @@
 package indi.liyi.viewer.listener;
 
-import indi.liyi.viewer.sipr.ScaleImagePager;
+import indi.liyi.viewer.scip.ScaleImagePager;
 
 
 public interface OnItemChangedListener {

@@ -1,7 +1,6 @@
 package indi.liyi.example.ui;
 
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.View;
@@ -10,16 +9,14 @@ import android.widget.ImageView;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
 
 import indi.liyi.example.R;
 import indi.liyi.example.utils.GlideUtil;
 import indi.liyi.example.utils.PhotoLoader;
-import indi.liyi.viewer.sipr.OnTransCallback;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.scip.OnTransCallback;
+import indi.liyi.viewer.scip.ScaleImagePager;
+import indi.liyi.viewer.scip.ViewData;
 
 /**
  * 单独使用 ScaleImagePager

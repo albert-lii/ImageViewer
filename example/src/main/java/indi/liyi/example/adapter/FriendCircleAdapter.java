@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -23,7 +22,7 @@ import java.util.List;
 import indi.liyi.example.R;
 import indi.liyi.example.utils.GlideUtil;
 import indi.liyi.example.utils.Utils;
-import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.scip.ViewData;
 
 public class FriendCircleAdapter extends RecyclerView.Adapter {
     private List<List<String>> mSourceList;

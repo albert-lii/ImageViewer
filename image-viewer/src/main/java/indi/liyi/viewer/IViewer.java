@@ -1,7 +1,6 @@
 package indi.liyi.viewer;
 
 
-import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
@@ -10,10 +9,10 @@ import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.sipr.BaseImageLoader;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.ViewData;
-import indi.liyi.viewer.sipr.dragger.OnDragStatusListener;
+import indi.liyi.viewer.scip.BaseImageLoader;
+import indi.liyi.viewer.scip.ScaleImagePager;
+import indi.liyi.viewer.scip.ViewData;
+import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
 
 
 public interface IViewer {
@@ -63,7 +62,7 @@ public interface IViewer {
     /**
      * 设置拖拽模式
      *
-     * @param mode {@link indi.liyi.viewer.sipr.dragger.DragMode}
+     * @param mode {@link indi.liyi.viewer.scip.dragger.DragMode}
      */
     ImageViewer setDragMode(int mode);
 

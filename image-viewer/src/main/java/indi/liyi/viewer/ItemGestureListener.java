@@ -4,8 +4,8 @@ import android.view.View;
 
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.dragger.OnDragStatusListener;
+import indi.liyi.viewer.scip.ScaleImagePager;
+import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
 
 /**
  * item 的操作手势监听类

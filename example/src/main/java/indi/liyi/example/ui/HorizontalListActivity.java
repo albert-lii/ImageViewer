@@ -14,8 +14,8 @@ import indi.liyi.viewer.ImageViewer;
 import indi.liyi.viewer.ViewerStatus;
 import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.scip.ScaleImagePager;
+import indi.liyi.viewer.scip.ViewData;
 
 /**
  * 横向图片列表页面

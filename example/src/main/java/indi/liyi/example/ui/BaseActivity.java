@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import indi.liyi.example.utils.SourceUtil;
-import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.scip.ViewData;
 
 public abstract class BaseActivity extends Activity {
     protected List<String> mSourceList = new ArrayList<>();

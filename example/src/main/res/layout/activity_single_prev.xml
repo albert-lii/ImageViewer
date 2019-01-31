@@ -12,7 +12,7 @@
         android:layout_gravity="center"
         android:scaleType="centerCrop" />
 
-    <indi.liyi.viewer.sipr.ScaleImagePager
+    <indi.liyi.viewer.scip.ScaleImagePager
         android:id="@+id/imagePager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

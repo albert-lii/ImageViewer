@@ -1,6 +1,6 @@
 package indi.liyi.viewer.listener;
 
-import indi.liyi.viewer.sipr.ScaleImagePager;
+import indi.liyi.viewer.scip.ScaleImagePager;
 
 /**
  * 监听图片浏览器的状态

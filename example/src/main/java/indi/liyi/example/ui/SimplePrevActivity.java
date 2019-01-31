@@ -17,9 +17,8 @@ import indi.liyi.example.utils.GlideUtil;
 import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.viewer.ViewerStatus;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.sipr.ViewData;
-import indi.liyi.viewer.sipr.dragger.DragMode;
+import indi.liyi.viewer.scip.ScaleImagePager;
+import indi.liyi.viewer.scip.ViewData;
 import indi.liyi.viewer.ImageViewer;
 
 /**

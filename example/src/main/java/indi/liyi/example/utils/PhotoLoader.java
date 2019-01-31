@@ -11,8 +11,8 @@ import com.bumptech.glide.request.transition.Transition;
 import indi.liyi.viewer.glide.GlideApp;
 import indi.liyi.viewer.glide.OnProgressListener;
 import indi.liyi.viewer.glide.ProgressInterceptor;
-import indi.liyi.viewer.sipr.BaseImageLoader;
-import indi.liyi.viewer.sipr.ScaleImagePager;
+import indi.liyi.viewer.scip.BaseImageLoader;
+import indi.liyi.viewer.scip.ScaleImagePager;
 
 public class PhotoLoader extends BaseImageLoader {
 

@@ -10,7 +10,7 @@ import indi.liyi.example.adapter.FriendCircleAdapter;
 import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.viewer.ImageViewer;
-import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.scip.ViewData;
 
 /**
  * 朋友圈页面
