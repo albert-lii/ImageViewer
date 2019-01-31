@@ -45,8 +45,8 @@ public class PhotoLoader extends BaseImageLoader {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                         ProgressInterceptor.removeListener(src);
-                        imagePager.getViewData().setImageWidth(resource.getIntrinsicWidth());
-                        imagePager.getViewData().setImageHeight(resource.getIntrinsicHeight());
+//                        imagePager.getViewData().setImageWidth(resource.getIntrinsicWidth());
+//                        imagePager.getViewData().setImageHeight(resource.getIntrinsicHeight());
                         PhotoLoader.this.onSuccess(resource, imagePager);
                     }
                 });

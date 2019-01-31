@@ -3,7 +3,6 @@ package indi.liyi.example.ui;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import indi.liyi.example.R;
@@ -11,6 +10,7 @@ import indi.liyi.example.adapter.FriendCircleAdapter;
 import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.viewer.ImageViewer;
+import indi.liyi.viewer.sipr.ViewData;
 
 /**
  * 朋友圈页面
@@ -40,8 +40,11 @@ public class FriendCircleActivity extends BaseActivity {
     public void addListener() {
         mAdapter.setOnItemClickCallback(new FriendCircleAdapter.OnItemClickCallback() {
             @Override
-            public void onItemClick(List<String> list) {
-
+            public void onItemClick(int position, List<String> list, List<ViewData> viewDataList) {
+                imageViewer.setStartPosition(position);
+                imageViewer.setImageData(list);
+                imageViewer.setViewData(viewDataList);
+                imageViewer.watch();
             }
         });
         recyclerView.setAdapter(mAdapter);

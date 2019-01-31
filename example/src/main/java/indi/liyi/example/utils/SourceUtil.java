@@ -17,13 +17,18 @@ public class SourceUtil {
         list.add("https://b-ssl.duitang.com/uploads/item/201407/22/20140722172759_iPCXv.jpeg");
         list.add("https://b-ssl.duitang.com/uploads/item/201511/11/20151111103149_mrRfd.jpeg");
         list.add("https://b-ssl.duitang.com/uploads/item/201510/14/20151014172010_RnJVz.jpeg");
+        list.add("http://img.zcool.cn/community/01ee43596f0ce9a8012193a38dcb00.jpg");
+        list.add("https://img3.duitang.com/uploads/item/201608/03/20160803170546_BwshQ.thumb.224_0.jpeg");
+        list.add("http://img4.duitang.com/uploads/item/201601/21/20160121150507_AkrQx.thumb.224_0.jpeg");
+        list.add("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2211841400,3995215486&fm=27&gp=0.jpg");
         return list;
     }
 
     public static List<List<String>> getFriendCircleList() {
         List<List<String>> sourceList = new ArrayList<>();
         List<String> list1 = new ArrayList<>();
-        list1.add("https://img5.duitang.com/uploads/item/201404/11/20140411214939_XswXa.jpeg");
+        list1.add("http://img.zcool.cn/community/01ee43596f0ce9a8012193a38dcb00.jpg");
+        list1.add("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2211841400,3995215486&fm=27&gp=0.jpg");
         List<String> list2 = new ArrayList<>();
         list2.add("https://b-ssl.duitang.com/uploads/item/201709/26/20170926131419_8YhLA.jpeg");
         list2.add("https://b-ssl.duitang.com/uploads/item/201505/11/20150511122951_MAwVZ.jpeg");
