@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import indi.liyi.viewer.ImageViewerStatus;
 import indi.liyi.viewer.sipr.ScaleImagePager;
 import indi.liyi.viewer.sipr.ViewData;
 
@@ -76,7 +75,6 @@ public class AgileDragger extends BaseDragger {
     @Override
     public void onDrag(float downX, float downY, float curX, float curY) {
         super.onDrag(downX, downY, curX, curY);
-        setPreviewStatus(ImageViewerStatus.STATUS_DRAGGING, imagePager);
         View imageView = imagePager.getImageView();
         // 计算 view 的坐标
         final float diffX = curX - downX;
@@ -120,8 +118,10 @@ public class AgileDragger extends BaseDragger {
             View imageView = imagePager.getImageView();
             final float viewY = imageView.getY();
             if (viewY <= getMaxMovableDisOnY()) {
+                setDragStatus(DragStatus.STATUS_BEGIN_REBACK);
                 reback();
             } else {
+                setDragStatus(DragStatus.STATUS_BEGIN_EXIT);
                 exit();
             }
         }
@@ -138,8 +138,6 @@ public class AgileDragger extends BaseDragger {
      * 图片恢复原样
      */
     private void reback() {
-        setDragStatus(DragStatus.STATUS_BEGIN_REBACK);
-        setPreviewStatus(ImageViewerStatus.STATUS_READY_REBACK, imagePager);
         final View imageView = imagePager.getImageView();
         final float fromX = imageView.getX();
         final float fromY = imageView.getY();
@@ -183,7 +181,6 @@ public class AgileDragger extends BaseDragger {
                     changeBackgroundAlpha((int) alpha);
                 }
                 setDragStatus(DragStatus.STATUS_REBACKING);
-                setPreviewStatus(ImageViewerStatus.STATUS_REBACKING, imagePager);
             }
         });
         animator.addListener(new AnimatorListenerAdapter() {
@@ -195,8 +192,6 @@ public class AgileDragger extends BaseDragger {
                 setDragStatus(DragStatus.STATUS_END_REBACK);
                 if (checkAttacherNotNull()) {
                     getAttacher().setViewPagerScrollable(true);
-                    setPreviewStatus(ImageViewerStatus.STATUS_COMPLETE_REBACK, imagePager);
-                    setPreviewStatus(ImageViewerStatus.STATUS_WATCHING, imagePager);
                 }
             }
         });
@@ -207,8 +202,6 @@ public class AgileDragger extends BaseDragger {
      * 退出预览
      */
     private void exit() {
-        setDragStatus(DragStatus.STATUS_BEGIN_EXIT);
-        setPreviewStatus(ImageViewerStatus.STATUS_READY_CLOSE, imagePager);
         final ImageView imageView = imagePager.getImageView();
         final ViewData viewData = imagePager.getViewData();
         // 图片在预览界面中的当前坐标
@@ -272,7 +265,6 @@ public class AgileDragger extends BaseDragger {
                 final float alpha = evaluator.evaluate(currentValue, oldBgAlpha, 0);
                 changeBackgroundAlpha((int) alpha);
                 setDragStatus(DragStatus.STATUS_EXITTING);
-                setPreviewStatus(ImageViewerStatus.STATUS_CLOSING, imagePager);
             }
         });
         animator.addListener(new AnimatorListenerAdapter() {
@@ -280,18 +272,10 @@ public class AgileDragger extends BaseDragger {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
+                setDragStatus(DragStatus.STATUS_END_EXIT);
                 if (checkAttacherNotNull()) {
                     getAttacher().exitEnd();
                 }
-                imageView.setX(0);
-                imageView.setY(0);
-                mImageViewParams.width = (int) mPrevWidth;
-                mImageViewParams.height = (int) mPrevHeight;
-                imageView.setLayoutParams(mImageViewParams);
-                changeBackgroundAlpha(NO_BACKGROUND_ALPHA);
-                setDragStatus(DragStatus.STATUS_END_EXIT);
-                setPreviewStatus(ImageViewerStatus.STATUS_COMPLETE_CLOSE, imagePager);
-                setPreviewStatus(ImageViewerStatus.STATUS_SILENCE, null);
             }
         });
         animator.start();

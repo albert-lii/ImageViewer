@@ -13,7 +13,7 @@ public abstract class BaseImageLoader {
     /**
      * 加载图片
      */
-    public abstract void displayImage(Object src, ScaleImagePager imagePager);
+    public abstract void displayImage(int position, Object src, ScaleImagePager imagePager);
 
     /**
      * 开始加载

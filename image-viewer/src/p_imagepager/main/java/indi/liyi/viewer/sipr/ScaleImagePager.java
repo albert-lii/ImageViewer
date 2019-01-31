@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -20,8 +21,8 @@ import android.widget.ImageView;
 
 import java.text.DecimalFormat;
 
-import indi.liyi.viewer.ImageViewerAttacher;
 import indi.liyi.viewer.R;
+import indi.liyi.viewer.ViewerAttacher;
 import indi.liyi.viewer.imgv.PhotoView;
 import indi.liyi.viewer.pgbr.ProgressWheel;
 import indi.liyi.viewer.sipr.dragger.AgileDragger;
@@ -62,9 +63,9 @@ public class ScaleImagePager extends FrameLayout {
     private float mDownX;
     private float mDownY;
     // imageView 是否正在执行动画
-    private boolean isAnimRunning;
+    private boolean isAnimRunning = false;
     // imageView 是否正在被拖拽
-    private boolean isDragged;
+    private boolean isDragged = false;
     // 是否定义了图片尺寸
     private boolean hasImageSize;
     // 是否当作一个 item
@@ -79,9 +80,11 @@ public class ScaleImagePager extends FrameLayout {
     // 图片拖拽处理类
     private DragHandler mDragHandler;
     // 图片拖拽状态监听
+    private OnDragStatusListener mStatusMonitor;
+    // 外部设置的拖拽监听
     private OnDragStatusListener mStatusListener;
+    // 图片加载器
     private BaseImageLoader mImageLoader;
-
 
     public ScaleImagePager(@NonNull Context context) {
         super(context);
@@ -113,12 +116,10 @@ public class ScaleImagePager extends FrameLayout {
             }
             isAsItem = false;
         }
-
         isAnimRunning = false;
         isDragged = false;
         hasImageSize = false;
         initView(context);
-        initDragStatusMonitor();
     }
 
     private void initView(Context context) {
@@ -152,52 +153,19 @@ public class ScaleImagePager extends FrameLayout {
         progressBar.setVisibility(GONE);
         addView(progressBar);
 
+        if (canDragged) {
+            setDragMode(mDragMode);
+        }
         // 如果不是作为 item，而是单独使用，则设置显示为 INVISIBLE
         if (!isAsItem) {
             setVisibility(INVISIBLE);
         }
     }
 
-    /**
-     * 初始化图片拖拽状态监测
-     */
-    private void initDragStatusMonitor() {
-        mStatusListener = new OnDragStatusListener() {
-            @Override
-            public void onDragStatusChanged(int status) {
-                switch (status) {
-                    case DragStatus.STATUS_READY:
-                        isDragged = true;
-                        break;
-                    case DragStatus.STATUS_DRAGGING:
-                        break;
-                    case DragStatus.STATUS_BEGIN_REBACK:
-                        isAnimRunning = true;
-                        isDragged = false;
-                        break;
-                    case DragStatus.STATUS_REBACKING:
-                        break;
-                    case DragStatus.STATUS_END_REBACK:
-                        isAnimRunning = false;
-                        break;
-                    case DragStatus.STATUS_BEGIN_EXIT:
-                        isDragged = false;
-                        isAnimRunning = true;
-                        break;
-                    case DragStatus.STATUS_EXITTING:
-                        break;
-                    case DragStatus.STATUS_END_EXIT:
-                        isAnimRunning = false;
-                        setVisibility(View.GONE);
-                        break;
-                }
-                if (isDragged || isAnimRunning) {
-                    setScaleable(false);
-                } else {
-                    setScaleable(true);
-                }
-            }
-        };
+    private void setDragStatus(int status) {
+        if (mStatusListener != null) {
+            mStatusListener.onDragStatusChanged(status);
+        }
     }
 
     @Override
@@ -292,7 +260,7 @@ public class ScaleImagePager extends FrameLayout {
      * 预加载图片
      */
     public void preload(Object src) {
-        mImageLoader.displayImage(src, this);
+        mImageLoader.displayImage(mPosition, src, this);
     }
 
     /**
@@ -371,6 +339,13 @@ public class ScaleImagePager extends FrameLayout {
                 return false;
             }
         });
+    }
+
+    /**
+     * 设置图片拖拽监听
+     */
+    public void setOnDragStatusListener(final OnDragStatusListener listener) {
+        this.mStatusListener = listener;
     }
 
     /**
@@ -669,6 +644,33 @@ public class ScaleImagePager extends FrameLayout {
         return isAnimRunning;
     }
 
+    /**
+     * 如果本方法未执行，则是因为 view 未获取到焦点，可在外部手动获取焦点
+     * 建议在外部手动调动本方法
+     *
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            // 如果不是作为 item 并且没有动画在运行
+            if (!isAsItem && isShowing() && !isAnimRunning) {
+                cancel(null);
+                // 消费返回键点击事件，不传递出去
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        recycle();
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //// 属性设置
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -738,7 +740,7 @@ public class ScaleImagePager extends FrameLayout {
         setDragMode(mode, getBackground(), null);
     }
 
-    public void setDragMode(int mode, Drawable background, ImageViewerAttacher attacher) {
+    public void setDragMode(int mode, Drawable background, ViewerAttacher attacher) {
         mDragMode = mode;
         if (mDragMode == DragMode.MODE_CLASSIC) {
             mDragHandler = new ClassicDragger();
@@ -746,12 +748,63 @@ public class ScaleImagePager extends FrameLayout {
             mDragHandler = new AgileDragger();
         }
         if (mDragHandler != null) {
+            initDragStatusMonitor();
             mDragHandler.setBackground(background);
-            mDragHandler.addDragStatusListener(mStatusListener);
+            mDragHandler.addDragStatusListener(mStatusMonitor);
             if (attacher != null) {
                 mDragHandler.injectImageViewerAttacher(attacher);
             }
         }
+    }
+
+    /**
+     * 初始化图片拖拽状态监测
+     */
+    private void initDragStatusMonitor() {
+        mStatusMonitor = new OnDragStatusListener() {
+            @Override
+            public void onDragStatusChanged(int status) {
+                switch (status) {
+                    case DragStatus.STATUS_READY:
+                        isDragged = true;
+                        setDragStatus(DragStatus.STATUS_READY);
+                        break;
+                    case DragStatus.STATUS_DRAGGING:
+                        setDragStatus(DragStatus.STATUS_DRAGGING);
+                        break;
+                    case DragStatus.STATUS_BEGIN_REBACK:
+                        isAnimRunning = true;
+                        isDragged = false;
+                        setDragStatus(DragStatus.STATUS_BEGIN_REBACK);
+                        break;
+                    case DragStatus.STATUS_REBACKING:
+                        setDragStatus(DragStatus.STATUS_REBACKING);
+                        break;
+                    case DragStatus.STATUS_END_REBACK:
+                        isAnimRunning = false;
+                        setDragStatus(DragStatus.STATUS_END_REBACK);
+                        break;
+                    case DragStatus.STATUS_BEGIN_EXIT:
+                        isDragged = false;
+                        isAnimRunning = true;
+                        setDragStatus(DragStatus.STATUS_BEGIN_EXIT);
+                        break;
+                    case DragStatus.STATUS_EXITTING:
+                        setDragStatus(DragStatus.STATUS_EXITTING);
+                        break;
+                    case DragStatus.STATUS_END_EXIT:
+                        isAnimRunning = false;
+                        setVisibility(View.GONE);
+                        setDragStatus(DragStatus.STATUS_END_EXIT);
+                        break;
+                }
+                if (isDragged || isAnimRunning) {
+                    setScaleable(false);
+                } else {
+                    setScaleable(true);
+                }
+            }
+        };
     }
 
     public void setDuration(int duration) {
@@ -796,6 +849,10 @@ public class ScaleImagePager extends FrameLayout {
 
     public void setMinScale(float minScale) {
         imageView.setMinimumScale(minScale);
+    }
+
+    public boolean isShowing() {
+        return getVisibility() == VISIBLE;
     }
 
     /**

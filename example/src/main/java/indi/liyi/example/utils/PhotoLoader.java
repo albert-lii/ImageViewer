@@ -3,7 +3,6 @@ package indi.liyi.example.utils;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -18,11 +17,11 @@ import indi.liyi.viewer.sipr.ScaleImagePager;
 public class PhotoLoader extends BaseImageLoader {
 
     @Override
-    public void displayImage(final Object src, final ScaleImagePager imagePager) {
+    public void displayImage(final int position, final Object src, final ScaleImagePager imagePager) {
         ProgressInterceptor.addListener(src, new OnProgressListener() {
             @Override
             public void onProgress(float progress, long totalSize) {
-                PhotoLoader.this.onProgress(progress/100,imagePager);
+                PhotoLoader.this.onProgress(progress / 100, imagePager);
             }
         });
         GlideApp.with(imagePager.getContext())

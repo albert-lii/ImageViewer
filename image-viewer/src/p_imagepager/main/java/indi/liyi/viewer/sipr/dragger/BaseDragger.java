@@ -2,9 +2,7 @@ package indi.liyi.viewer.sipr.dragger;
 
 import android.graphics.drawable.Drawable;
 
-import indi.liyi.viewer.ImageViewerStatus;
-import indi.liyi.viewer.ImageViewerAttacher;
-import indi.liyi.viewer.sipr.ScaleImagePager;
+import indi.liyi.viewer.ViewerAttacher;
 
 /**
  * 图片拖拽处理类的基类
@@ -13,7 +11,7 @@ public abstract class BaseDragger implements DragHandler {
     protected final int NO_BACKGROUND_ALPHA = 255;
 
     private OnDragStatusListener mStatusListener;
-    private ImageViewerAttacher mAttacher;
+    private ViewerAttacher mAttacher;
 
     private boolean canChangeBgAlpha = true;
     private Drawable mBackground;
@@ -28,7 +26,7 @@ public abstract class BaseDragger implements DragHandler {
     }
 
     @Override
-    public void injectImageViewerAttacher(ImageViewerAttacher attacher) {
+    public void injectImageViewerAttacher(ViewerAttacher attacher) {
         this.mAttacher = attacher;
     }
 
@@ -93,7 +91,7 @@ public abstract class BaseDragger implements DragHandler {
         }
     }
 
-    public ImageViewerAttacher getAttacher() {
+    public ViewerAttacher getAttacher() {
         return mAttacher;
     }
 
@@ -114,19 +112,7 @@ public abstract class BaseDragger implements DragHandler {
     }
 
     /**
-     * 设置预览状态
-     *
-     * @param state      {@link ImageViewerStatus}
-     * @param imagePager
-     */
-    public void setPreviewStatus(@ImageViewerStatus int state, ScaleImagePager imagePager) {
-        if (checkAttacherNotNull()) {
-            mAttacher.setPreviewStatus(state, imagePager);
-        }
-    }
-
-    /**
-     * 判断 ImageViewerAttacher 是否为空
+     * 判断 ViewerAttacher 是否为空
      *
      * @return
      */

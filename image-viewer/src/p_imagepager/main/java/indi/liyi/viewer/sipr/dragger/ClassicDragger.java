@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 
-import indi.liyi.viewer.ImageViewerStatus;
 import indi.liyi.viewer.sipr.ScaleImagePager;
 import indi.liyi.viewer.sipr.ViewData;
 
@@ -48,7 +47,6 @@ public class ClassicDragger extends BaseDragger {
     @Override
     public void onDrag(float downX, float downY, float curX, float curY) {
         super.onDrag(downX, downY, curX, curY);
-        setPreviewStatus(ImageViewerStatus.STATUS_DRAGGING, imagePager);
         View imageView = imagePager.getImageView();
         // 计算 view 的 Y 轴坐标
         final float diffY = curY - downY;
@@ -67,8 +65,10 @@ public class ClassicDragger extends BaseDragger {
             View imageView = imagePager.getImageView();
             final float disOnY = Math.abs(imageView.getY());
             if (disOnY <= getMaxMovableDisOnY()) {
+                setDragStatus(DragStatus.STATUS_BEGIN_REBACK);
                 reback();
             } else {
+                setDragStatus(DragStatus.STATUS_BEGIN_EXIT);
                 exit();
             }
         }
@@ -85,8 +85,6 @@ public class ClassicDragger extends BaseDragger {
      * 图片恢复原样
      */
     private void reback() {
-        setDragStatus(DragStatus.STATUS_BEGIN_REBACK);
-        setPreviewStatus(ImageViewerStatus.STATUS_READY_REBACK, imagePager);
         final View imageView = imagePager.getImageView();
         final float fromY = imageView.getY();
         final float toY = 0;
@@ -109,7 +107,6 @@ public class ClassicDragger extends BaseDragger {
                     changeBackgroundAlpha((int) alpha);
                 }
                 setDragStatus(DragStatus.STATUS_REBACKING);
-                setPreviewStatus(ImageViewerStatus.STATUS_REBACKING, imagePager);
             }
         });
         animator.addListener(new AnimatorListenerAdapter() {
@@ -121,8 +118,6 @@ public class ClassicDragger extends BaseDragger {
                 setDragStatus(DragStatus.STATUS_END_REBACK);
                 if (checkAttacherNotNull()) {
                     getAttacher().setViewPagerScrollable(true);
-                    setPreviewStatus(ImageViewerStatus.STATUS_COMPLETE_REBACK, imagePager);
-                    setPreviewStatus(ImageViewerStatus.STATUS_WATCHING, imagePager);
                 }
             }
         });
@@ -133,8 +128,6 @@ public class ClassicDragger extends BaseDragger {
      * 退出预览
      */
     private void exit() {
-        setDragStatus(DragStatus.STATUS_BEGIN_EXIT);
-        setPreviewStatus(ImageViewerStatus.STATUS_READY_CLOSE, imagePager);
         final ImageView imageView = imagePager.getImageView();
         final ViewData viewData = imagePager.getViewData();
         // imageView 当前的 Y 轴坐标
@@ -188,7 +181,6 @@ public class ClassicDragger extends BaseDragger {
                 final float alpha = evaluator.evaluate(currentValue, oldBgAlpha, 0);
                 changeBackgroundAlpha((int) alpha);
                 setDragStatus(DragStatus.STATUS_EXITTING);
-                setPreviewStatus(ImageViewerStatus.STATUS_CLOSING, imagePager);
             }
         });
         animator.addListener(new AnimatorListenerAdapter() {
@@ -196,14 +188,10 @@ public class ClassicDragger extends BaseDragger {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
+                setDragStatus(DragStatus.STATUS_END_EXIT);
                 if (checkAttacherNotNull()) {
                     getAttacher().exitEnd();
                 }
-                setDragStatus(DragStatus.STATUS_END_EXIT);
-                imageView.setY(0);
-                changeBackgroundAlpha(NO_BACKGROUND_ALPHA);
-                setPreviewStatus(ImageViewerStatus.STATUS_COMPLETE_CLOSE, imagePager);
-                setPreviewStatus(ImageViewerStatus.STATUS_SILENCE, null);
             }
         });
         animator.start();

@@ -5,8 +5,8 @@ import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
+import indi.liyi.viewer.ViewerAttacher;
 import indi.liyi.viewer.sipr.ScaleImagePager;
-import indi.liyi.viewer.ImageViewerAttacher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +25,9 @@ public class PreviewAdapter extends PagerAdapter {
     private List mSourceList;
     // item 集合（在 item 被移除后，会被重复使用）
     private List<ScaleImagePager> mActiveViews;
-    private ImageViewerAttacher mAttacher;
+    private ViewerAttacher mAttacher;
 
-    public PreviewAdapter(ImageViewerAttacher attacher) {
+    public PreviewAdapter(ViewerAttacher attacher) {
         this.mAttacher = attacher;
         mActiveViews = new ArrayList<>();
     }

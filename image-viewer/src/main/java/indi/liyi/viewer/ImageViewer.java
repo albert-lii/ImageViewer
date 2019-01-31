@@ -16,11 +16,13 @@ import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
 import indi.liyi.viewer.sipr.BaseImageLoader;
+import indi.liyi.viewer.sipr.ScaleImagePager;
 import indi.liyi.viewer.sipr.ViewData;
+import indi.liyi.viewer.sipr.dragger.OnDragStatusListener;
 
 
-public class ImageViewer extends FrameLayout implements IImageViewer {
-    private ImageViewerAttacher mAttacher;
+public class ImageViewer extends FrameLayout implements IViewer {
+    private ViewerAttacher mAttacher;
 
     public ImageViewer(@NonNull Context context) {
         super(context);
@@ -38,7 +40,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     private void init(AttributeSet attrs) {
-        mAttacher = new ImageViewerAttacher(this, attrs);
+        mAttacher = new ViewerAttacher(this, attrs);
     }
 
     @Override
@@ -77,14 +79,14 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public ImageViewer doDrag(boolean isDo) {
-        mAttacher.doDrag(isDo);
+    public ImageViewer canDragged(boolean can) {
+        mAttacher.doDrag(can);
         return this;
     }
 
     @Override
-    public ImageViewer setDragType(int type) {
-        mAttacher.setDragType(type);
+    public ImageViewer setDragMode(int mode) {
+        mAttacher.setDragType(mode);
         return this;
     }
 
@@ -107,20 +109,26 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public ImageViewer setOnImageChangedListener(OnItemChangedListener listener) {
-        mAttacher.setOnImageChangedListener(listener);
+    public ImageViewer setOnItemChangedListener(OnItemChangedListener listener) {
+        mAttacher.setOnItemChangedListener(listener);
         return this;
     }
 
     @Override
     public ImageViewer setOnItemClickListener(OnItemClickListener listener) {
-        mAttacher.setOnViewClickListener(listener);
+        mAttacher.setOnItemClickListener(listener);
         return this;
     }
 
     @Override
     public ImageViewer setOnItemLongClickListener(OnItemLongClickListener listener) {
         mAttacher.setOnItemLongClickListener(listener);
+        return this;
+    }
+
+    @Override
+    public ImageViewer setOnDragStatusListener(OnDragStatusListener listener) {
+        mAttacher.setOnDragStatusListener(listener);
         return this;
     }
 
@@ -146,12 +154,12 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public int getViewState() {
+    public int getViewStatus() {
         return mAttacher.getViewStatus();
     }
 
     @Override
-    public ImageViewer setImageScaleable(boolean scaleable) {
+    public ImageViewer setScaleable(boolean scaleable) {
         mAttacher.setScaleable(scaleable);
         return this;
     }
@@ -163,29 +171,29 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
 
     @Override
     public float getScale() {
-        return mAttacher.getImageScale();
+        return mAttacher.getCurrentItemScale();
     }
 
     @Override
     public ImageViewer setMaxScale(float maxScaleLevel) {
-        mAttacher.setImageMaxScale(maxScaleLevel);
+        mAttacher.setMaxScale(maxScaleLevel);
         return this;
     }
 
     @Override
     public float getMaxScale() {
-        return mAttacher.getImageMaxScale();
+        return mAttacher.getMaxScale();
     }
 
     @Override
     public ImageViewer setMinScale(float minScaleLevel) {
-        mAttacher.setImageMinScale(minScaleLevel);
+        mAttacher.setMinScale(minScaleLevel);
         return this;
     }
 
     @Override
     public float getMinScale() {
-        return mAttacher.getImageMinScale();
+        return mAttacher.getMinScale();
     }
 
     @Override
@@ -194,7 +202,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     }
 
     @Override
-    public View getCurrentItem() {
+    public ScaleImagePager getCurrentItem() {
         return mAttacher.getCurrentItem();
     }
 
@@ -210,7 +218,7 @@ public class ImageViewer extends FrameLayout implements IImageViewer {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (!mAttacher.isImageAnimRunning()) {
-                if (getViewState() == ImageViewerStatus.STATUS_WATCHING) {
+                if (getViewStatus() == ViewerStatus.STATUS_WATCHING) {
                     close();
                     // 消费返回键点击事件，不传递出去
                     return true;

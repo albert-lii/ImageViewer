@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -16,11 +15,12 @@ import com.liyi.grid.adapter.SimpleAutoGridAdapter;
 import indi.liyi.example.R;
 import indi.liyi.example.utils.GlideUtil;
 import indi.liyi.example.utils.PhotoLoader;
+import indi.liyi.viewer.ViewerStatus;
+import indi.liyi.viewer.listener.OnPreviewStatusListener;
+import indi.liyi.viewer.sipr.ScaleImagePager;
 import indi.liyi.viewer.sipr.ViewData;
 import indi.liyi.viewer.sipr.dragger.DragMode;
-import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.ImageViewer;
-import indi.liyi.viewer.sipr.ScaleImagePager;
 
 /**
  * 简单的预览界面
@@ -69,36 +69,8 @@ public class SimplePrevActivity extends BaseActivity {
                 });
             }
         });
-        imageViewer.doDrag(true);
-        imageViewer.setDragType(DragMode.MODE_AGLIE);
         imageViewer.setImageData(mSourceList);
         imageViewer.setImageLoader(new PhotoLoader());
-//        imageViewer.setImageLoader(new ImageLoader<String>() {
-
-//            @Override
-//            public void displayImage(final int position, String src, final ImageView imageView) {
-//                final ScaleImagePager scaleImageView = (ScaleImagePager) imageView.getParent();
-//                GlideUtil.loadImage(SimplePrevActivity.this, src, new SimpleTarget<Drawable>() {
-//
-//                    @Override
-//                    public void onLoadStarted(@Nullable Drawable placeholder) {
-//                        super.onLoadStarted(placeholder);
-//                        imageView.setImageDrawable(placeholder);
-//                    }
-//
-//                    @Override
-//                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-//                        super.onLoadFailed(errorDrawable);
-//                        imageView.setImageDrawable(errorDrawable);
-//                    }
-//
-//                    @Override
-//                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-//                        imageView.setImageDrawable(resource);
-//                    }
-//                });
-//            }
-//        });
     }
 
     @Override
@@ -118,16 +90,20 @@ public class SimplePrevActivity extends BaseActivity {
                     }
                 }
                 imageViewer.setStartPosition(position);
-
                 imageViewer.setViewData(mViewList);
                 imageViewer.watch();
             }
         });
         autoGv.setAdapter(mAdapter);
-        imageViewer.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+        imageViewer.setOnPreviewStatusListener(new OnPreviewStatusListener() {
             @Override
-            public void onItemLongClick(int position, View view) {
-                Toast.makeText(SimplePrevActivity.this, position + "号被长按", Toast.LENGTH_SHORT).show();
+            public void onPreviewStatus(int status, ScaleImagePager imagePager) {
+                if (status == ViewerStatus.STATUS_COMPLETE_OPEN) {
+                    setTransparentStatusBar(R.color.colorBlack);
+                }else if(status == ViewerStatus.STATUS_COMPLETE_CLOSE){
+                    setTransparentStatusBar(R.color.colorPrimaryDark);
+                }
             }
         });
     }

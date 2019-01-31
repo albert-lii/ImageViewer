@@ -7,15 +7,19 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 
 import indi.liyi.example.R;
 import indi.liyi.example.utils.GlideUtil;
 import indi.liyi.example.utils.PhotoLoader;
+import indi.liyi.viewer.sipr.OnTransCallback;
 import indi.liyi.viewer.sipr.ScaleImagePager;
 import indi.liyi.viewer.sipr.ViewData;
-import indi.liyi.viewer.sipr.dragger.DragMode;
 
 /**
  * 单独使用 ScaleImagePager
@@ -26,7 +30,6 @@ public class SinglePrevActivity extends BaseActivity {
 
     private String mUrl;
     private ViewData mViewData = new ViewData();
-    private boolean isCancelByBack;
 
 
     @Override
@@ -40,55 +43,74 @@ public class SinglePrevActivity extends BaseActivity {
         imagePager = findViewById(R.id.imagePager);
 
         mUrl = mSourceList.get(0);
-        imagePager.setDragMode(DragMode.MODE_CLASSIC);
         imagePager.setImageLoader(new PhotoLoader());
         imagePager.setViewData(mViewData);
-        imagePager.preload(mUrl);
-        GlideUtil.loadImage(this, mUrl, new SimpleTarget<Drawable>() {
 
+        GlideUtil.loadImage(this, mUrl, imageView, new RequestListener<Drawable>() {
             @Override
-            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                super.onLoadFailed(errorDrawable);
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                return false;
             }
 
             @Override
-            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                imageView.setImageDrawable(resource);
+            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                 mViewData.setImageWidth(resource.getIntrinsicWidth());
                 mViewData.setImageHeight(resource.getIntrinsicHeight());
-                imagePager.setViewData(mViewData);
+                return false;
             }
         });
+        imagePager.preload(mUrl);
     }
 
     @Override
     public void addListener() {
-        imagePager.setOnViewClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                imagePager.cancel();
-            }
-        });
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mViewData.setTargetX(imageView.getX());
+                imagePager.getViewData().setTargetX(imageView.getX());
                 // 此处注意，获取 Y 轴坐标时，需要根据实际情况来处理《状态栏》的高度，判断是否需要计算进去
-                mViewData.setTargetY(imageView.getY());
-                mViewData.setTargetWidth(imageView.getWidth());
-                mViewData.setTargetHeight(imageView.getHeight());
-                imagePager.setViewData(mViewData);
-                imagePager.start();
+                imagePager.getViewData().setTargetY(imageView.getY());
+                imagePager.getViewData().setTargetWidth(imageView.getWidth());
+                imagePager.getViewData().setTargetHeight(imageView.getHeight());
+                imagePager.start(new OnTransCallback() {
+                    @Override
+                    public void onStart() {
+
+                    }
+
+                    @Override
+                    public void onRunning(float progress) {
+
+                    }
+
+                    @Override
+                    public void onEnd() {
+                        setTransparentStatusBar(R.color.colorBlack);
+                    }
+                });
             }
         });
-    }
+        imagePager.setOnViewClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imagePager.cancel(new OnTransCallback() {
+                    @Override
+                    public void onStart() {
 
-    @Override
-    public void finish() {
-        if (imagePager != null) {
-            imagePager.recycle();
-        }
-        super.finish();
+                    }
+
+                    @Override
+                    public void onRunning(float progress) {
+
+                    }
+
+                    @Override
+                    public void onEnd() {
+                        setTransparentStatusBar(R.color.colorPrimaryDark);
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -100,13 +122,18 @@ public class SinglePrevActivity extends BaseActivity {
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (imagePager.getVisibility() == View.VISIBLE) {
-            if (!isCancelByBack) {
-                imagePager.cancel();
-                isCancelByBack = true;
-            }
-            return true;
+        boolean b = imagePager.onKeyDown(keyCode, event);
+        if (b) {
+            return b;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void finish() {
+        if (imagePager != null) {
+            imagePager.recycle();
+        }
+        super.finish();
     }
 }

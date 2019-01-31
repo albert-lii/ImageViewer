@@ -32,9 +32,9 @@ public class ImageAdapter extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
         if (mOrientation == 0) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_horizontal, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item_horizontal, parent, false);
         } else {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_vertical, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item_vertical, parent, false);
         }
         return new ItemHolder(view);
     }
