@@ -22,8 +22,7 @@ import android.widget.ImageView;
 import java.text.DecimalFormat;
 
 import indi.liyi.viewer.R;
-import indi.liyi.viewer.ViewerAttacher;
-import indi.liyi.viewer.sciv.PhotoView;
+import indi.liyi.viewer.ViewerWrapper;
 import indi.liyi.viewer.pgbr.ProgressWheel;
 import indi.liyi.viewer.scip.dragger.AgileDragger;
 import indi.liyi.viewer.scip.dragger.ClassicDragger;
@@ -31,6 +30,7 @@ import indi.liyi.viewer.scip.dragger.DragHandler;
 import indi.liyi.viewer.scip.dragger.DragMode;
 import indi.liyi.viewer.scip.dragger.DragStatus;
 import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
+import indi.liyi.viewer.sciv.PhotoView;
 
 /**
  * 可缩放图片的自定义 View（即 viewPager 的 item）
@@ -434,6 +434,12 @@ public class ScaleImagePager extends FrameLayout {
         final float oldHeight = mViewData.getTargetHeight();
         // 执行完动画后的 imageView 的宽高
         final float newWidth, newHeight;
+        if (mViewData.getImageWidth() == 0 || mViewData.getImageHeight() == 0) {
+            if (imageView.getDrawable() != null) {
+                mViewData.setImageWidth(imageView.getDrawable().getIntrinsicWidth());
+                mViewData.setImageHeight(imageView.getDrawable().getIntrinsicHeight());
+            }
+        }
         // 如果定义了图片的原始宽高
         if (mViewData.getImageWidth() != 0 && mViewData.getImageHeight() != 0) {
             // 获取 imageView 的缩放比例
@@ -740,7 +746,7 @@ public class ScaleImagePager extends FrameLayout {
         setDragMode(mode, getBackground(), null);
     }
 
-    public void setDragMode(int mode, Drawable background, ViewerAttacher attacher) {
+    public void setDragMode(int mode, Drawable background, ViewerWrapper wrapper) {
         mDragMode = mode;
         if (mDragMode == DragMode.MODE_CLASSIC) {
             mDragHandler = new ClassicDragger();
@@ -751,8 +757,8 @@ public class ScaleImagePager extends FrameLayout {
             initDragStatusMonitor();
             mDragHandler.setBackground(background);
             mDragHandler.addDragStatusListener(mStatusMonitor);
-            if (attacher != null) {
-                mDragHandler.injectImageViewerAttacher(attacher);
+            if (wrapper != null) {
+                mDragHandler.injectViewerWrapper(wrapper);
             }
         }
     }

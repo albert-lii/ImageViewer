@@ -2,7 +2,7 @@ package indi.liyi.viewer.scip.dragger;
 
 import android.graphics.drawable.Drawable;
 
-import indi.liyi.viewer.ViewerAttacher;
+import indi.liyi.viewer.ViewerWrapper;
 import indi.liyi.viewer.scip.ScaleImagePager;
 
 public interface DragHandler {
@@ -14,11 +14,11 @@ public interface DragHandler {
     void injectImagePager(ScaleImagePager imagePager);
 
     /**
-     * 注入 ViewerAttacher
+     * 注入 ViewerWrapper
      *
-     * @param attacher
+     * @param wrapper
      */
-    void injectImageViewerAttacher(ViewerAttacher attacher);
+    void injectViewerWrapper(ViewerWrapper wrapper);
 
     /**
      * 设置背景

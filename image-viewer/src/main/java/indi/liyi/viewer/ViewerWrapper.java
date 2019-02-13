@@ -9,9 +9,11 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import indi.liyi.viewer.listener.OnItemChangedListener;
@@ -28,7 +30,7 @@ import indi.liyi.viewer.viewpager.PreviewAdapter;
 import indi.liyi.viewer.viewpager.PreviewViewPager;
 
 
-public class ViewerAttacher implements ViewPager.OnPageChangeListener {
+public class ViewerWrapper implements ViewPager.OnPageChangeListener {
     // imageViewer 的容器
     private FrameLayout container;
     // 图片索引
@@ -58,8 +60,7 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
     private float mMinScale;
 
     // 图片资源
-    private List mSourceList;
-    private List<ViewData> mTargetList;
+    private List<ViewData> mVdList;
     // 预览的起始位置
     private int mStartPosition;
     // 图片预览器的状态
@@ -79,7 +80,7 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
     private OnPreviewStatusListener mPreviewStatusListener;
 
 
-    public ViewerAttacher(@NonNull FrameLayout container, AttributeSet attrs) {
+    public ViewerWrapper(@NonNull FrameLayout container, AttributeSet attrs) {
         this.container = container;
         init(attrs);
     }
@@ -142,7 +143,7 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
     @Override
     public void onPageSelected(int position) {
         if (indexView.getVisibility() == View.VISIBLE) {
-            indexView.setText((position + 1) + "/" + mSourceList.size());
+            indexView.setText((position + 1) + "/" + mVdList.size());
         }
         final ScaleImagePager imagePager = getCurrentItem();
         if (imagePager != null) {
@@ -170,8 +171,8 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
      */
     private void handleImageIndex() {
         if (showIndex) {
-            if (mSourceList != null && mSourceList.size() > 1) {
-                indexView.setText((mStartPosition + 1) + "/" + mSourceList.size());
+            if (mVdList != null && mVdList.size() > 1) {
+                indexView.setText((mStartPosition + 1) + "/" + mVdList.size());
                 indexView.setVisibility(View.VISIBLE);
             } else {
                 indexView.setVisibility(View.GONE);
@@ -207,8 +208,8 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
         if (mMinScale > 0) {
             item.setMinScale(mMinScale);
         }
-        if (mTargetList != null && mTargetList.size() > position) {
-            item.setViewData(mTargetList.get(position));
+        if (mVdList != null && mVdList.size() > position) {
+            item.setViewData(mVdList.get(position));
         }
         item.canDragged(canDragged);
         if (canDragged) {
@@ -218,7 +219,7 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
         }
         if (mImageLoader != null) {
             item.setImageLoader(mImageLoader);
-            item.preload(mSourceList.get(position));
+            item.preload(mVdList.get(position));
         }
         final ItemGestureListener itemGestureListener = new ItemGestureListener(
                 this, item,
@@ -240,11 +241,11 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
         if (mPreviewAdapter == null) {
             mPreviewAdapter = new PreviewAdapter(this);
             mPreviewAdapter.setStartItem(item);
-            mPreviewAdapter.setSource(mSourceList);
+            mPreviewAdapter.setItemCount(mVdList != null ? mVdList.size() : 0);
             viewPager.setAdapter(mPreviewAdapter);
         } else {
             mPreviewAdapter.setStartItem(item);
-            mPreviewAdapter.setSource(mSourceList);
+            mPreviewAdapter.setItemCount(mVdList != null ? mVdList.size() : 0);
             mPreviewAdapter.notifyDataSetChanged();
         }
         viewPager.setCurrentItem(mStartPosition, false);
@@ -257,7 +258,7 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
         if (doEnterAnim) {
             viewPager.setScrollable(false);
             item.setPosition(mStartPosition);
-            item.setViewData(mTargetList.get(mStartPosition));
+            item.setViewData(mVdList.get(mStartPosition));
             item.setDuration(mDuration);
             item.setViewerBg(container.getBackground());
             item.start(container.getMeasuredWidth(), container.getMeasuredHeight(), new OnTransCallback() {
@@ -303,7 +304,7 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
             viewPager.setScrollable(false);
             indexView.setVisibility(View.GONE);
             final int position = getCurrentPosition();
-            final ViewData viewData = mTargetList.get(position);
+            final ViewData viewData = mVdList.get(position);
             final ScaleImagePager item = getCurrentItem();
             item.setPosition(position);
             item.setViewData(viewData);
@@ -347,11 +348,8 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
      */
     public void clear() {
         exitEnd();
-        if (mSourceList != null && mSourceList.size() > 0) {
-            mSourceList.clear();
-        }
-        if (mTargetList != null && mTargetList.size() > 0) {
-            mTargetList.clear();
+        if (mVdList != null && mVdList.size() > 0) {
+            mVdList.clear();
         }
         if (mPreviewAdapter != null) {
             mPreviewAdapter.clear();
@@ -363,12 +361,31 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
         mImageLoader = null;
     }
 
-    public void setImageData(List list) {
-        mSourceList = list;
+    public void setImageData(@NonNull List list) {
+        if (mVdList == null) {
+            mVdList = new ArrayList<>();
+        } else {
+            mVdList.clear();
+        }
+        for (int i = 0, len = list.size(); i < len; i++) {
+            ViewData vd = new ViewData(list.get(i));
+            mVdList.add(vd);
+        }
+    }
+
+    public void bindViewGroup(@NonNull ViewGroup viewGroup, boolean needStatusBarHeight) {
+        for (int i = 0, len = viewGroup.getChildCount(); i < len; i++) {
+            View child = viewGroup.getChildAt(i);
+            int[] location = new int[2];
+            mVdList.get(i).setTargetX(location[0]);
+            mVdList.get(i).setTargetY(needStatusBarHeight ? location[1] : location[1] - getStatusBarHeight(container.getContext()));
+            mVdList.get(i).setTargetWidth(child.getMeasuredWidth());
+            mVdList.get(i).setTargetHeight(child.getMeasuredHeight());
+        }
     }
 
     public void setViewData(List<ViewData> list) {
-        this.mTargetList = list;
+        this.mVdList = list;
     }
 
     public void setStartPosition(int position) {
@@ -486,5 +503,14 @@ public class ViewerAttacher implements ViewPager.OnPageChangeListener {
     private int dp2px(Context context, float dpVal) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpVal * scale + 0.5f);
+    }
+
+    private int getStatusBarHeight(Context context) {
+        int result = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }

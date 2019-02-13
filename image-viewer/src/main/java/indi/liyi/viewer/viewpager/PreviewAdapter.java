@@ -5,11 +5,11 @@ import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
-import indi.liyi.viewer.ViewerAttacher;
-import indi.liyi.viewer.scip.ScaleImagePager;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import indi.liyi.viewer.ViewerWrapper;
+import indi.liyi.viewer.scip.ScaleImagePager;
 
 /**
  * 预览适配器
@@ -19,16 +19,17 @@ public class PreviewAdapter extends PagerAdapter {
     private final int INVALID_VALUE = -1;
     // 预览的起始位置
     private int mStartPosition;
+    private int mItemCount;
     // 第一个展示的 View
     private ScaleImagePager mStartItem;
     // 图片资源
     private List mSourceList;
     // item 集合（在 item 被移除后，会被重复使用）
     private List<ScaleImagePager> mActiveViews;
-    private ViewerAttacher mAttacher;
+    private ViewerWrapper mWrapper;
 
-    public PreviewAdapter(ViewerAttacher attacher) {
-        this.mAttacher = attacher;
+    public PreviewAdapter(ViewerWrapper wrapper) {
+        this.mWrapper = wrapper;
         mActiveViews = new ArrayList<>();
     }
 
@@ -38,16 +39,13 @@ public class PreviewAdapter extends PagerAdapter {
         mStartItem = item;
     }
 
-    /**
-     * 设置图片资源
-     */
-    public void setSource(List list) {
-        this.mSourceList = list;
+    public void setItemCount(int count) {
+        this.mItemCount = count;
     }
 
     @Override
     public int getCount() {
-        return mSourceList != null ? mSourceList.size() : 0;
+        return mItemCount;
     }
 
     @Override
@@ -62,13 +60,13 @@ public class PreviewAdapter extends PagerAdapter {
             for (int i = 0, len = mActiveViews.size(); i < len; i++) {
                 ScaleImagePager tempItem = mActiveViews.get(i);
                 if (tempItem.getParent() == null) {
-                    item = mAttacher.setupItemConfig(position, tempItem);
+                    item = mWrapper.setupItemConfig(position, tempItem);
                     break;
                 }
             }
         }
         if (item == null) {
-            item = mAttacher.createItem(position);
+            item = mWrapper.createItem(position);
             mActiveViews.add(item);
         }
         // 加载页面

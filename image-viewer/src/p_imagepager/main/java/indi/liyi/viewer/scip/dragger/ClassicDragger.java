@@ -117,7 +117,7 @@ public class ClassicDragger extends BaseDragger {
                 changeBackgroundAlpha(NO_BACKGROUND_ALPHA);
                 setDragStatus(DragStatus.STATUS_END_REBACK);
                 if (checkAttacherNotNull()) {
-                    getAttacher().setViewPagerScrollable(true);
+                    getWrapper().setViewPagerScrollable(true);
                 }
             }
         });
@@ -190,7 +190,7 @@ public class ClassicDragger extends BaseDragger {
                 super.onAnimationEnd(animation);
                 setDragStatus(DragStatus.STATUS_END_EXIT);
                 if (checkAttacherNotNull()) {
-                    getAttacher().exitEnd();
+                    getWrapper().exitEnd();
                 }
             }
         });

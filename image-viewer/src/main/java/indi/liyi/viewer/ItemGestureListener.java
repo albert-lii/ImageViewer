@@ -11,18 +11,18 @@ import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
  * item 的操作手势监听类
  */
 public class ItemGestureListener implements View.OnClickListener, View.OnLongClickListener, OnDragStatusListener {
-    private ViewerAttacher attacher;
+    private ViewerWrapper wrapper;
     private ScaleImagePager item;
 
     private OnItemClickListener mItemClickListener;
     private OnItemLongClickListener mItemLongClickListener;
     private OnDragStatusListener mItemDragStatusListener;
 
-    public ItemGestureListener(ViewerAttacher attacher, ScaleImagePager item,
+    public ItemGestureListener(ViewerWrapper wrapper, ScaleImagePager item,
                                OnItemClickListener itemClickListener,
                                OnItemLongClickListener itemLongClickListener,
                                OnDragStatusListener itemDragStatusListener) {
-        this.attacher = attacher;
+        this.wrapper = wrapper;
         this.item = item;
         this.mItemClickListener = itemClickListener;
         this.mItemLongClickListener = itemLongClickListener;
@@ -39,7 +39,7 @@ public class ItemGestureListener implements View.OnClickListener, View.OnLongCli
                     return;
                 }
             }
-            attacher.close();
+            wrapper.close();
         }
     }
 

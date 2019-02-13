@@ -2,7 +2,7 @@ package indi.liyi.viewer.scip.dragger;
 
 import android.graphics.drawable.Drawable;
 
-import indi.liyi.viewer.ViewerAttacher;
+import indi.liyi.viewer.ViewerWrapper;
 
 /**
  * 图片拖拽处理类的基类
@@ -11,7 +11,7 @@ public abstract class BaseDragger implements DragHandler {
     protected final int NO_BACKGROUND_ALPHA = 255;
 
     private OnDragStatusListener mStatusListener;
-    private ViewerAttacher mAttacher;
+    private ViewerWrapper mWrapper;
 
     private boolean canChangeBgAlpha = true;
     private Drawable mBackground;
@@ -26,8 +26,8 @@ public abstract class BaseDragger implements DragHandler {
     }
 
     @Override
-    public void injectImageViewerAttacher(ViewerAttacher attacher) {
-        this.mAttacher = attacher;
+    public void injectViewerWrapper(ViewerWrapper wrapper) {
+        this.mWrapper = wrapper;
     }
 
     @Override
@@ -63,7 +63,7 @@ public abstract class BaseDragger implements DragHandler {
         mMaxMovableDisOnY = prevHeight / 5f;
         mAlphaBase = mMaxMovableDisOnY * 2;
         if (checkAttacherNotNull()) {
-            mAttacher.setViewPagerScrollable(false);
+            mWrapper.setViewPagerScrollable(false);
         }
         setDragStatus(DragStatus.STATUS_READY);
     }
@@ -91,8 +91,8 @@ public abstract class BaseDragger implements DragHandler {
         }
     }
 
-    public ViewerAttacher getAttacher() {
-        return mAttacher;
+    public ViewerWrapper getWrapper() {
+        return mWrapper;
     }
 
     public int getBackgroundAlpha() {
@@ -112,12 +112,12 @@ public abstract class BaseDragger implements DragHandler {
     }
 
     /**
-     * 判断 ViewerAttacher 是否为空
+     * 判断 ViewerWrapper 是否为空
      *
      * @return
      */
     public boolean checkAttacherNotNull() {
-        if (mAttacher != null) {
+        if (mWrapper != null) {
             return true;
         }
         return false;

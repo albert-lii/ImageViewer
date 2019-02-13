@@ -1,6 +1,8 @@
 package indi.liyi.viewer;
 
 
+import android.support.annotation.NonNull;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.List;
@@ -17,11 +19,6 @@ import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
 
 public interface IViewer {
     /**
-     * 获取图片索引的 view
-     */
-    TextView getIndexView();
-
-    /**
      * 设置起始位置
      *
      * @param position
@@ -34,6 +31,14 @@ public interface IViewer {
      * @param list
      */
     ImageViewer setImageData(List list);
+
+    /**
+     * 绑定一个 viewGroup 作为浏览目标，此方法必须放在 setImageData() 之后执行
+     *
+     * @param viewGroup
+     * @param needStatusBarHeight 浏览时是否需要算上状态栏的高度
+     */
+    ImageViewer bindViewGroup(@NonNull ViewGroup viewGroup, boolean needStatusBarHeight);
 
     /**
      * 设置目标 view 的相关数据
@@ -55,16 +60,9 @@ public interface IViewer {
     ImageViewer showIndex(boolean show);
 
     /**
-     * 是否允许拖拽图片
+     * 获取图片索引的 view
      */
-    ImageViewer canDragged(boolean can);
-
-    /**
-     * 设置拖拽模式
-     *
-     * @param mode {@link indi.liyi.viewer.scip.dragger.DragMode}
-     */
-    ImageViewer setDragMode(int mode);
+    TextView getIndexView();
 
     /**
      * 是否使用进场动画
@@ -80,6 +78,18 @@ public interface IViewer {
      * 设置进场与退场动画的执行时间
      */
     ImageViewer setDuration(int duration);
+
+    /**
+     * 是否允许拖拽图片
+     */
+    ImageViewer canDragged(boolean can);
+
+    /**
+     * 设置拖拽模式
+     *
+     * @param mode {@link indi.liyi.viewer.scip.dragger.DragMode}
+     */
+    ImageViewer setDragMode(int mode);
 
     /**
      * 设置图片的切换事件监听
@@ -135,8 +145,6 @@ public interface IViewer {
 
     /**
      * 图片是否可缩放
-     *
-     * @return
      */
     boolean isScaleable();
 

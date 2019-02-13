@@ -13,6 +13,7 @@ import indi.liyi.viewer.glide.OnProgressListener;
 import indi.liyi.viewer.glide.ProgressInterceptor;
 import indi.liyi.viewer.scip.BaseImageLoader;
 import indi.liyi.viewer.scip.ScaleImagePager;
+import indi.liyi.viewer.scip.ViewData;
 
 public class PhotoLoader extends BaseImageLoader {
 
@@ -25,7 +26,7 @@ public class PhotoLoader extends BaseImageLoader {
             }
         });
         GlideApp.with(imagePager.getContext())
-                .load(src)
+                .load(((ViewData) src).getImageSrc())
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(new SimpleTarget<Drawable>() {

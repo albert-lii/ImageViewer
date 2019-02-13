@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -21,7 +22,7 @@ import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
 
 
 public class ImageViewer extends FrameLayout implements IViewer {
-    private ViewerAttacher mAttacher;
+    private ViewerWrapper mWrapper;
 
     public ImageViewer(@NonNull Context context) {
         super(context);
@@ -39,170 +40,175 @@ public class ImageViewer extends FrameLayout implements IViewer {
     }
 
     private void init(AttributeSet attrs) {
-        mAttacher = new ViewerAttacher(this, attrs);
+        mWrapper = new ViewerWrapper(this, attrs);
     }
 
     @Override
     public TextView getIndexView() {
-        return mAttacher.getIndexView();
+        return mWrapper.getIndexView();
     }
 
     @Override
     public ImageViewer setStartPosition(int position) {
-        mAttacher.setStartPosition(position);
+        mWrapper.setStartPosition(position);
         return this;
     }
 
     @Override
     public ImageViewer setImageData(List list) {
-        mAttacher.setImageData(list);
+        mWrapper.setImageData(list);
         return this;
     }
 
     @Override
     public ImageViewer setViewData(List<ViewData> list) {
-        mAttacher.setViewData(list);
+        mWrapper.setViewData(list);
         return this;
     }
 
     @Override
+    public ImageViewer bindViewGroup(@NonNull ViewGroup viewGroup, boolean needStatusBarHeight) {
+        return null;
+    }
+
+    @Override
     public ImageViewer setImageLoader(BaseImageLoader loader) {
-        mAttacher.setImageLoader(loader);
+        mWrapper.setImageLoader(loader);
         return this;
     }
 
     @Override
     public ImageViewer showIndex(boolean show) {
-        mAttacher.showIndex(show);
+        mWrapper.showIndex(show);
         return this;
     }
 
     @Override
     public ImageViewer canDragged(boolean can) {
-        mAttacher.doDrag(can);
+        mWrapper.doDrag(can);
         return this;
     }
 
     @Override
     public ImageViewer setDragMode(int mode) {
-        mAttacher.setDragType(mode);
+        mWrapper.setDragType(mode);
         return this;
     }
 
     @Override
     public ImageViewer doEnterAnim(boolean isDo) {
-        mAttacher.doEnterAnim(isDo);
+        mWrapper.doEnterAnim(isDo);
         return this;
     }
 
     @Override
     public ImageViewer doExitAnim(boolean isDo) {
-        mAttacher.doExitAnim(isDo);
+        mWrapper.doExitAnim(isDo);
         return this;
     }
 
     @Override
     public ImageViewer setDuration(int duration) {
-        mAttacher.setDuration(duration);
+        mWrapper.setDuration(duration);
         return this;
     }
 
     @Override
     public ImageViewer setOnItemChangedListener(OnItemChangedListener listener) {
-        mAttacher.setOnItemChangedListener(listener);
+        mWrapper.setOnItemChangedListener(listener);
         return this;
     }
 
     @Override
     public ImageViewer setOnItemClickListener(OnItemClickListener listener) {
-        mAttacher.setOnItemClickListener(listener);
+        mWrapper.setOnItemClickListener(listener);
         return this;
     }
 
     @Override
     public ImageViewer setOnItemLongClickListener(OnItemLongClickListener listener) {
-        mAttacher.setOnItemLongClickListener(listener);
+        mWrapper.setOnItemLongClickListener(listener);
         return this;
     }
 
     @Override
     public ImageViewer setOnDragStatusListener(OnDragStatusListener listener) {
-        mAttacher.setOnDragStatusListener(listener);
+        mWrapper.setOnDragStatusListener(listener);
         return this;
     }
 
     @Override
     public ImageViewer setOnPreviewStatusListener(OnPreviewStatusListener listener) {
-        mAttacher.setOnPreviewStatusListener(listener);
+        mWrapper.setOnPreviewStatusListener(listener);
         return this;
     }
 
     @Override
     public void watch() {
-        mAttacher.watch();
+        mWrapper.watch();
     }
 
     @Override
     public void close() {
-        mAttacher.close();
+        mWrapper.close();
     }
 
     @Override
     public void clear() {
-        mAttacher.clear();
+        mWrapper.clear();
     }
 
     @Override
     public int getViewStatus() {
-        return mAttacher.getViewStatus();
+        return mWrapper.getViewStatus();
     }
 
     @Override
     public ImageViewer setScaleable(boolean scaleable) {
-        mAttacher.setScaleable(scaleable);
+        mWrapper.setScaleable(scaleable);
         return this;
     }
 
     @Override
     public boolean isScaleable() {
-        return mAttacher.isScaleable();
+        return mWrapper.isScaleable();
     }
 
     @Override
     public float getScale() {
-        return mAttacher.getCurrentItemScale();
+        return mWrapper.getCurrentItemScale();
     }
 
     @Override
     public ImageViewer setMaxScale(float maxScaleLevel) {
-        mAttacher.setMaxScale(maxScaleLevel);
+        mWrapper.setMaxScale(maxScaleLevel);
         return this;
     }
 
     @Override
     public float getMaxScale() {
-        return mAttacher.getMaxScale();
+        return mWrapper.getMaxScale();
     }
 
     @Override
     public ImageViewer setMinScale(float minScaleLevel) {
-        mAttacher.setMinScale(minScaleLevel);
+        mWrapper.setMinScale(minScaleLevel);
         return this;
     }
 
     @Override
     public float getMinScale() {
-        return mAttacher.getMinScale();
+        return mWrapper.getMinScale();
     }
 
     @Override
     public int getCurrentPosition() {
-        return mAttacher.getCurrentPosition();
+        return mWrapper.getCurrentPosition();
     }
 
     @Override
     public ScaleImagePager getCurrentItem() {
-        return mAttacher.getCurrentItem();
+        return mWrapper.getCurrentItem();
     }
 
     /**
@@ -216,7 +222,7 @@ public class ImageViewer extends FrameLayout implements IViewer {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (!mAttacher.isImageAnimRunning()) {
+            if (!mWrapper.isImageAnimRunning()) {
                 if (getViewStatus() == ViewerStatus.STATUS_WATCHING) {
                     close();
                     // 消费返回键点击事件，不传递出去

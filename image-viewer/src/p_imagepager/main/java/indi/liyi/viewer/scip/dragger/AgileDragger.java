@@ -191,7 +191,7 @@ public class AgileDragger extends BaseDragger {
                 changeBackgroundAlpha(NO_BACKGROUND_ALPHA);
                 setDragStatus(DragStatus.STATUS_END_REBACK);
                 if (checkAttacherNotNull()) {
-                    getAttacher().setViewPagerScrollable(true);
+                    getWrapper().setViewPagerScrollable(true);
                 }
             }
         });
@@ -209,13 +209,13 @@ public class AgileDragger extends BaseDragger {
         final float fromY = imageView.getY() + (mPrevHeight - mAdjustImageHeight) / 2 * mCurScale;
         // 如果没有设置 view 的 targetX 与 targetY，则将 toX 与 toY 设为当前 view 的 x 与 y 轴坐标，
         // 直接在原地进行缩放，不做位移动画
-        final float toX = viewData.getTargetX();
-        final float toY = viewData.getTargetY();
+        final float toX = (viewData.getTargetX() != ViewData.INVALID_VAL) ? viewData.getTargetX() : fromX;
+        final float toY = (viewData.getTargetY() != ViewData.INVALID_VAL) ? viewData.getTargetY() : fromY;
         // 将 imageView 的宽高设置为图片的宽高
         final float oldWidth = mAdjustImageWidth * mCurScale;
         final float oldHeight = mAdjustImageHeight * mCurScale;
-        final float newWidth = viewData.getTargetWidth();
-        final float newHeight = viewData.getTargetHeight();
+        final float newWidth = (viewData.getTargetWidth() != ViewData.INVALID_VAL) ? viewData.getTargetWidth() : 0;
+        final float newHeight = (viewData.getTargetHeight() != ViewData.INVALID_VAL) ? viewData.getTargetHeight() : 0;
         // 图片是否已经滑出预览界面
         final boolean isOutOfPreview;
         if (
@@ -274,7 +274,7 @@ public class AgileDragger extends BaseDragger {
                 super.onAnimationEnd(animation);
                 setDragStatus(DragStatus.STATUS_END_EXIT);
                 if (checkAttacherNotNull()) {
-                    getAttacher().exitEnd();
+                    getWrapper().exitEnd();
                 }
             }
         });
