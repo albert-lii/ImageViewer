@@ -15,10 +15,10 @@ import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.scip.BaseImageLoader;
-import indi.liyi.viewer.scip.ScaleImagePager;
-import indi.liyi.viewer.scip.ViewData;
-import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
+import indi.liyi.viewer.imgpg.BaseImageLoader;
+import indi.liyi.viewer.imgpg.ImagePager;
+import indi.liyi.viewer.imgpg.ViewData;
+import indi.liyi.viewer.imgpg.dragger.OnDragStatusListener;
 
 
 public class ImageViewer extends FrameLayout implements IViewer {
@@ -61,14 +61,15 @@ public class ImageViewer extends FrameLayout implements IViewer {
     }
 
     @Override
-    public ImageViewer setViewData(List<ViewData> list) {
-        mWrapper.setViewData(list);
+    public ImageViewer bindViewGroup(@NonNull ViewGroup viewGroup, boolean overlayStatusBar) {
+        mWrapper.bindViewGroup(viewGroup, overlayStatusBar);
         return this;
     }
 
     @Override
-    public ImageViewer bindViewGroup(@NonNull ViewGroup viewGroup, boolean needStatusBarHeight) {
-        return null;
+    public ImageViewer setViewData(List<ViewData> list) {
+        mWrapper.setViewData(list);
+        return this;
     }
 
     @Override
@@ -207,7 +208,7 @@ public class ImageViewer extends FrameLayout implements IViewer {
     }
 
     @Override
-    public ScaleImagePager getCurrentItem() {
+    public ImagePager getCurrentItem() {
         return mWrapper.getCurrentItem();
     }
 
@@ -222,7 +223,7 @@ public class ImageViewer extends FrameLayout implements IViewer {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (!mWrapper.isImageAnimRunning()) {
+            if (!mWrapper.isAnimRunning()) {
                 if (getViewStatus() == ViewerStatus.STATUS_WATCHING) {
                     close();
                     // 消费返回键点击事件，不传递出去

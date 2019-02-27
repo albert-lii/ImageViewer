@@ -11,21 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import indi.liyi.example.utils.SourceUtil;
-import indi.liyi.viewer.scip.ViewData;
+import indi.liyi.viewer.imgpg.ViewData;
 
 public abstract class BaseActivity extends Activity {
-    protected List<String> mSourceList = new ArrayList<>();
-    protected List<ViewData> mViewList = new ArrayList<>();
+//    protected List<String> mSourceList = new ArrayList<>();
+//    protected List<ViewData> mVdList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutId());
-        mSourceList = SourceUtil.getImageList();
-        for (int i = 0, len = mSourceList.size(); i < len; i++) {
-            ViewData viewData = new ViewData();
-            mViewList.add(viewData);
-        }
+//        mSourceList = SourceUtil.getImageList();
+//        for (int i = 0, len = mSourceList.size(); i < len; i++) {
+//            ViewData viewData = new ViewData();
+//            mVdList.add(viewData);
+//        }
         initView();
         addListener();
     }
@@ -36,7 +36,7 @@ public abstract class BaseActivity extends Activity {
 
     public abstract void addListener();
 
-    public void setTransparentStatusBar(int colorId) {
+    public void changeStatusBarColor(int colorId) {
         // 5.0及以上
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();

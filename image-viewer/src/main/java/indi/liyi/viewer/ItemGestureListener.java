@@ -4,21 +4,22 @@ import android.view.View;
 
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
-import indi.liyi.viewer.scip.ScaleImagePager;
-import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
+import indi.liyi.viewer.imgpg.ImagePager;
+import indi.liyi.viewer.imgpg.dragger.OnDragStatusListener;
+
 
 /**
  * item 的操作手势监听类
  */
 public class ItemGestureListener implements View.OnClickListener, View.OnLongClickListener, OnDragStatusListener {
     private ViewerWrapper wrapper;
-    private ScaleImagePager item;
+    private ImagePager item;
 
     private OnItemClickListener mItemClickListener;
     private OnItemLongClickListener mItemLongClickListener;
     private OnDragStatusListener mItemDragStatusListener;
 
-    public ItemGestureListener(ViewerWrapper wrapper, ScaleImagePager item,
+    public ItemGestureListener(ViewerWrapper wrapper, ImagePager item,
                                OnItemClickListener itemClickListener,
                                OnItemLongClickListener itemLongClickListener,
                                OnDragStatusListener itemDragStatusListener) {

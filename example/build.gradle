@@ -37,6 +37,8 @@ dependencies {
     implementation deps.support.recyclerview
     implementation deps.liyi.flowview
     implementation deps.liyi.gridview
+    implementation deps.glide.glide
+    annotationProcessor deps.glide.processor
+    implementation "com.github.bumptech.glide:okhttp3-integration:4.8.0"
     implementation project(':image-viewer')
-    implementation project(':lib_glide')
 }

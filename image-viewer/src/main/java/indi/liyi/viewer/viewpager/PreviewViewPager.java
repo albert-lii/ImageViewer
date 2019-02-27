@@ -6,6 +6,10 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+
+/**
+ * 预览器 ViewPager
+ */
 public class PreviewViewPager extends ViewPager {
     // 是否可滑动
     private boolean isScrollable;

@@ -2,15 +2,18 @@ package indi.liyi.example.ui;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ViewGroup;
 
 import java.util.List;
 
 import indi.liyi.example.R;
 import indi.liyi.example.adapter.FriendCircleAdapter;
-import indi.liyi.example.utils.PhotoLoader;
+import indi.liyi.example.utils.ImageLoader;
 import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.viewer.ImageViewer;
-import indi.liyi.viewer.scip.ViewData;
+import indi.liyi.viewer.ViewerStatus;
+import indi.liyi.viewer.imgpg.ImagePager;
+import indi.liyi.viewer.listener.OnPreviewStatusListener;
 
 /**
  * 朋友圈页面
@@ -18,7 +21,7 @@ import indi.liyi.viewer.scip.ViewData;
 public class FriendCircleActivity extends BaseActivity {
     private ImageViewer imageViewer;
     private RecyclerView recyclerView;
-    private FriendCircleAdapter mAdapter;
+    private FriendCircleAdapter adapter;
 
     @Override
     public int getLayoutId() {
@@ -30,23 +33,23 @@ public class FriendCircleActivity extends BaseActivity {
         imageViewer = findViewById(R.id.imageViewer);
         recyclerView = findViewById(R.id.recyclerview);
 
-        imageViewer.setImageLoader(new PhotoLoader());
+        imageViewer.setImageLoader(new ImageLoader());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new FriendCircleAdapter();
-        mAdapter.setData(SourceUtil.getFriendCircleList());
+        adapter = new FriendCircleAdapter();
+        adapter.setData(SourceUtil.getFriendCircleList());
     }
 
     @Override
     public void addListener() {
-        mAdapter.setOnItemClickCallback(new FriendCircleAdapter.OnItemClickCallback() {
+        adapter.setOnItemClickCallback(new FriendCircleAdapter.OnItemClickCallback() {
             @Override
-            public void onItemClick(int position, List<String> list, List<ViewData> viewDataList) {
-                imageViewer.setStartPosition(position);
-                imageViewer.setImageData(list);
-                imageViewer.setViewData(viewDataList);
-                imageViewer.watch();
+            public void onItemClick(int position, List<String> list, ViewGroup gridview) {
+                imageViewer.setImageData(list)
+                        .bindViewGroup(gridview, false)
+                        .setStartPosition(position)
+                        .watch();
             }
         });
-        recyclerView.setAdapter(mAdapter);
+        recyclerView.setAdapter(adapter);
     }
 }

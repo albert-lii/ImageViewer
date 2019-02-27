@@ -28,7 +28,7 @@ android {
     }
 
     sourceSets {
-        def dirs = ['p_imagepager','p_scaleview','p_progressbar']
+        def dirs = ['p_imagepager','p_scaleimageview','p_progressview']
         main {
             dirs.each { dir ->
                 java.srcDir("src/${dir}/main/java")

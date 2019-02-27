@@ -19,24 +19,4 @@
         <!--是否允许更改背景透明度-->
         <attr name="ivr_canBgAlpha" format="boolean" />
     </declare-styleable>
-
-    <declare-styleable name="ScaleImagePager">
-        <!--是否执行进场动画-->
-        <attr name="sip_doEnterAnim" format="boolean" />
-        <!--是否执行退场动画-->
-        <attr name="sip_doExitAnim" format="boolean" />
-        <!--动画执行时间-->
-        <attr name="sip_duration" format="integer" />
-        <!--是否允许拖拽-->
-        <attr name="sip_canDragged" format="boolean" />
-        <!--拖拽模式-->
-        <attr name="sip_dragMode">
-            <enum name="classic" value="1" />
-            <enum name="agile" value="2" />
-        </attr>
-        <!--是否可以背景渐变-->
-        <attr name="sip_canBgAlpha" format="boolean" />
-        <!--是否显示加载进度-->
-        <attr name="sip_showProgress" format="boolean" />
-    </declare-styleable>
 </resources>

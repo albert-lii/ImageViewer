@@ -2,7 +2,9 @@ package indi.liyi.viewer.listener;
 
 import android.view.View;
 
-
+/**
+ * item 的单击事件
+ */
 public interface OnItemClickListener {
 
     /**

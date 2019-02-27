@@ -1,6 +1,5 @@
 package indi.liyi.viewer;
 
-import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -16,16 +15,17 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import indi.liyi.viewer.imgpg.BaseImageLoader;
+import indi.liyi.viewer.imgpg.ImagePager;
+import indi.liyi.viewer.imgpg.OnTransCallback;
+import indi.liyi.viewer.imgpg.Utils;
+import indi.liyi.viewer.imgpg.ViewData;
+import indi.liyi.viewer.imgpg.dragger.DragMode;
+import indi.liyi.viewer.imgpg.dragger.OnDragStatusListener;
 import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.scip.BaseImageLoader;
-import indi.liyi.viewer.scip.OnTransCallback;
-import indi.liyi.viewer.scip.ScaleImagePager;
-import indi.liyi.viewer.scip.ViewData;
-import indi.liyi.viewer.scip.dragger.DragMode;
-import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
 import indi.liyi.viewer.viewpager.PreviewAdapter;
 import indi.liyi.viewer.viewpager.PreviewViewPager;
 
@@ -51,7 +51,7 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
     // 图片的拖拽模式
     private int mDragMode = DragMode.MODE_CLASSIC;
     // 进退场动画的执行时间
-    private int mDuration = ScaleImagePager.DEF_ANIM_DURATION;
+    private int mDuration = ImagePager.DEF_ANIM_DURATION;
     // 图片是否可缩放
     private boolean isScaleable;
     // 最大的图片缩放等级
@@ -95,7 +95,7 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
                 canDragged = a.getBoolean(R.styleable.ImageViewer_ivr_canDragged, true);
                 canBgAlpha = a.getBoolean(R.styleable.ImageViewer_ivr_canBgAlpha, true);
                 mDragMode = a.getInteger(R.styleable.ImageViewer_ivr_dragMode, DragMode.MODE_CLASSIC);
-                mDuration = a.getInteger(indi.liyi.viewer.R.styleable.ImageViewer_ivr_duration, ScaleImagePager.DEF_ANIM_DURATION);
+                mDuration = a.getInteger(indi.liyi.viewer.R.styleable.ImageViewer_ivr_duration, ImagePager.DEF_ANIM_DURATION);
                 a.recycle();
             }
         }
@@ -119,7 +119,7 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
         textParams.setMargins(0,
-                dp2px(container.getContext(), 5),
+                Utils.dp2px(container.getContext(), 5),
                 0,
                 0);
         textParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
@@ -145,11 +145,12 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
         if (indexView.getVisibility() == View.VISIBLE) {
             indexView.setText((position + 1) + "/" + mVdList.size());
         }
-        final ScaleImagePager imagePager = getCurrentItem();
-        if (imagePager != null) {
-            imagePager.setScale(1f);
+        final ImagePager item = getCurrentItem();
+        if (item != null) {
+            item.setScale(1f);
+            updateViewData(item);
             if (mItemChangedListener != null) {
-                mItemChangedListener.onItemChanged(position, imagePager);
+                mItemChangedListener.onItemChanged(position, item);
             }
         }
     }
@@ -157,6 +158,17 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    private void updateViewData(ImagePager imagePager) {
+        // 更新 ViewData 数据
+        // PS: 可能会存在 newData 获取到了图片的原始尺寸数据，而 oldData 还仍然为 0 的状况，
+        // 故此处更新一个 ViewData 数据
+        ViewData oldData = mVdList.get(imagePager.getPosition());
+        ViewData newData = imagePager.getViewData();
+        if (!oldData.equals(newData)) {
+            mVdList.set(imagePager.getPosition(), newData);
+        }
     }
 
     /**
@@ -185,8 +197,8 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
     /**
      * 创建 item
      */
-    public ScaleImagePager createItem(final int position) {
-        final ScaleImagePager item = new ScaleImagePager(container.getContext());
+    public ImagePager createItem(final int position) {
+        final ImagePager item = new ImagePager(container.getContext());
         item.setLayoutParams(new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
@@ -196,10 +208,11 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
     /**
      * 初始化 item 的配置
      */
-    public ScaleImagePager setupItemConfig(int position, ScaleImagePager item) {
+    public ImagePager setupItemConfig(int position, ImagePager item) {
         item.setId(position);
         item.setPosition(position);
         item.asItem(true);
+        item.setViewerBg(container.getBackground());
         item.canBgAlpha(canBgAlpha);
         item.setScaleable(isScaleable);
         if (mMaxScale > 0) {
@@ -208,18 +221,16 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
         if (mMinScale > 0) {
             item.setMinScale(mMinScale);
         }
-        if (mVdList != null && mVdList.size() > position) {
-            item.setViewData(mVdList.get(position));
-        }
         item.canDragged(canDragged);
         if (canDragged) {
             item.setDragMode(mDragMode, container.getBackground(), this);
         } else {
             item.removeDragger();
         }
-        if (mImageLoader != null) {
+        if (mVdList != null && mVdList.size() > position) {
+            item.setViewData(mVdList.get(position));
             item.setImageLoader(mImageLoader);
-            item.preload(mVdList.get(position));
+            item.preload();
         }
         final ItemGestureListener itemGestureListener = new ItemGestureListener(
                 this, item,
@@ -237,7 +248,7 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
      */
     public void watch() {
         viewPager.setScrollable(true);
-        ScaleImagePager item = createItem(mStartPosition);
+        ImagePager item = createItem(mStartPosition);
         if (mPreviewAdapter == null) {
             mPreviewAdapter = new PreviewAdapter(this);
             mPreviewAdapter.setStartItem(item);
@@ -254,18 +265,17 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
         doEnter(item);
     }
 
-    public void doEnter(final ScaleImagePager item) {
+    public void doEnter(final ImagePager item) {
         if (doEnterAnim) {
             viewPager.setScrollable(false);
             item.setPosition(mStartPosition);
-            item.setViewData(mVdList.get(mStartPosition));
             item.setDuration(mDuration);
             item.setViewerBg(container.getBackground());
-            item.start(container.getMeasuredWidth(), container.getMeasuredHeight(), new OnTransCallback() {
+            item.watch(container.getWidth(), container.getHeight(), new OnTransCallback() {
 
                 @Override
                 public void onStart() {
-
+                    updateViewData(item);
                 }
 
                 @Override
@@ -283,7 +293,7 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
         }
     }
 
-    private void enterEnd(ScaleImagePager item) {
+    private void enterEnd(ImagePager item) {
         handleImageIndex();
         viewPager.setScrollable(true);
         setPreviewStatus(ViewerStatus.STATUS_COMPLETE_OPEN, item);
@@ -305,14 +315,14 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
             indexView.setVisibility(View.GONE);
             final int position = getCurrentPosition();
             final ViewData viewData = mVdList.get(position);
-            final ScaleImagePager item = getCurrentItem();
+            final ImagePager item = getCurrentItem();
             item.setPosition(position);
             item.setViewData(viewData);
             item.setDuration(mDuration);
             item.cancel(new OnTransCallback() {
                 @Override
                 public void onStart() {
-
+                    updateViewData(item);
                 }
 
                 @Override
@@ -373,12 +383,14 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
         }
     }
 
-    public void bindViewGroup(@NonNull ViewGroup viewGroup, boolean needStatusBarHeight) {
+    public void bindViewGroup(@NonNull ViewGroup viewGroup, boolean overlayStatusBar) {
         for (int i = 0, len = viewGroup.getChildCount(); i < len; i++) {
             View child = viewGroup.getChildAt(i);
             int[] location = new int[2];
+            // 获取 child 在屏幕中的坐标，其中 getLocationOnScreen() 方法获取的 y 轴坐标包含状态栏的高度
+            child.getLocationOnScreen(location);
             mVdList.get(i).setTargetX(location[0]);
-            mVdList.get(i).setTargetY(needStatusBarHeight ? location[1] : location[1] - getStatusBarHeight(container.getContext()));
+            mVdList.get(i).setTargetY(overlayStatusBar ? location[1] : location[1] - Utils.getStatusBarHeight(container.getContext()));
             mVdList.get(i).setTargetWidth(child.getMeasuredWidth());
             mVdList.get(i).setTargetHeight(child.getMeasuredHeight());
         }
@@ -429,7 +441,7 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
     }
 
     public float getCurrentItemScale() {
-        final ScaleImagePager scaleImageView = getCurrentItem();
+        final ImagePager scaleImageView = getCurrentItem();
         return scaleImageView != null ? scaleImageView.getScale() : 1f;
     }
 
@@ -457,7 +469,7 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
         return viewPager != null ? viewPager.getCurrentItem() : 0;
     }
 
-    public ScaleImagePager getCurrentItem() {
+    public ImagePager getCurrentItem() {
         return mPreviewAdapter != null ? mPreviewAdapter.getViewByPosition(getCurrentPosition()) : null;
     }
 
@@ -465,8 +477,8 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
         return mViewStatus;
     }
 
-    public boolean isImageAnimRunning() {
-        ScaleImagePager item = getCurrentItem();
+    public boolean isAnimRunning() {
+        ImagePager item = getCurrentItem();
         if (item != null) {
             return item.isAnimRunning();
         }
@@ -493,24 +505,10 @@ public class ViewerWrapper implements ViewPager.OnPageChangeListener {
         this.mPreviewStatusListener = listener;
     }
 
-    public void setPreviewStatus(int state, ScaleImagePager scaleImageView) {
+    public void setPreviewStatus(int state, ImagePager scaleImageView) {
         mViewStatus = state;
         if (mPreviewStatusListener != null) {
             mPreviewStatusListener.onPreviewStatus(state, scaleImageView);
         }
-    }
-
-    private int dp2px(Context context, float dpVal) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpVal * scale + 0.5f);
-    }
-
-    private int getStatusBarHeight(Context context) {
-        int result = 0;
-        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = context.getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
     }
 }

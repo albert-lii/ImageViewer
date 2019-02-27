@@ -15,6 +15,6 @@
         android:id="@+id/imagePreivew"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:ivr_duration="300"
+        app:ivr_dragMode="agile"
         android:background="#000000" />
 </FrameLayout>

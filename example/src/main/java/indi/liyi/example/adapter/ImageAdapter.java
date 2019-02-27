@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import java.util.List;
 
 import indi.liyi.example.R;
-import indi.liyi.example.utils.GlideUtil;
+import indi.liyi.example.utils.glide.GlideUtil;
 
 
 public class ImageAdapter extends RecyclerView.Adapter {

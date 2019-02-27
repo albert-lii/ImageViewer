@@ -7,14 +7,14 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import indi.liyi.viewer.imgpg.BaseImageLoader;
+import indi.liyi.viewer.imgpg.ImagePager;
+import indi.liyi.viewer.imgpg.ViewData;
+import indi.liyi.viewer.imgpg.dragger.OnDragStatusListener;
 import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongClickListener;
 import indi.liyi.viewer.listener.OnPreviewStatusListener;
-import indi.liyi.viewer.scip.BaseImageLoader;
-import indi.liyi.viewer.scip.ScaleImagePager;
-import indi.liyi.viewer.scip.ViewData;
-import indi.liyi.viewer.scip.dragger.OnDragStatusListener;
 
 
 public interface IViewer {
@@ -36,9 +36,9 @@ public interface IViewer {
      * 绑定一个 viewGroup 作为浏览目标，此方法必须放在 setImageData() 之后执行
      *
      * @param viewGroup
-     * @param needStatusBarHeight 浏览时是否需要算上状态栏的高度
+     * @param overlayStatusBar 预览界面是否占据了状态栏的空间
      */
-    ImageViewer bindViewGroup(@NonNull ViewGroup viewGroup, boolean needStatusBarHeight);
+    ImageViewer bindViewGroup(@NonNull ViewGroup viewGroup, boolean overlayStatusBar);
 
     /**
      * 设置目标 view 的相关数据
@@ -87,7 +87,7 @@ public interface IViewer {
     /**
      * 设置拖拽模式
      *
-     * @param mode {@link indi.liyi.viewer.scip.dragger.DragMode}
+     * @param mode {@link indi.liyi.viewer.imgpg.dragger.DragMode}
      */
     ImageViewer setDragMode(int mode);
 
@@ -176,7 +176,7 @@ public interface IViewer {
     /**
      * 获取当前的 itemView
      */
-    ScaleImagePager getCurrentItem();
+    ImagePager getCurrentItem();
 
     /**
      * 获取当前的 itemView 的位置

@@ -12,12 +12,9 @@
         android:layout_gravity="center"
         android:scaleType="centerCrop" />
 
-    <indi.liyi.viewer.scip.ScaleImagePager
+    <indi.liyi.viewer.imgpg.ImagePager
         android:id="@+id/imagePager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000000"
-        app:sip_canDragged="true"
-        app:sip_dragMode="classic"
-        app:sip_duration="300" />
+        android:background="#000000" />
 </FrameLayout>
