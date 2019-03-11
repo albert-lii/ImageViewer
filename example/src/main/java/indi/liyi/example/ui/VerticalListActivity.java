@@ -11,14 +11,13 @@ import java.util.List;
 
 import indi.liyi.example.R;
 import indi.liyi.example.adapter.ImageAdapter;
-import indi.liyi.example.utils.ImageLoader;
+import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.example.utils.Utils;
 import indi.liyi.viewer.ImageViewer;
 import indi.liyi.viewer.ViewerStatus;
-import indi.liyi.viewer.imgpg.ImagePager;
-import indi.liyi.viewer.imgpg.ViewData;
-import indi.liyi.viewer.listener.OnPreviewStatusListener;
+import indi.liyi.viewer.ViewData;
+import indi.liyi.viewer.listener.OnBrowseStatusListener;
 
 /**
  * 纵向图片列表页面
@@ -51,41 +50,10 @@ public class VerticalListActivity extends BaseActivity {
         adapter = new ImageAdapter(1);
         adapter.setData(mImgList);
 
-        imageViewer.setImageData(mImgList);
-        imageViewer.setImageLoader(new ImageLoader());
+        imageViewer.imageData(mImgList)
+                .overlayStatusBar(false)
+                .imageLoader(new PhotoLoader());
     }
-
-    @Override
-    public void addListener() {
-        adapter.setOnItemClickCallback(new ImageAdapter.OnItemClickCallback() {
-            @Override
-            public void onItemClick(int position, ImageView view) {
-                int[] location = new int[2];
-                // 获取在整个屏幕内的绝对坐标
-                view.getLocationOnScreen(location);
-                // 去掉状态栏的高度
-                mVdList.get(position).setTargetY(location[1] - mStatusBarHeight);
-                imageViewer.setStartPosition(position);
-                imageViewer.setViewData(mVdList);
-                imageViewer.watch();
-            }
-        });
-        recyclerView.setAdapter(adapter);
-        linearManager.scrollToPositionWithOffset(0, 0);
-
-        imageViewer.setOnPreviewStatusListener(new OnPreviewStatusListener() {
-            @Override
-            public void onPreviewStatus(int state, ImagePager imagePager) {
-                if (state == ViewerStatus.STATUS_READY_CLOSE) {
-                    int top = getTop(imageViewer.getCurrentPosition());
-                    imageViewer.getCurrentItem().getViewData().setTargetY(top);
-                    imageViewer.setViewData(mVdList);
-                    linearManager.scrollToPositionWithOffset(imageViewer.getCurrentPosition(), top);
-                }
-            }
-        });
-    }
-
 
     private void initData() {
         mScreenSize = Utils.getScreenSize(this);
@@ -100,6 +68,35 @@ public class VerticalListActivity extends BaseActivity {
             viewData.setTargetHeight(Utils.dp2px(this, 200));
             mVdList.add(viewData);
         }
+    }
+
+    @Override
+    public void addListener() {
+        adapter.setOnItemClickCallback(new ImageAdapter.OnItemClickCallback() {
+            @Override
+            public void onItemClick(int position, ImageView view) {
+                int[] location = new int[2];
+                // 获取在整个屏幕内的绝对坐标
+                view.getLocationOnScreen(location);
+                // 去掉状态栏的高度
+                mVdList.get(position).setTargetY(location[1] - mStatusBarHeight);
+                imageViewer.viewData(mVdList)
+                        .watch(position);
+            }
+        });
+        recyclerView.setAdapter(adapter);
+        linearManager.scrollToPositionWithOffset(0, 0);
+
+        imageViewer.setOnBrowseStatusListener(new OnBrowseStatusListener() {
+            @Override
+            public void onBrowseStatus(int status) {
+                if (status == ViewerStatus.STATUS_BEGIN_CLOSE) {
+                    int top = getTop(imageViewer.getCurrentPosition());
+                    mVdList.get(imageViewer.getCurrentPosition()).setTargetY(top);
+                    linearManager.scrollToPositionWithOffset(imageViewer.getCurrentPosition(), top);
+                }
+            }
+        });
     }
 
     private int getTop(int position) {

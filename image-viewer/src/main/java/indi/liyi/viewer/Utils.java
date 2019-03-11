@@ -1,4 +1,4 @@
-package indi.liyi.viewer.imgpg;
+package indi.liyi.viewer;
 
 import android.content.Context;
 import android.os.Handler;

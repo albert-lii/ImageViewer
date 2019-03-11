@@ -1,28 +1,19 @@
 package indi.liyi.example.adapter;
 
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.liyi.grid.AutoGridView;
 import com.liyi.grid.adapter.SimpleAutoGridAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import indi.liyi.example.R;
 import indi.liyi.example.utils.glide.GlideUtil;
-import indi.liyi.example.utils.Utils;
-import indi.liyi.viewer.imgpg.ViewData;
 
 public class FriendCircleAdapter extends RecyclerView.Adapter {
     private List<List<String>> mSourceList;

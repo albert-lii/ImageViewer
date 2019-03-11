@@ -1,39 +1,31 @@
 package indi.liyi.viewer;
 
 /**
- * 图片预览器的状态
+ * 图片浏览器的状态
  */
 public final class ViewerStatus {
     /**
-     * 准备打开图片预览器
+     * 图片浏览器处于未开启状态
      */
-    public static int STATUS_READY_OPEN = 1;
+    public static final int STATUS_SILENCE = 0;
     /**
-     * 图片预览器打开中
+     * 图片浏览器开始执行进场动画
      */
-    public static int STATUS_OPENING = 2;
+    public static final int STATUS_BEGIN_OPEN = 1;
     /**
-     * 图片预览器打开完成
+     * 图片浏览器正在执行进场动画
      */
-    public static int STATUS_COMPLETE_OPEN = 3;
+    public static final int STATUS_OPENING = 2;
     /**
-     * 图片正在被预览中
+     *  图片正在被浏览中
      */
-    public static int STATUS_WATCHING = 4;
+    public static final int STATUS_WATCHING = 3;
     /**
-     * 准备关闭图片预览器
+     * 图片浏览器开始执行退场动画
      */
-    public static int STATUS_READY_CLOSE = 5;
+    public static final int STATUS_BEGIN_CLOSE = 4;
     /**
-     * 图片预览器关闭中
+     * 图片浏览器正在执行退场动画
      */
-    public static int STATUS_CLOSING = 6;
-    /**
-     * 关闭图片预览器完成
-     */
-    public static int STATUS_COMPLETE_CLOSE = 7;
-    /**
-     * 图片预览器处于未开启状态
-     */
-    public static int STATUS_SILENCE = 8;
+    public static final int STATUS_CLOSING = 5;
 }

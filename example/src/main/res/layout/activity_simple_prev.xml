@@ -14,7 +14,5 @@
     <indi.liyi.viewer.ImageViewer
         android:id="@+id/imagePreivew"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:ivr_dragMode="agile"
-        android:background="#000000" />
+        android:layout_height="match_parent" />
 </FrameLayout>

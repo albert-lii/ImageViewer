@@ -7,12 +7,6 @@ import android.support.annotation.Nullable;
 import android.view.Window;
 import android.view.WindowManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import indi.liyi.example.utils.SourceUtil;
-import indi.liyi.viewer.imgpg.ViewData;
-
 public abstract class BaseActivity extends Activity {
 //    protected List<String> mSourceList = new ArrayList<>();
 //    protected List<ViewData> mVdList = new ArrayList<>();

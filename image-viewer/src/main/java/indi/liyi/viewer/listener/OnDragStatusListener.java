@@ -1,4 +1,4 @@
-package indi.liyi.viewer.imgpg.dragger;
+package indi.liyi.viewer.listener;
 
 /**
  * 监听图片被拖拽时的状态
@@ -6,7 +6,7 @@ package indi.liyi.viewer.imgpg.dragger;
 public interface OnDragStatusListener {
 
     /**
-     * @param status {@link DragStatus}
+     * @param status {@link indi.liyi.viewer.dragger.DragStatus}
      */
     void onDragStatusChanged(int status);
 }

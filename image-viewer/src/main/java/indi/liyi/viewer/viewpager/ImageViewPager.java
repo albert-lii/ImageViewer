@@ -10,26 +10,18 @@ import android.view.MotionEvent;
 /**
  * 预览器 ViewPager
  */
-public class PreviewViewPager extends ViewPager {
+public class ImageViewPager extends ViewPager {
     // 是否可滑动
-    private boolean isScrollable;
+    private boolean isScrollable = true;
+    // 上一次的触摸点坐标
+    private float mLastX, mLastY;
 
-    public PreviewViewPager(Context context) {
+    public ImageViewPager(Context context) {
         super(context);
     }
 
-    public PreviewViewPager(Context context, AttributeSet attrs) {
+    public ImageViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return super.onInterceptTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return super.onTouchEvent(ev);
     }
 
     @Override

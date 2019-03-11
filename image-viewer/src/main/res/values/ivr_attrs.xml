@@ -2,21 +2,19 @@
 <resources>
     <declare-styleable name="ImageViewer">
         <!--是否开启进场动画-->
-        <attr name="ivr_doEnterAnim" format="boolean" />
+        <attr name="ivr_playEnterAnim" format="boolean" />
         <!--是否开启退场动画-->
-        <attr name="ivr_doExitAnim" format="boolean" />
+        <attr name="ivr_playExitAnim" format="boolean" />
         <!--进场与退场动画的执行时间-->
         <attr name="ivr_duration" format="integer" />
         <!--是否显示图片位置-->
         <attr name="ivr_showIndex" format="boolean" />
         <!--是否允许图片拖拽-->
-        <attr name="ivr_canDragged" format="boolean" />
+        <attr name="ivr_draggable" format="boolean" />
         <!--拖拽模式-->
         <attr name="ivr_dragMode">
-            <enum name="classic" value="1" />
+            <enum name="simple" value="1" />
             <enum name="agile" value="2" />
         </attr>
-        <!--是否允许更改背景透明度-->
-        <attr name="ivr_canBgAlpha" format="boolean" />
     </declare-styleable>
 </resources>

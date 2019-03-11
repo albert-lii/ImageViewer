@@ -30,6 +30,7 @@ public class GlideUtil {
     public static void loadImage(Context context, final Object src, final SimpleTarget<Drawable> target) {
         GlideApp.with(context)
                 .load(src)
+                .thumbnail(0.1f)
                 .placeholder(R.drawable.img_placeholder)
                 .error(R.drawable.img_placeholder)
                 .into(target);

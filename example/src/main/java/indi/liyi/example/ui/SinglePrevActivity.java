@@ -1,5 +1,6 @@
 package indi.liyi.example.ui;
 
+import android.graphics.Matrix;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,12 +11,13 @@ import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.example.utils.glide.GlideUtil;
 import indi.liyi.viewer.imgpg.ImagePager;
 import indi.liyi.viewer.imgpg.OnTransCallback;
+import indi.liyi.viewer.scimgv.PhotoView;
 
 /**
  * 单独使用 ScaleImagePager
  */
 public class SinglePrevActivity extends BaseActivity {
-    private ImageView imageView;
+    private PhotoView imageView;
     private ImagePager imagePager;
 
     private String mUrl;
@@ -42,6 +44,7 @@ public class SinglePrevActivity extends BaseActivity {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("?????? >>>>  "+imageView.getDrawable().getIntrinsicWidth()+"  "+imageView.getDrawable().getIntrinsicHeight());
                 imagePager.bindView(imageView, false);
                 imagePager.watch(new OnTransCallback() {
                     @Override

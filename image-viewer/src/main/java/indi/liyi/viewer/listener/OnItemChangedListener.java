@@ -1,5 +1,6 @@
 package indi.liyi.viewer.listener;
 
+import indi.liyi.viewer.ImageDrawee;
 import indi.liyi.viewer.imgpg.ImagePager;
 
 /**
@@ -7,5 +8,5 @@ import indi.liyi.viewer.imgpg.ImagePager;
  */
 public interface OnItemChangedListener {
 
-    void onItemChanged(int position, ImagePager view);
+    void onItemChanged(int position, ImageDrawee drawee);
 }

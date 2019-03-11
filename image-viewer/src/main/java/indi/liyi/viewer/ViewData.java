@@ -1,4 +1,4 @@
-package indi.liyi.viewer.imgpg;
+package indi.liyi.viewer;
 
 
 public class ViewData {
