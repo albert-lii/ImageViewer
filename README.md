@@ -12,8 +12,9 @@
 - 微信朋友圈图片放大预览
 - 微信朋友圈图片拖拽效果
 - 今日头条图片拖拽效果
+- 自定义图片加加载
 - 图片加载进度条
-- 可自定义图片索引与图片加载样式
+- 可自定义图片索引与图片加载UI
 
 <h2>传送门</h2>
 
@@ -21,7 +22,7 @@
 - [事件监听器](#2)
 - [自定义UI](#3)
 - [添加依赖](#4)
-- [简单示例](#5)
+- [使用方法](#5)
 - [超巨图加载解决方案](#6)
 
 <h2>推荐</h2>
@@ -49,6 +50,9 @@
 | ivr_dragMode | 拖拽模式（simple：今日头条效果 | agile：微信朋友圈效果） |  
 
 <h2 id="2">事件监听器</h2>    
+
+| 方法名 | 描述 |  
+| :---- | :---- |    
 | setOnItemClickListener(OnItemClickListener listener) | item 的单击事件 |
 | setOnItemLongListener(OnItemLongPressListener listener) | item 的长按事件 |
 | setOnItemChangedListener(OnItemChangedListener listener) | item 的切换事件 |
@@ -79,7 +83,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    allprojects {
        repositories {
            ...
-           // 如果添加依赖时，报找不到项目时（项目正在审核），可以添加此句maven地址，如果找到项目，可不必添加
+           // 如果添加依赖时，报找不到项目时（则项目正在审核），可以添加此句maven地址，如果找到项目，可不必添加
            maven { url "https://dl.bintray.com/albertlii/android-maven/" }
        }
     }
@@ -101,9 +105,9 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    </dependency>
 ```
 
-<h2 id="4">简单示例</h2>
+<h2 id="4">使用方法</h2>
 
-#### XML 中添加 ImageViewer
+### XML 中添加 ImageViewer
 ```
   <indi.liyi.viewer.ImageViewer
         android:id="@+id/imageViewer"
@@ -111,48 +115,32 @@ loadProgressUI(@NonNull ProgressUI progressUI)
         android:layout_height="match_parent" />
 ```
 
-#### 代码中设置 ImageViewer
-```Java
-  // 图片浏览的起始位置
-  imageViewer.setStartPosition(position);
-  // 图片的数据源
-  imageViewer.setImageData(mImageList);
-  // 目标 View 的位置以及尺寸等信息
-  imageViewer.setViewData(mViewDatas);
-  // 自定义图片的加载方式
-  imageViewer.setImageLoader(new ImageLoader() {
-        @Override
-        public void displayImage(final int position, Object src, final ImageView view) {
-               Glide.with(SimplePreviewActivity.this)
-                    .load(src)
-                    .into(new SimpleTarget<Drawable>() {
-                          @Override
-                          public void onLoadStarted(@Nullable Drawable placeholder) {
-                                 super.onLoadStarted(placeholder);
-                                 view.setImageDrawable(placeholder);
-                          }
-
-                          @Override
-                          public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                 super.onLoadFailed(errorDrawable);
-                                 view.setImageDrawable(errorDrawable);
-                          }
-
-                          @Override
-                          public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                                 view.setImageDrawable(resource);
-                                 mViewDatas.get(position).setImageWidth(resource.getIntrinsicWidth());
-                                 mViewDatas.get(position).setImageHeight(resource.getIntrinsicHeight());
-                          }
-                     });
-   }});
-   // 开启图片浏览
-   imageViewer.watch();
+### 代码中设置 ImageViewer
+一共提供两种配置ImageViewer的方法：
+- 方法一：
+```java
+imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的空间
+           .imageData(list) // 图片数据
+           .bindViewGroup(gridview) // 目标 viewGroup，例如类似朋友圈中的九宫格控件
+           .imageLoader(new PhotoLoader()) // 设置图片加载方式
+           .watch(position); // 开启浏览
 ```
-<h2 id="5">超巨图解决方案（进退场动画需重写，且不支持微信朋友圈拖拽，今日头条效果仍然支持）</h2>
+此方法是用imageData()配合bindViewGroup()方法，来在内部构建自动构建item的信息模型ViewData，适用于目标ViewGroup类似于朋友圈九宫格控件这类场景，目标ViewGroup如果是ListView这种可重复利用item的控件，则不可用。
 
-1. 使用 [SubsamplingScaleImageView](SubsamplingScaleImageView) 代替 PhotoView（推荐）
-2. 或者使用 [BigImageView](BigImageView) 代替 ScaleImageView
+- 方法二：
+```Java
+   imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的空间
+              .viewData(vdList) // 数据源
+              .imageLoader(new PhotoLoader()) // 设置图片加载方式
+              .overlayStatusBar(false);
+```
+此方法直接使用viewData()设置框架所需要的数据源
+
+<h2 id="5">超巨图解决方案</h2>
+1. 因为可以自定义图片加载方法，在加载图片前可以先压缩图片
+2. 项目内部目前使用的图片缩放控件为PhotoView，可以将PhotoView用以下控件代替：
+   - 使用 [SubsamplingScaleImageView](SubsamplingScaleImageView) 代替 PhotoView（推荐）
+   - 或者使用 [BigImageView](BigImageView) 代替 ScaleImageView
 
 <h2>赞赏</h2>
 
