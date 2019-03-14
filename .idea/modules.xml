@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/ImageViewer.iml" filepath="$PROJECT_DIR$/ImageViewer.iml" />
       <module fileurl="file://$PROJECT_DIR$/example/example.iml" filepath="$PROJECT_DIR$/example/example.iml" />
       <module fileurl="file://$PROJECT_DIR$/image-viewer/image-viewer.iml" filepath="$PROJECT_DIR$/image-viewer/image-viewer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/lib_glide/lib_glide.iml" filepath="$PROJECT_DIR$/lib_glide/lib_glide.iml" />
     </modules>
   </component>
 </project>

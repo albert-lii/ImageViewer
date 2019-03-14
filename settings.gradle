@@ -1,4 +1,3 @@
 include ':example',
-        ':image-viewer',
-        ':lib_glide'
+        ':image-viewer'
 
