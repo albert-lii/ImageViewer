@@ -14,7 +14,7 @@
 - 今日头条图片拖拽效果
 - 自定义图片加加载
 - 图片加载进度条
-- 可自定义图片索引与图片加载UI
+- 可自定义图片索引与图片加载进度UI
 
 <h2>传送门</h2>
 
@@ -123,6 +123,12 @@ imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的
            .imageData(list) // 图片数据
            .bindViewGroup(gridview) // 目标 viewGroup，例如类似朋友圈中的九宫格控件
            .imageLoader(new PhotoLoader()) // 设置图片加载方式
+           .playEnterAnim(true) // 是否开启进场动画，默认为true
+           .playExitAnim(true) // 是否开启退场动画，默认为true
+           .duration(true) // 设置进退场动画时间，默认300
+           .showIndex(true) // 是否显示图片索引，默认为true
+           .loadIndexUI(indexUI) // 自定义索引样式，内置默认样式
+           .loadProgressUI(progressUI) // 自定义图片加载进度样式，内置默认样式
            .watch(position); // 开启浏览
 ```
 此方法是用imageData()配合bindViewGroup()方法，来在内部构建自动构建item的信息模型ViewData，适用于目标ViewGroup类似于朋友圈九宫格控件这类场景，目标ViewGroup如果是ListView这种可重复利用item的控件，则不可用。
@@ -132,7 +138,13 @@ imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的
    imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的空间
               .viewData(vdList) // 数据源
               .imageLoader(new PhotoLoader()) // 设置图片加载方式
-              .overlayStatusBar(false);
+              .playEnterAnim(true) // 是否开启进场动画，默认为true
+              .playExitAnim(true) // 是否开启退场动画，默认为true
+              .duration(true) // 设置进退场动画时间，默认300
+              .showIndex(true) // 是否显示图片索引，默认为true
+              .loadIndexUI(indexUI) // 自定义索引样式，内置默认样式
+              .loadProgressUI(progressUI) // 自定义图片加载进度样式，内置默认样式
+              .watch(position);
 ```
 此方法直接使用viewData()设置框架所需要的数据源
 
