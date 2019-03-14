@@ -23,6 +23,16 @@ allprojects {
         maven { url "https://jitpack.io" }
         maven { url "https://dl.bintray.com/albertlii/android-maven/" }
     }
+
+    tasks.withType(Javadoc) {
+        // 忽略javadoc错误
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options{
+            encoding "UTF-8"
+            charSet 'UTF-8'
+            links "http://docs.oracle.com/javase/7/docs/api"
+        }
+    }
 }
 
 task clean(type: Delete) {

@@ -2,8 +2,6 @@ package indi.liyi.viewer;
 
 
 public class ViewData {
-    // 无效值
-    public static final float INVALID_VAL = -1000;
     // 图片资源
     private Object imageSrc;
     // 图片的原始宽度
@@ -11,9 +9,9 @@ public class ViewData {
     // 图片的原始高度
     private int imageHeight;
     // 目标 view 的 x 轴坐标
-    private float targetX = INVALID_VAL;
+    private float targetX;
     // 目标 view 的 y 轴坐标
-    private float targetY = INVALID_VAL;
+    private float targetY;
     // 目标 view 的宽度
     private int targetWidth;
     // 目标 view 的高度

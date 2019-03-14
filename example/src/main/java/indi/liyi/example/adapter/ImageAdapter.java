@@ -40,14 +40,15 @@ public class ImageAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         final ItemHolder itemHolder = (ItemHolder) holder;
         GlideUtil.loadImage(itemHolder.iv_pic.getContext(), mImgList.get(position), itemHolder.iv_pic);
+        final int fp = position;
         itemHolder.iv_pic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mCallback != null) {
-                    mCallback.onItemClick(position, itemHolder.iv_pic);
+                    mCallback.onItemClick(fp, itemHolder.iv_pic);
                 }
             }
         });

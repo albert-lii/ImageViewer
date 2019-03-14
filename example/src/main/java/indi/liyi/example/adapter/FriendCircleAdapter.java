@@ -51,6 +51,7 @@ public class FriendCircleAdapter extends RecyclerView.Adapter {
                 GlideUtil.loadImage(itemHolder.gridView.getContext(), source, view);
             }
         });
+        final int fp = position;
         itemHolder.gridView.setOnItemClickListener(new AutoGridView.OnItemClickListener() {
             @Override
             public void onItemClick(int i, View view) {
@@ -62,7 +63,7 @@ public class FriendCircleAdapter extends RecyclerView.Adapter {
 //                        viewDataList.get(position).setTargetX(location[0]);
 //                        viewDataList.get(position).setTargetY(location[0] - Utils.getStatusBarHeight(itemHolder.gridView.getContext()));
 //                    }
-                    mCallback.onItemClick(i, mSourceList.get(position), itemHolder.gridView);
+                    mCallback.onItemClick(i, mSourceList.get(fp), itemHolder.gridView);
                 }
             }
         });
@@ -88,6 +89,6 @@ public class FriendCircleAdapter extends RecyclerView.Adapter {
     }
 
     public interface OnItemClickCallback {
-        void onItemClick(int position, List<String> list,ViewGroup viewGroup);
+        void onItemClick(int position, List<String> list, ViewGroup viewGroup);
     }
 }

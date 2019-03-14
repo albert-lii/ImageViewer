@@ -75,7 +75,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
     // ImageViewer 的当前状态
     private int mViewStatus = ViewerStatus.STATUS_SILENCE;
     // 缓存 item，用于复用
-    private ArrayList<ImageDrawee> mViewBox = new ArrayList();
+    private ArrayList<ImageDrawee> mViewBox = new ArrayList<ImageDrawee>();
 
     private OnItemClickListener mItemClickListener;
     private OnItemLongPressListener mItemLongPressListener;
@@ -153,7 +153,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
 
     public ImageViewer imageData(@NonNull List list) {
         if (mSourceList == null) {
-            mSourceList = new ArrayList();
+            mSourceList = new ArrayList<ViewData>();
         } else {
             mSourceList.clear();
         }
@@ -248,7 +248,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
         return this;
     }
 
-    public ImageViewer setOnItemLongListener(OnItemLongPressListener listener) {
+    public ImageViewer setOnItemLongPressListener(OnItemLongPressListener listener) {
         this.mItemLongPressListener = listener;
         return this;
     }

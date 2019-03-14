@@ -5,7 +5,7 @@ def minSdk = versions.minSdk
 def targetSdk = versions.targetSdk
 def buildTools = versions.buildTools
 def verCode = 18
-def verName = "3.0.0"
+def verName = "3.0.0-beta"
 
 android {
     compileSdkVersion compileSdk
@@ -35,6 +35,10 @@ android {
                 res.srcDir("src/${dir}/main/res")
             }
         }
+    }
+
+    lintOptions {
+        abortOnError false
     }
 }
 
