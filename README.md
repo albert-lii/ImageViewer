@@ -149,7 +149,24 @@ imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的
 此方法直接使用viewData()设置框架所需要的数据源
 
 ### Tip：关于按物理键返回
-如果
+如果需要实现点击物理键关闭浏览,请在Activity中加入以下代码
+```java
+  /**
+     * 监听返回键
+     *
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        boolean b = imageViewer.onKeyDown(keyCode, event);
+        if (b) {
+            return b;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+```
 
 <h2 id="6">超巨图解决方案</h2>
 
