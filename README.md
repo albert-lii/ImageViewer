@@ -71,11 +71,8 @@ loadIndexUI(@NonNull IndexUI indexUI)
 ```java
 loadProgressUI(@NonNull ProgressUI progressUI)
 ```
-  
-<h2 id="2">自定义方法</h2>    
 
-
-<h2 id="3">添加依赖</h2> 
+<h2 id="4">添加依赖</h2> 
 
 - Gradle
 ```Java
@@ -107,7 +104,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    </dependency>
 ```
 
-<h2 id="4">使用方法</h2>
+<h2 id="5">使用方法</h2>
 
 ### XML 中添加 ImageViewer
 ```
@@ -119,6 +116,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
 
 ### 代码中设置 ImageViewer
 一共提供两种配置ImageViewer的方法：
+
 - 方法一：
 ```java
 imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的空间
@@ -138,7 +136,8 @@ imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的
 ```
 此方法直接使用viewData()设置框架所需要的数据源
 
-<h2 id="5">超巨图解决方案</h2>
+<h2 id="6">超巨图解决方案</h2>
+
 1. 因为可以自定义图片加载方法，在加载图片前可以先压缩图片
 2. 项目内部目前使用的图片缩放控件为PhotoView，可以将PhotoView用以下控件代替：
 
