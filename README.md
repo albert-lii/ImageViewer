@@ -4,74 +4,6 @@
 
 <h2>关于</h2>
 
-图片预览器，支持图片手势缩放、拖拽等操作，`自定义View`的模式显示，自定义图片加载方式，更加灵活，易于扩展，同时也适用于RecyclerView、ListView的横向和纵向列表模式，最低支持版本为Android 3.0及以上...  
-
-<h2>功能</h2>
-
-- 图片的基本缩放、滑动
-- 微信朋友圈图片放大预览
-- 微信朋友圈图片拖拽效果
-- 今日头条图片拖拽效果
-- 图片加载进度条
-
-<h2>传送门</h2>
-
-- [自定义属性](#1)
-- [自定义方法](#2)
-- [添加依赖](#3)
-- [简单示例](#4)
-- [超巨图加载解决方案](#5)
-
-<h2>推荐</h2>
-
-- [AutoGridView][AutoGridView] 宫格控件，QQ空间九宫格、普通宫格模式、点击添加照片...
-
-<h2>项目演示</h2>
-
-![demo-simple]  ![demo-custom]  
-![demo-land]  ![demo-port]
-  
-<h2>apk体验</h2>
-
-### [点我][demo-apk]
-
-<h2 id="1">自定义属性</h2>  
-
-| 属性名 | 描述 |    
-| :---- | :---- |    
-| ivr_show_index | 是否显示图片位置 |  
-| ivr_do_enter | 是否开启进场动画 | 
-| ivr_do_exit | 是否开启退场动画 |   
-| ivr_duration | 进场与退场动画的执行时间 |    
-| ivr_do_drag | 是否允许图片拖拽 |    
-| ivr_drag_type | 拖拽模式（classic：今日头条效果 | wechat：微信朋友圈效果） |  
- 
-<h2 id="2">自定义方法</h2>    
-
-| 方法名 | 描述 |
-|:----|:----|
-| setStartPosition(int position) | 设置开始展示的图片的位置 |
-| setImageData(List list) | 设置图片资源 |
-| setViewData(List<ViewData> list) | 设置目标 view 的相关数据 |
-| setImageLoader(ImageLoader loader) | 设置图片加载类 |
-| showIndex(boolean show) | 是否显示图片索引 |
-| doDrag(boolean isDo) | 是否允许图片被拖拽 |
-| setDragType(@ImageDraggerType int type) | 设置拖拽模式 |
-| doEnterAnim(boolean isDo) | 是否开启进场动画 |
-| doExitAnim(boolean isDo) | 是否开启退场动画 |
-| setDuration(int duration) | 设置打开和关闭的动画执行时间 | 
-| setOnImageChangedListener(OnImageChangedListener listener) | 设置图片切换监听 |
-| setOnItemClickListener(OnItemClickListener listener) | 设置图片的单击击监听 |
-| setOnItemLongClickListener(OnItemLongClickListener listener) | 设置图片的长按击监听 |
-| setOnPreviewStatusListener(OnPreviewStatusListener listener) | 设置图片预览状态监听 |
-| watch() | 开启图片预览 |
-| close() | 关闭图片预览 |
-| clear() | 清除所有数据 |<h1>ImageViewer</h1>
-
-![releasesvg] ![apisvg] [![license][licensesvg]][license]
-
-<h2>关于</h2>
-
 图片浏览器，支持图片手势缩放、拖拽等操作，`自定义View`的模式显示，自定义图片加载方式，可自定义索引UI、ProgressView，更加灵活，易于扩展，同时也适用于RecyclerView、ListView的横向和纵向列表模式，最低支持版本为Android 3.0及以上...  
 
 <h2>功能</h2>
@@ -215,6 +147,9 @@ imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的
               .watch(position);
 ```
 此方法直接使用viewData()设置框架所需要的数据源
+
+### Tip：关于按物理键返回
+如果
 
 <h2 id="6">超巨图解决方案</h2>
 
