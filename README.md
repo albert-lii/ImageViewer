@@ -4,7 +4,7 @@
 
 <h2>关于</h2>
 
-图片预览器，支持图片手势缩放、拖拽等操作，`自定义View`的模式显示，自定义图片加载方式，更加灵活，易于扩展，同时也适用于RecyclerView、ListView的横向和纵向列表模式，最低支持版本为Android 3.0及以上...  
+图片浏览器，支持图片手势缩放、拖拽等操作，`自定义View`的模式显示，自定义图片加载方式，可自定义索引UI、ProgressView，更加灵活，易于扩展，同时也适用于RecyclerView、ListView的横向和纵向列表模式，最低支持版本为Android 3.0及以上...  
 
 <h2>功能</h2>
 
@@ -33,10 +33,6 @@
 
 ![demo-simple]  ![demo-custom]  
 ![demo-land]  ![demo-port]
-  
-<h2>apk体验</h2>
-
-### [点我][demo-apk]
 
 <h2 id="1">自定义属性</h2>  
 
@@ -60,13 +56,18 @@
 | setOnBrowseStatusListener(OnBrowseStatusListener listener) | 监听图片浏览器状态事件 |
   
 <h2 id="3">自定义UI</h2>  
+
 - 自定义索引UI
+
 框架中内置默认索引视图`DefaultIndexUI`，如要替换索引样式，可继承抽象类`IndexUI`,并在使用`watch(...)`方法前,调用下列方法加载自定义的indexUI
+
 ```java
 loadIndexUI(@NonNull IndexUI indexUI)
 ```
 - 自定义加载进度UI
+
 框架中内置默认加载视图`DefaultProgressUI`，如要替换加载样式，可继承抽象类`ProgressUI`,并在使用`watch(...)`方法前,调用下列方法加载自定义的progressUI
+
 ```java
 loadProgressUI(@NonNull ProgressUI progressUI)
 ```
@@ -90,8 +91,9 @@ loadProgressUI(@NonNull ProgressUI progressUI)
     
     
    Step 2:
+   
    dependencies {
-      compile 'indi.liyi.view:image-viewer:3.0.0'
+      compile 'indi.liyi.view:image-viewer:3.0.0-beta'
    }
 ```  
 
@@ -100,7 +102,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    <dependency>
       <groupId>indi.liyi.view</groupId>
       <artifactId>image-viewer</artifactId>
-      <version>3.0.0</version>
+      <version>3.0.0-beta</version>
       <type>pom</type>
    </dependency>
 ```
@@ -139,8 +141,9 @@ imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的
 <h2 id="5">超巨图解决方案</h2>
 1. 因为可以自定义图片加载方法，在加载图片前可以先压缩图片
 2. 项目内部目前使用的图片缩放控件为PhotoView，可以将PhotoView用以下控件代替：
+
    - 使用 [SubsamplingScaleImageView](SubsamplingScaleImageView) 代替 PhotoView（推荐）
-   - 或者使用 [BigImageView](BigImageView) 代替 ScaleImageView
+   - 或者使用 [BigImageView](BigImageView) 代替 PhotoView
 
 <h2>赞赏</h2>
 
