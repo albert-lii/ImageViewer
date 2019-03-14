@@ -17,6 +17,8 @@ import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.example.utils.glide.GlideUtil;
 import indi.liyi.viewer.ImageViewer;
+import indi.liyi.viewer.ViewerStatus;
+import indi.liyi.viewer.listener.OnBrowseStatusListener;
 
 /**
  * 简单的预览界面
@@ -34,7 +36,7 @@ public class SimplePrevActivity extends BaseActivity {
     @Override
     public void initView() {
         autoGv = findViewById(R.id.autoGridView);
-        imageViewer = findViewById(R.id.imagePreivew);
+        imageViewer = findViewById(R.id.imageViewer);
 
         adapter = new SimpleAutoGridAdapter();
         adapter.setSource(SourceUtil.getImageList());
@@ -53,8 +55,6 @@ public class SimplePrevActivity extends BaseActivity {
                     @Override
                     public void onLoadFailed(@Nullable Drawable errorDrawable) {
                         super.onLoadFailed(errorDrawable);
-                        imageViewer.getViewData().get(position).setImageWidth(errorDrawable.getIntrinsicWidth());
-                        imageViewer.getViewData().get(position).setImageHeight(errorDrawable.getIntrinsicHeight());
                         imageView.setImageDrawable(errorDrawable);
                     }
                 });
@@ -75,16 +75,16 @@ public class SimplePrevActivity extends BaseActivity {
             }
         });
         autoGv.setAdapter(adapter);
-//        imageViewer.setOnPreviewStatusListener(new OnPreviewStatusListener() {
-//            @Override
-//            public void onPreviewStatus(int status, ImagePager imagePager) {
-//                if (status == ViewerStatus.STATUS_COMPLETE_OPEN) {
-//                    changeStatusBarColor(R.color.colorBlack);
-//                } else if (status == ViewerStatus.STATUS_COMPLETE_CLOSE) {
-//                    changeStatusBarColor(R.color.colorPrimaryDark);
-//                }
-//            }
-//        });
+        imageViewer.setOnBrowseStatusListener(new OnBrowseStatusListener() {
+            @Override
+            public void onBrowseStatus(int status) {
+                if (status == ViewerStatus.STATUS_BEGIN_OPEN) {
+                    changeStatusBarColor(R.color.colorBlack);
+                } else if (status == ViewerStatus.STATUS_SILENCE) {
+                    changeStatusBarColor(R.color.colorPrimaryDark);
+                }
+            }
+        });
     }
 
     /**

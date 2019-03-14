@@ -3,12 +3,13 @@ package indi.liyi.viewer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.os.Message;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,9 @@ import java.util.List;
 import indi.liyi.viewer.dragger.DragHandler;
 import indi.liyi.viewer.dragger.DragMode;
 import indi.liyi.viewer.dragger.DragStatus;
-import indi.liyi.viewer.listener.OnDragStatusListener;
 import indi.liyi.viewer.listener.OnBrowseStatusListener;
+import indi.liyi.viewer.listener.OnDragStatusListener;
+import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongPressListener;
 import indi.liyi.viewer.otherui.DefaultIndexUI;
@@ -41,7 +43,6 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
     private ImageViewPager viewPager;
     private ImagePagerAdapter mAdapter;
     private ImageLoader mLoader;
-    private EventHandler mEventHandler;
     private DragHandler mDragHandler;
 
     // 是否执行进场动画
@@ -49,25 +50,38 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
     // 是否执行退场动画
     private boolean playExitAnim = true;
     // 动画执行时间
-    private long mDuration = 280;
+    private long mDuration = 300;
     // 是否显示图片索引
     private boolean showIndex = true;
     // 是否可拖拽图片
     private boolean draggable = true;
     // 拖拽模式
-    private int mDragMode = DragMode.MODE_AGLIE;
+    private int mDragMode = DragMode.MODE_AGILE;
 
     private List<ViewData> mSourceList;
     // ImageViewer 是否会占据 StatusBar 的空间
     private boolean overlayStatusBar = false;
-
+    private float mMaxScale;
+    private float mMinScale;
 
     // 上一次的触摸点坐标
     private float mLastX, mLastY;
     // 是否正在进行拖拽
     private boolean isDragging;
+    // 是否有动画正在执行
+    private boolean hasAnimRunning;
+    // 是否已经执行了进场动画
+    private boolean hasPlayEnterAnim = false;
     // ImageViewer 的当前状态
     private int mViewStatus = ViewerStatus.STATUS_SILENCE;
+    // 缓存 item，用于复用
+    private ArrayList<ImageDrawee> mViewBox = new ArrayList();
+
+    private OnItemClickListener mItemClickListener;
+    private OnItemLongPressListener mItemLongPressListener;
+    private OnItemChangedListener mItemChangedListener;
+    private OnDragStatusListener mDragStatusListener;
+    private OnBrowseStatusListener mBrowseStatusListener;
 
 
     public ImageViewer(Context context) {
@@ -91,23 +105,14 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
             if (a != null) {
                 playEnterAnim = a.getBoolean(R.styleable.ImageViewer_ivr_playEnterAnim, true);
                 playExitAnim = a.getBoolean(R.styleable.ImageViewer_ivr_playExitAnim, true);
-                mDuration = a.getInteger(indi.liyi.viewer.R.styleable.ImageViewer_ivr_duration, 280);
+                mDuration = a.getInteger(indi.liyi.viewer.R.styleable.ImageViewer_ivr_duration, 300);
                 showIndex = a.getBoolean(indi.liyi.viewer.R.styleable.ImageViewer_ivr_showIndex, true);
                 draggable = a.getBoolean(R.styleable.ImageViewer_ivr_draggable, true);
-                mDragMode = a.getInteger(R.styleable.ImageViewer_ivr_dragMode, indi.liyi.viewer.imgpg.dragger.DragMode.MODE_SIMPLE);
+                mDragMode = a.getInteger(R.styleable.ImageViewer_ivr_dragMode, DragMode.MODE_AGILE);
                 a.recycle();
             }
         }
         initView();
-        mEventHandler = new EventHandler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                if (msg.what == EventHandler.EVENT_VIEW_CANCEL) {
-                    cancel();
-                }
-            }
-        };
     }
 
     private void initView() {
@@ -136,8 +141,8 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
         if (showIndex && indexUI != null && mSourceList != null) {
             indexUI.handleItemChanged(i, mSourceList.size());
         }
-        if (mEventHandler != null) {
-            mEventHandler.noteItemChanged(i, (ImageDrawee) viewPager.findViewWithTag(i));
+        if (mItemChangedListener != null) {
+            mItemChangedListener.onItemChanged(i, getCurrentItem());
         }
     }
 
@@ -228,31 +233,38 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
         return this;
     }
 
+    public ImageViewer setMaxScale(float scale) {
+        this.mMaxScale = scale;
+        return this;
+    }
+
+    public ImageViewer setMinScale(float scale) {
+        this.mMinScale = scale;
+        return this;
+    }
+
     public ImageViewer setOnItemClickListener(OnItemClickListener listener) {
-        if (mEventHandler != null) {
-            mEventHandler.setOnItemClickListener(listener);
-        }
+        this.mItemClickListener = listener;
         return this;
     }
 
     public ImageViewer setOnItemLongListener(OnItemLongPressListener listener) {
-        if (mEventHandler != null) {
-            mEventHandler.setOnItemLongPressListener(listener);
-        }
+        this.mItemLongPressListener = listener;
+        return this;
+    }
+
+    public ImageViewer setOnItemChangedListener(OnItemChangedListener listener) {
+        this.mItemChangedListener = listener;
         return this;
     }
 
     public ImageViewer setOnDragStatusListener(OnDragStatusListener listener) {
-        if (mEventHandler != null) {
-            mEventHandler.setOnDragStatusListener(listener);
-        }
+        this.mDragStatusListener = listener;
         return this;
     }
 
     public ImageViewer setOnBrowseStatusListener(OnBrowseStatusListener listener) {
-        if (mEventHandler != null) {
-            mEventHandler.setOnBrowseStatusListener(listener);
-        }
+        this.mBrowseStatusListener = listener;
         return this;
     }
 
@@ -286,7 +298,6 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
         watch(startPosition, startImageWidth, startImageHeight, null);
     }
 
-
     /**
      * 开启浏览
      *
@@ -307,62 +318,19 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
             mSourceList.get(startPosition).setImageHeight(startImageHeight);
         }
         viewPager.setScrollable(true);
-        mAdapter = new ImagePagerAdapter();
-        mAdapter.setSourceList(mSourceList);
-        mAdapter.setImageLoader(mLoader);
-        mAdapter.setProgressUI(progressUI);
-        mAdapter.setEventHandler(mEventHandler);
-        mAdapter.setStartPosition(startPosition);
-        mAdapter.setImageTransfer(playEnterAnim ?
-                new ImageTransfer(getWidth(), getHeight())
-                        .background(getBackground())
-                        .duration(mDuration)
-                        .callback(new ImageTransfer.OnTransCallback() {
-                            @Override
-                            public void onStart() {
-                                mViewStatus = ViewerStatus.STATUS_BEGIN_OPEN;
-                                if (mEventHandler != null) {
-                                    mEventHandler.setAnimRunning(true);
-                                    mEventHandler.noteBrowseStatus(mViewStatus);
-                                }
-                                if (callback != null) {
-                                    callback.onStart();
-                                }
-                            }
-
-                            @Override
-                            public void onRunning(float progress) {
-                                mViewStatus = ViewerStatus.STATUS_OPENING;
-                                if (mEventHandler != null) {
-                                    mEventHandler.noteBrowseStatus(mViewStatus);
-                                }
-                                if (callback != null) {
-                                    callback.onRunning(progress);
-                                }
-                            }
-
-                            @Override
-                            public void onEnd() {
-                                handleIndexUI(startPosition);
-                                mViewStatus = ViewerStatus.STATUS_WATCHING;
-                                if (mEventHandler != null) {
-                                    mEventHandler.setAnimRunning(false);
-                                    mEventHandler.noteBrowseStatus(mViewStatus);
-                                }
-                                if (callback != null) {
-                                    callback.onEnd();
-                                }
-                            }
-                        })
-                : null);
-        setVisibility(VISIBLE);
+        mAdapter = new ImagePagerAdapter(mSourceList.size()) {
+            @NonNull
+            @Override
+            public Object instantiateItem(@NonNull ViewGroup container, int position) {
+                return ImageViewer.this.instantiateItem(container, position, startPosition, callback);
+            }
+        };
         viewPager.setAdapter(mAdapter);
         viewPager.setCurrentItem(startPosition);
-        if (playEnterAnim) {
-            mViewStatus = ViewerStatus.STATUS_WATCHING;
-            if (mEventHandler != null) {
-                mEventHandler.noteBrowseStatus(mViewStatus);
-            }
+        setVisibility(VISIBLE);
+        if (!playEnterAnim) {
+            noteBrowseStatus(ViewerStatus.STATUS_WATCHING);
+            handleIndexUI(startPosition);
         }
     }
 
@@ -392,11 +360,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
                     .callback(new ImageTransfer.OnTransCallback() {
                         @Override
                         public void onStart() {
-                            mViewStatus = ViewerStatus.STATUS_BEGIN_CLOSE;
-                            if (mEventHandler != null) {
-                                mEventHandler.setAnimRunning(true);
-                                mEventHandler.noteBrowseStatus(mViewStatus);
-                            }
+                            noteBrowseStatus(ViewerStatus.STATUS_BEGIN_CLOSE);
                             if (callback != null) {
                                 callback.onStart();
                             }
@@ -404,10 +368,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
 
                         @Override
                         public void onRunning(float progress) {
-                            mViewStatus = ViewerStatus.STATUS_CLOSING;
-                            if (mEventHandler != null) {
-                                mEventHandler.noteBrowseStatus(mViewStatus);
-                            }
+                            noteBrowseStatus(ViewerStatus.STATUS_CLOSING);
                             if (callback != null) {
                                 callback.onRunning(progress);
                             }
@@ -415,9 +376,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
 
                         @Override
                         public void onEnd() {
-                            if (mEventHandler != null) {
-                                mEventHandler.setAnimRunning(false);
-                            }
+                            noteBrowseStatus(ViewerStatus.STATUS_SILENCE);
                             if (callback != null) {
                                 callback.onEnd();
                             }
@@ -426,7 +385,171 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
                     })
                     .play();
         } else {
+            noteBrowseStatus(ViewerStatus.STATUS_SILENCE);
             shutComplete();
+        }
+    }
+
+    /**
+     * 实例化 item
+     */
+    private ImageDrawee instantiateItem(ViewGroup container, int position, final int startPosition, final ImageTransfer.OnTransCallback callback) {
+        ImageDrawee drawee = null;
+        if (mViewBox.size() > 0) {
+            for (ImageDrawee item : mViewBox) {
+                if (item.getParent() == null) {
+                    drawee = item;
+                    break;
+                }
+            }
+        }
+        if (drawee == null) {
+            drawee = new ImageDrawee(container.getContext());
+            drawee.setProgressUI(progressUI);
+            mViewBox.add(drawee);
+        }
+        container.addView(drawee);
+        configureItem(position, drawee);
+        if (playEnterAnim && !hasPlayEnterAnim && startPosition == position) {
+            hasPlayEnterAnim = true;
+            new ImageTransfer(getWidth(), getHeight())
+                    .with(drawee.getImageView())
+                    .loadEnterData(mSourceList.get(position))
+                    .background(getBackground())
+                    .duration(mDuration)
+                    .callback(new ImageTransfer.OnTransCallback() {
+                        @Override
+                        public void onStart() {
+                            noteBrowseStatus(ViewerStatus.STATUS_BEGIN_OPEN);
+                            if (callback != null) {
+                                callback.onStart();
+                            }
+                        }
+
+                        @Override
+                        public void onRunning(float progress) {
+                            noteBrowseStatus(ViewerStatus.STATUS_OPENING);
+                            if (callback != null) {
+                                callback.onRunning(progress);
+                            }
+                        }
+
+                        @Override
+                        public void onEnd() {
+                            handleIndexUI(startPosition);
+                            noteBrowseStatus(ViewerStatus.STATUS_WATCHING);
+                            if (callback != null) {
+                                callback.onEnd();
+                            }
+                        }
+                    })
+                    .play();
+        }
+        return drawee;
+    }
+
+    /**
+     * 配置 item
+     */
+    private void configureItem(final int position, final ImageDrawee drawee) {
+        drawee.setTag(position);
+        if (mMaxScale > 0) {
+            drawee.setMaxScale(mMaxScale);
+        }
+        if (mMinScale > 0) {
+            drawee.setMinScale(mMinScale);
+        }
+        mLoader.displayImage(mSourceList.get(position).getImageSrc(), drawee.getImageView(), new ImageLoader.LoadCallback() {
+            @Override
+            public void onLoadStarted(Object placeholder) {
+                drawee.setImage(placeholder);
+            }
+
+            @Override
+            public void onLoading(float progress) {
+                drawee.handleProgress(progress);
+            }
+
+            @Override
+            public void onLoadSucceed(Object source) {
+                drawee.setImage(source);
+                if (mSourceList.get(position).getImageWidth() == 0 ||
+                        mSourceList.get(position).getImageHeight() == 0) {
+                    Drawable drawable = drawee.getImageView().getDrawable();
+                    if (drawable != null) {
+                        mSourceList.get(position).setImageWidth(drawable.getIntrinsicWidth());
+                        mSourceList.get(position).setImageHeight(drawable.getIntrinsicHeight());
+                    }
+                }
+            }
+
+            @Override
+            public void onLoadFailed(Object error) {
+                drawee.setImage(error);
+            }
+        });
+        // 单击事件
+        drawee.getImageView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!hasAnimRunning && mItemClickListener != null) {
+                    final boolean result = mItemClickListener.onItemClick(position, drawee.getImageView());
+                    // 判断是否消费了单击事件，如果消费了，则单击事件的后续方法不执行
+                    if (result) {
+                        return;
+                    }
+                }
+                cancel();
+            }
+        });
+        // 长按事件
+        drawee.getImageView().setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (!hasAnimRunning && mItemLongPressListener != null) {
+                    return mItemLongPressListener.onItemLongPress(position, drawee.getImageView());
+                }
+                return false;
+            }
+        });
+    }
+
+    private void noteDragStatus(int status) {
+        switch (status) {
+            case DragStatus.STATUS_BEGIN_RESTORE:
+            case DragStatus.STATUS_BEGIN_EXIT:
+                hasAnimRunning = true;
+                break;
+            case DragStatus.STATUS_COMPLETE_RESTORE:
+            case DragStatus.STATUS_COMPLETE_EXIT:
+                hasAnimRunning = false;
+                break;
+        }
+        if (mDragStatusListener != null) {
+            mDragStatusListener.onDragStatusChanged(status);
+        }
+    }
+
+    private void noteBrowseStatus(int status) {
+        mViewStatus = status;
+        switch (status) {
+            case ViewerStatus.STATUS_BEGIN_OPEN:
+                hasAnimRunning = true;
+                break;
+            case ViewerStatus.STATUS_BEGIN_CLOSE:
+                viewPager.setScrollable(false);
+                hasAnimRunning = true;
+                break;
+            case ViewerStatus.STATUS_WATCHING:
+                hasAnimRunning = false;
+                break;
+            case ViewerStatus.STATUS_SILENCE:
+                viewPager.setScrollable(true);
+                hasAnimRunning = false;
+                break;
+        }
+        if (mBrowseStatusListener != null) {
+            mBrowseStatusListener.onBrowseStatus(mViewStatus);
         }
     }
 
@@ -450,29 +573,20 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
 
     private void shutComplete() {
         setVisibility(GONE);
-        mViewStatus = ViewerStatus.STATUS_SILENCE;
-        if (mEventHandler != null) {
-            mEventHandler.noteBrowseStatus(mViewStatus);
-        }
         reset();
     }
 
     private void reset() {
-        if (mEventHandler != null) {
-            mEventHandler.setAnimRunning(false);
-        }
-        if (mAdapter != null) {
-            mAdapter.clear();
-            mAdapter = null;
-        }
-        if (viewPager != null) {
-            viewPager.removeAllViews();
+        if (mViewBox.size() > 0) {
+            mViewBox.clear();
         }
         if (mDragHandler != null) {
             mDragHandler.clear();
             mDragHandler = null;
         }
-        mViewStatus = ViewerStatus.STATUS_SILENCE;
+        mAdapter = null;
+        hasAnimRunning = false;
+        hasPlayEnterAnim = false;
     }
 
     public List<ViewData> getViewData() {
@@ -480,6 +594,13 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
     }
 
     public ImageDrawee getCurrentItem() {
+        if (mViewBox != null) {
+            for (ImageDrawee drawee : mViewBox) {
+                if ((int) drawee.getTag() == getCurrentPosition()) {
+                    return drawee;
+                }
+            }
+        }
         return (ImageDrawee) viewPager.findViewWithTag(getCurrentPosition());
     }
 
@@ -498,7 +619,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         boolean isIntercept = super.onInterceptTouchEvent(ev);
-        if (draggable && mViewStatus == ViewerStatus.STATUS_WATCHING) {
+        if (!hasAnimRunning && draggable) {
             // 是否拦截触摸事件？
             // 若拦截，则 ImageViewer 自己处理触摸事件；
             // 若不拦截，则 ImageView 处理触摸事件
@@ -520,15 +641,15 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
                     float disY = ev.getY() - mLastY;
                     // 上下滑动手势
                     if (Math.abs(disX) < Math.abs(disY)) {
+                        if (mDragMode == DragMode.MODE_AGILE && disY < 0) {
+                            return isIntercept;
+                        }
                         isDragging = true;
                         if (mDragHandler == null) {
                             mDragHandler = new DragHandler(getWidth(), getHeight());
                         }
                         mDragHandler.onReay(mDragMode, getBackground());
-                        if (mEventHandler != null) {
-                            mEventHandler.setAnimRunning(true);
-                            mEventHandler.noteDragStatus(DragStatus.STATUS_READY);
-                        }
+                        noteDragStatus(DragStatus.STATUS_READY);
                         isIntercept = true;
                     }
                 }
@@ -541,14 +662,14 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction() & event.getActionMasked();
         if (action == MotionEvent.ACTION_MOVE) {
-            if (draggable && isDragging) {
+            if (draggable && isDragging && mDragHandler != null) {
                 mDragHandler.onDrag(mLastX, mLastY, event, getCurrentItem().getImageView());
-                mEventHandler.noteDragStatus(DragStatus.STATUS_DRAGGING);
+                noteDragStatus(DragStatus.STATUS_DRAGGING);
             }
             mLastX = event.getX();
             mLastY = event.getY();
         } else if (action == MotionEvent.ACTION_UP) {
-            if (draggable && isDragging) {
+            if (draggable && isDragging && mDragHandler != null) {
                 isDragging = false;
                 // 释放图片
                 mDragHandler.onUp(getCurrentItem().getImageView(),
@@ -565,11 +686,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
 
                             @Override
                             public void onEnd() {
-                                if (mEventHandler != null) {
-                                    mEventHandler.setAnimRunning(false);
-                                }
                                 handleDragResultStatus("end");
-                                shutComplete();
                             }
                         });
             }
@@ -581,33 +698,64 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
 
     private void handleDragResultStatus(String proceed) {
         if (mDragHandler.getAction() == ImageTransfer.ACTION_DRAG_RESTORE) {
-            mEventHandler.noteDragStatus(proceed.equals("start") ?
-                    DragStatus.STATUS_BEGIN_RESTORE :
-                    (proceed.equals("running") ?
-                            DragStatus.STATUS_RESTORING :
-                            DragStatus.STATUS_COMPLETE_RESTORE));
+            int status = proceed.equals("start") ? DragStatus.STATUS_BEGIN_RESTORE :
+                    (proceed.equals("running") ? DragStatus.STATUS_RESTORING :
+                            DragStatus.STATUS_COMPLETE_RESTORE);
+            if (status == DragStatus.STATUS_BEGIN_RESTORE) {
+                viewPager.setScrollable(false);
+                hasAnimRunning = true;
+            } else if (status == DragStatus.STATUS_COMPLETE_RESTORE) {
+                viewPager.setScrollable(true);
+                hasAnimRunning = false;
+            }
+            noteDragStatus(status);
         } else if (mDragHandler.getAction() == ImageTransfer.ACTION_DRAG_EXIT_AGILE
                 || mDragHandler.getAction() == ImageTransfer.ACTION_DRAG_EXIT_SIMPLE) {
-            mEventHandler.noteDragStatus(proceed.equals("start") ?
-                    DragStatus.STATUS_BEGIN_EXIT :
-                    (proceed.equals("running") ?
-                            DragStatus.STATUS_EXITTING :
-                            DragStatus.STATUS_COMPLETE_EXIT));
+            int status = proceed.equals("start") ? DragStatus.STATUS_BEGIN_EXIT :
+                    (proceed.equals("running") ? DragStatus.STATUS_EXITTING :
+                            DragStatus.STATUS_COMPLETE_EXIT);
+            if (status == DragStatus.STATUS_BEGIN_EXIT) {
+                viewPager.setScrollable(false);
+                hasAnimRunning = true;
+            } else if (status == DragStatus.STATUS_COMPLETE_EXIT) {
+                viewPager.setScrollable(true);
+                hasAnimRunning = false;
+            }
+            noteDragStatus(status);
+            if (proceed.equals("end")) {
+                noteBrowseStatus(ViewerStatus.STATUS_SILENCE);
+                shutComplete();
+            }
         }
+    }
+
+    /**
+     * 如果本方法未执行，则是因为图片浏览器为获取到焦点，可在外部手动获取焦点
+     * 建议在外部手动调动本方法
+     *
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (!hasAnimRunning) {
+                if (mViewStatus == ViewerStatus.STATUS_WATCHING) {
+                    cancel();
+                    // 消费返回键点击事件，不传递出去
+                    return true;
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (mSourceList != null) {
-            mSourceList.clear();
-            mSourceList = null;
-        }
+        mSourceList = null;
         mLoader = null;
-        if (mEventHandler != null) {
-            mEventHandler.clear();
-            mEventHandler = null;
-        }
         reset();
     }
 }

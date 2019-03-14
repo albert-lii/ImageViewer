@@ -14,10 +14,12 @@ import indi.liyi.example.adapter.ImageAdapter;
 import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.example.utils.Utils;
+import indi.liyi.viewer.ImageDrawee;
 import indi.liyi.viewer.ImageViewer;
-import indi.liyi.viewer.ViewerStatus;
 import indi.liyi.viewer.ViewData;
+import indi.liyi.viewer.ViewerStatus;
 import indi.liyi.viewer.listener.OnBrowseStatusListener;
+import indi.liyi.viewer.listener.OnItemChangedListener;
 
 /**
  * 纵向图片列表页面
@@ -50,8 +52,7 @@ public class VerticalListActivity extends BaseActivity {
         adapter = new ImageAdapter(1);
         adapter.setData(mImgList);
 
-        imageViewer.imageData(mImgList)
-                .overlayStatusBar(false)
+        imageViewer.overlayStatusBar(false)
                 .imageLoader(new PhotoLoader());
     }
 
@@ -87,16 +88,26 @@ public class VerticalListActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
         linearManager.scrollToPositionWithOffset(0, 0);
 
-        imageViewer.setOnBrowseStatusListener(new OnBrowseStatusListener() {
+        imageViewer.setOnItemChangedListener(new OnItemChangedListener() {
             @Override
-            public void onBrowseStatus(int status) {
-                if (status == ViewerStatus.STATUS_BEGIN_CLOSE) {
+            public void onItemChanged(int position, ImageDrawee drawee) {
+                if (imageViewer.getViewStatus() == ViewerStatus.STATUS_WATCHING) {
                     int top = getTop(imageViewer.getCurrentPosition());
                     mVdList.get(imageViewer.getCurrentPosition()).setTargetY(top);
                     linearManager.scrollToPositionWithOffset(imageViewer.getCurrentPosition(), top);
                 }
             }
         });
+//        imageViewer.setOnBrowseStatusListener(new OnBrowseStatusListener() {
+//            @Override
+//            public void onBrowseStatus(int status) {
+//                if (status == ViewerStatus.STATUS_BEGIN_CLOSE) {
+//                    int top = getTop(imageViewer.getCurrentPosition());
+//                    mVdList.get(imageViewer.getCurrentPosition()).setTargetY(top);
+//                    linearManager.scrollToPositionWithOffset(imageViewer.getCurrentPosition(), top);
+//                }
+//            }
+//        });
     }
 
     private int getTop(int position) {

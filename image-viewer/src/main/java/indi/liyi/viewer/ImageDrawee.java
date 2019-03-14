@@ -49,10 +49,6 @@ public class ImageDrawee extends FrameLayout {
         }
     }
 
-    public void reset() {
-
-    }
-
     /**
      * 释放 imageView 占据的内存
      * <p>
@@ -78,7 +74,7 @@ public class ImageDrawee extends FrameLayout {
         // 调用 setImageDrawable(null) 方法,然后 GC 会完成图片的回收
         imageView.setImageDrawable(null);
         // 手动调用 GC（但是 GC 并不一定是马上执行的，只能说是加速 GC 回收）
-        System.gc();
+//        System.gc();
     }
 
     public ImageView getImageView() {

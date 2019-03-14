@@ -11,7 +11,7 @@ public class DragHandler {
     // 完全不透明的透明度值
     private final int FULL_ALPHA = 255;
     // 动画执行时间
-    private final int ANIM_DURATION = 280;
+    private final int ANIM_DURATION = 300;
     // 最小缩放比例
     private final float MIN_SCALE = 0.2f;
     // 在不退出浏览的情况下， 图片在 Y 轴上的最大可移动距离
@@ -25,13 +25,14 @@ public class DragHandler {
     private int mIfWidth, mIfHeight;
     private Drawable mBackground;
     private ImageTransfer mTransfer;
+    private int mAction;
 
     public DragHandler(int ifWidth, int ifHeight) {
         this.mIfWidth = ifWidth;
         this.mIfHeight = ifHeight;
         this.MAX_MOVABLE_DIS_ON_Y = ifHeight / 5f;
         this.ALPHA_BASE = MAX_MOVABLE_DIS_ON_Y * 2;
-        mTransfer = new ImageTransfer(ifWidth, ifHeight);
+        this.mTransfer = new ImageTransfer(ifWidth, ifHeight);
     }
 
     /**
@@ -40,6 +41,7 @@ public class DragHandler {
     public void onReay(int mode, Drawable bg) {
         this.mMode = mode;
         this.mBackground = bg;
+        mAction = ImageTransfer.ACTION_IDEL;
     }
 
     /**
@@ -53,7 +55,7 @@ public class DragHandler {
     public void onDrag(float lastX, float lastY, MotionEvent event, ImageView imageView) {
         if (mMode == DragMode.MODE_SIMPLE) {
             dragBySimple(lastY, event, imageView);
-        } else if (mMode == DragMode.MODE_AGLIE) {
+        } else if (mMode == DragMode.MODE_AGILE) {
             dragByAgile(lastX, lastY, event, imageView);
         }
     }
@@ -68,22 +70,24 @@ public class DragHandler {
                 .duration(ANIM_DURATION);
         // 执行复原动画
         if (Math.abs(transY) <= MAX_MOVABLE_DIS_ON_Y) {
-//            setDragStatus(DragStatus.STATUS_BEGIN_RESTORE);
+            mAction = ImageTransfer.ACTION_DRAG_RESTORE;
             mTransfer.loadDragRestoreData()
                     .callback(callback);
         }
         // 执行退场动画
         else {
-//            setDragStatus(DragStatus.STATUS_BEGIN_EXIT);
-            if (mMode == DragMode.MODE_AGLIE) {
+            if (mMode == DragMode.MODE_AGILE) {
                 if (transY < 0) {
+                    mAction = ImageTransfer.ACTION_DRAG_RESTORE;
                     mTransfer.loadDragRestoreData()
                             .callback(callback);
                 } else {
+                    mAction = ImageTransfer.ACTION_DRAG_EXIT_AGILE;
                     mTransfer.loadDragExitDataInAgile(viewData)
                             .callback(callback);
                 }
             } else {
+                mAction = ImageTransfer.ACTION_DRAG_EXIT_SIMPLE;
                 mTransfer.loadDragExitDataInSimple(viewData)
                         .callback(callback);
             }
@@ -92,10 +96,7 @@ public class DragHandler {
     }
 
     public int getAction() {
-        if (mTransfer != null) {
-            return mTransfer.getAction();
-        }
-        return ImageTransfer.ACTION_IDEL;
+        return mAction;
     }
 
     public void clear() {

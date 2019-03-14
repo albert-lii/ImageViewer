@@ -161,8 +161,8 @@ public class ImageTransfer {
         float dragScale = imageView.getWidth() * 1f / interfaceWidth;
         startWidth = (int) (imageWidth * adjustScale * dragScale);
         startHeight = (int) (imageHeight * adjustScale * dragScale);
-        startX = (interfaceWidth - startWidth) * 1f / 2;
-        startY = (interfaceHeight - startHeight) * 1f / 2;
+        startX = imageView.getTranslationX() + (imageView.getWidth() - startWidth) * 1f / 2;
+        startY = imageView.getTranslationY() + (imageView.getHeight() - startHeight) * 1f / 2;
         // 图片是否已经滑出预览界面
         if (
             // imageView 已经从左边滑出预览界面
@@ -271,7 +271,7 @@ public class ImageTransfer {
                 if (startY != endY) {
                     imageView.setTranslationY(calculateByProgress(progress, startY, endY));
                 }
-                if (startWidth != endWidth && startHeight != endHeight) {
+                if (startWidth != endWidth || startHeight != endHeight) {
                     imageView.getLayoutParams().width = (int) calculateByProgress(progress, startWidth, endWidth);
                     imageView.getLayoutParams().height = (int) calculateByProgress(progress, startHeight, endHeight);
                     imageView.requestLayout();
@@ -321,10 +321,6 @@ public class ImageTransfer {
         });
         animator.setDuration(duration);
         animator.start();
-    }
-
-    public int getAction() {
-        return animAction;
     }
 
     /**

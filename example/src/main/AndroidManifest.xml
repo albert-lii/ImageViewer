@@ -24,10 +24,6 @@
             android:launchMode="singleTop" />
 
         <activity
-            android:name=".ui.SinglePrevActivity"
-            android:launchMode="singleTop" />
-
-        <activity
             android:name=".ui.HorizontalListActivity"
             android:launchMode="singleTop" />
 

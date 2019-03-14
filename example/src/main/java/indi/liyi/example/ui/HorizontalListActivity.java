@@ -4,6 +4,7 @@ import android.graphics.Point;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +14,12 @@ import indi.liyi.example.adapter.ImageAdapter;
 import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.example.utils.Utils;
+import indi.liyi.viewer.ImageDrawee;
 import indi.liyi.viewer.ImageViewer;
 import indi.liyi.viewer.ViewData;
+import indi.liyi.viewer.ViewerStatus;
+import indi.liyi.viewer.listener.OnBrowseStatusListener;
+import indi.liyi.viewer.listener.OnItemChangedListener;
 
 /**
  * 横向图片列表页面
@@ -46,9 +51,8 @@ public class HorizontalListActivity extends BaseActivity {
         adapter = new ImageAdapter(0);
         adapter.setData(mImgList);
 
-        imageViewer.imageData(mImgList)
-                .imageLoader(new PhotoLoader())
-                .overlayStatusBar(false);
+        imageViewer.overlayStatusBar(false)
+                .imageLoader(new PhotoLoader());
     }
 
     private void initData() {
@@ -68,47 +72,42 @@ public class HorizontalListActivity extends BaseActivity {
 
     @Override
     public void addListener() {
-//        adapter.setOnItemClickCallback(new ImageAdapter.OnItemClickCallback() {
-//            @Override
-//            public void onItemClick(int position, ImageView view) {
-//                int[] location = new int[2];
-//                // 获取在整个屏幕内的绝对坐标
-//                view.getLocationOnScreen(location);
-//                mVdList.get(position).setTargetX(location[0]);
-//                imageViewer.setStartPosition(position)
-//                        .setViewData(mVdList)
-//                        .watch();
-//            }
-//        });
+        adapter.setOnItemClickCallback(new ImageAdapter.OnItemClickCallback() {
+            @Override
+            public void onItemClick(int position, ImageView view) {
+                int[] location = new int[2];
+                // 获取在整个屏幕内的绝对坐标
+                view.getLocationOnScreen(location);
+                mVdList.get(position).setTargetX(location[0]);
+                imageViewer.viewData(mVdList)
+                        .watch(position);
+            }
+        });
         recyclerView.setAdapter(adapter);
         mLinearManager.scrollToPositionWithOffset(0, 0);
 
-//        imageViewer.setOnItemChangedListener(new OnItemChangedListener() {
-//            @Override
-//            public void onItemChanged(int position, ImageDrawee drawee) {
-//                if (imageViewer.getViewStatus() == ViewerStatus.STATUS_WATCHING) {
-//                    mLinearManager.scrollToPositionWithOffset(imageViewer.getCurrentPosition(), (int) (mVdList.get(position).getTargetX() / 2));
-//                }
-//            }
-//        });
 
-//        imageViewer.setOnPreviewStatusListener(new OnPreviewStatusListener() {
-//            @Override
-//            public void onPreviewStatus(int status, ImagePager imagePager) {
-//                if (status == ViewerStatus.STATUS_WATCHING) {
-//                    changeStatusBarColor(R.color.colorBlack);
-//                } else if (status == ViewerStatus.STATUS_BEGIN_CLOSE) {
-//                    // 每次退出浏览时，都将图片显示在中间位置
-//                    ViewData viewData = mVdList.get(imageViewer.getCurrentPosition());
-//                    viewData.setTargetX(0);
-//                    mVdList.set(imageViewer.getCurrentPosition(), viewData);
-//                    imageViewer.setViewData(mVdList);
-//                    mLinearManager.scrollToPositionWithOffset(imageViewer.getCurrentPosition(), (int) (viewData.getTargetX() / 2));
-//                } else if (status == ViewerStatus.STATUS_SILENCE) {
-//                    changeStatusBarColor(R.color.colorPrimaryDark);
-//                }
-//            }
-//        });
+        imageViewer
+                .setOnItemChangedListener(new OnItemChangedListener() {
+                    @Override
+                    public void onItemChanged(int position, ImageDrawee drawee) {
+                        if (imageViewer.getViewStatus() == ViewerStatus.STATUS_WATCHING) {
+                            mVdList.get(imageViewer.getCurrentPosition()).setTargetX(0);
+                            mLinearManager.scrollToPositionWithOffset(imageViewer.getCurrentPosition(), (int) (mVdList.get(imageViewer.getCurrentPosition()).getTargetX() / 2));
+                        }
+                    }
+                })
+                .setOnBrowseStatusListener(
+                        new OnBrowseStatusListener() {
+                            @Override
+                            public void onBrowseStatus(int status) {
+                                if (status == ViewerStatus.STATUS_WATCHING) {
+                                    changeStatusBarColor(R.color.colorBlack);
+                                } else if (status == ViewerStatus.STATUS_SILENCE) {
+                                    changeStatusBarColor(R.color.colorPrimaryDark);
+                                }
+                            }
+                        });
     }
 
     /**

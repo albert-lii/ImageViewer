@@ -8,7 +8,6 @@ import java.util.List;
 
 import indi.liyi.example.R;
 import indi.liyi.example.adapter.FriendCircleAdapter;
-import indi.liyi.example.utils.ImageLoader;
 import indi.liyi.example.utils.PhotoLoader;
 import indi.liyi.example.utils.SourceUtil;
 import indi.liyi.viewer.ImageViewer;
@@ -42,8 +41,8 @@ public class FriendCircleActivity extends BaseActivity {
         adapter.setOnItemClickCallback(new FriendCircleAdapter.OnItemClickCallback() {
             @Override
             public void onItemClick(int position, List<String> list, ViewGroup gridview) {
-                imageViewer.imageData(list)
-                        .overlayStatusBar(false)
+                imageViewer.overlayStatusBar(false)
+                        .imageData(list)
                         .bindViewGroup(gridview)
                         .watch(position);
             }

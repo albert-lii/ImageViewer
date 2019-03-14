@@ -12,7 +12,7 @@
         app:grid_row="4" />
 
     <indi.liyi.viewer.ImageViewer
-        android:id="@+id/imagePreivew"
+        android:id="@+id/imageViewer"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </FrameLayout>

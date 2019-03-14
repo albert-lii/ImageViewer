@@ -13,8 +13,6 @@ import android.view.MotionEvent;
 public class ImageViewPager extends ViewPager {
     // 是否可滑动
     private boolean isScrollable = true;
-    // 上一次的触摸点坐标
-    private float mLastX, mLastY;
 
     public ImageViewPager(Context context) {
         super(context);

@@ -8,44 +8,44 @@ import android.widget.ImageView;
 import com.bumptech.glide.request.target.CustomViewTarget;
 import com.bumptech.glide.request.transition.Transition;
 
-import indi.liyi.example.R;
 import indi.liyi.example.utils.glide.GlideApp;
 import indi.liyi.viewer.ImageLoader;
 
 public class PhotoLoader extends ImageLoader {
 
-
     @Override
     public void displayImage(final Object src, ImageView imageView, final LoadCallback callback) {
-//        GlideApp.with(imageView.getContext())
-//                .load(src)
-//                .into(imageView);
         GlideApp.with(imageView.getContext())
                 .load(src)
-//                .placeholder(R.drawable.img_placeholder)
-//                .error(R.drawable.img_placeholder)
+//                .into(imageView);
                 .into(new CustomViewTarget<ImageView, Drawable>(imageView) {
 
                     @Override
                     protected void onResourceLoading(@Nullable Drawable placeholder) {
                         super.onResourceLoading(placeholder);
-                        callback.onLoadStarted(placeholder);
 //                        ProgressController.registerListener(src, new OnProgressListener() {
 //                            @Override
 //                            public void onProgress(float progress, long totalSize) {
-//                                indi.liyi.example.utils.ImageLoader.this.onProgress(progress / 100, imagePager);
+//                                callback.onLoading(progress);
 //                            }
 //                        });
+                        if(callback!=null){
+                            callback.onLoadStarted(placeholder);
+                        }
                     }
 
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        callback.onLoadSucceed(resource);
+                        if(callback!=null) {
+                            callback.onLoadSucceed(resource);
+                        }
                     }
 
                     @Override
                     public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        callback.onLoadFailed(errorDrawable);
+                        if(callback!=null) {
+                            callback.onLoadFailed(errorDrawable);
+                        }
 //                        ProgressController.unregisterListener(src);
                     }
 
