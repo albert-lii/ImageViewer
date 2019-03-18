@@ -38,6 +38,10 @@ public class SimplePrevActivity extends BaseActivity {
         autoGv = findViewById(R.id.autoGridView);
         imageViewer = findViewById(R.id.imageViewer);
 
+        imageViewer.overlayStatusBar(false)
+                .imageData(SourceUtil.getImageList())
+                .imageLoader(new PhotoLoader());
+
         adapter = new SimpleAutoGridAdapter();
         adapter.setSource(SourceUtil.getImageList());
         adapter.setImageLoader(new SimpleAutoGridAdapter.ImageLoader() {
@@ -60,9 +64,6 @@ public class SimplePrevActivity extends BaseActivity {
                 });
             }
         });
-        imageViewer.imageData(SourceUtil.getImageList())
-                .imageLoader(new PhotoLoader())
-                .overlayStatusBar(false);
     }
 
     @Override
