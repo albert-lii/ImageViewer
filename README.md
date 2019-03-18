@@ -95,7 +95,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    Step 2:
    
    dependencies {
-      compile 'indi.liyi.view:image-viewer:3.0.0-beta'
+      compile 'indi.liyi.view:image-viewer:3.0.0-rc'
    }
 ```  
 
@@ -104,7 +104,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    <dependency>
       <groupId>indi.liyi.view</groupId>
       <artifactId>image-viewer</artifactId>
-      <version>3.0.0-beta</version>
+      <version>3.0.0-rc</version>
       <type>pom</type>
    </dependency>
 ```
