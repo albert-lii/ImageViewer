@@ -27,6 +27,7 @@ import indi.liyi.viewer.listener.OnItemChangedListener;
 import indi.liyi.viewer.listener.OnItemClickListener;
 import indi.liyi.viewer.listener.OnItemLongPressListener;
 import indi.liyi.viewer.otherui.DefaultIndexUI;
+import indi.liyi.viewer.otherui.DefaultProgressUI;
 import indi.liyi.viewer.otherui.IndexUI;
 import indi.liyi.viewer.otherui.ProgressUI;
 import indi.liyi.viewer.viewpager.ImagePagerAdapter;
@@ -129,6 +130,8 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
                 FrameLayout.LayoutParams.MATCH_PARENT));
 
         setVisibility(View.INVISIBLE);
+
+        progressUI = new DefaultProgressUI();
     }
 
     @Override

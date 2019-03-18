@@ -25,14 +25,13 @@ public class ImageDrawee extends FrameLayout {
         // 添加 imageView
         imageView = new PhotoView(getContext());
         addView(imageView);
-
-        if (progressUI != null) {
-            progressUI.init(this);
-        }
     }
 
     public void setProgressUI(ProgressUI progressUI) {
         this.progressUI = progressUI;
+        if (progressUI != null) {
+            progressUI.init(this);
+        }
     }
 
     /**

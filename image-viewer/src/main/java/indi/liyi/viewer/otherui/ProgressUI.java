@@ -18,7 +18,7 @@ public abstract class ProgressUI {
     /**
      * 处理进度
      *
-     * @param progress     范围: 0-1
+     * @param progress 范围: 0-1
      */
     public abstract void handleProgress(float progress);
 
