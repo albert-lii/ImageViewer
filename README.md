@@ -31,13 +31,9 @@
 
 <h2>项目演示</h2>
 
-![简单示例][demo-simple]
+![简单示例][demo-simple]  ![朋友圈][demo-friendcircle]
 
-![朋友圈][demo-friendcircle]
-
-![横向list][demo-landscape]
-
-![纵向list][demo-portrait]
+![横向list][demo-landscape]  ![纵向list][demo-portrait]
 
 <h2 id="1">自定义属性</h2>  
 
