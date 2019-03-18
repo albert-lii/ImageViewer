@@ -209,10 +209,10 @@ limitations under the License.
 [license]:http://www.apache.org/licenses/LICENSE-2.0
 
 [AutoGridView]:https://github.com/albert-lii/AutoGridView
-[demo-simple]:https://github.com/albert-lii/ImageViewer/tree/new/snapshot/simple.gif
-[demo-friendcircle]:https://github.com/albert-lii/ImageViewer/tree/new/snapshot/friendcircle.gif
-[demo-landscape]:https://github.com/albert-lii/ImageViewer/tree/new/snapshot/landscape.gif
-[demo-portrait]:https://github.com/albert-lii/ImageViewer/tree/new/snapshot/portrait.gif
+[demo-simple]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/simple.gif
+[demo-friendcircle]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/friendcircle.gif
+[demo-landscape]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/landscape.gif
+[demo-portrait]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/portrait.gif
 
 [SubsamplingScaleImageView]:https://github.com/davemorrissey/subsampling-scale-image-view
 [BigImageView]:https://github.com/Piasy/BigImageViewer
