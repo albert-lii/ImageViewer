@@ -91,7 +91,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    Step 2:
    
    dependencies {
-      compile 'indi.liyi.view:image-viewer:3.0.1c'
+      compile 'indi.liyi.view:image-viewer:3.0.1'
    }
 ```  
 
