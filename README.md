@@ -91,7 +91,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    Step 2:
    
    dependencies {
-      compile 'indi.liyi.view:image-viewer:3.0.0-rc'
+      compile 'indi.liyi.view:image-viewer:3.0.1c'
    }
 ```  
 
@@ -100,7 +100,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    <dependency>
       <groupId>indi.liyi.view</groupId>
       <artifactId>image-viewer</artifactId>
-      <version>3.0.0-rc</version>
+      <version>3.0.1</version>
       <type>pom</type>
    </dependency>
 ```
@@ -199,7 +199,7 @@ limitations under the License.
 
 
 
-[releasesvg]: https://img.shields.io/badge/version-3.0.0-brightgreen.svg
+[releasesvg]: https://img.shields.io/badge/version-3.0.1-brightgreen.svg
 [apisvg]: https://img.shields.io/badge/sdk-14+-brightgreen.svg
 [licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
 [license]:http://www.apache.org/licenses/LICENSE-2.0
