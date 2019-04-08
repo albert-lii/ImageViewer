@@ -3,8 +3,8 @@ apply plugin: 'com.android.application'
 def compileSdk = versions.compileSdk
 def minSdk = versions.minSdk
 def targetSdk = versions.targetSdk
-def verCode = 4
-def verName = "1.0.3"
+def verCode = 5
+def verName = "1.0.4"
 
 android {
     compileSdkVersion compileSdk
@@ -44,6 +44,6 @@ dependencies {
     implementation deps.glide.glide
     annotationProcessor deps.glide.processor
     implementation "com.github.bumptech.glide:okhttp3-integration:4.8.0"
-    compile 'indi.liyi.view:image-viewer:3.0.0-beta'
+    compile 'indi.liyi.view:image-viewer:3.0.1'
 //    implementation project(':image-viewer')
 }

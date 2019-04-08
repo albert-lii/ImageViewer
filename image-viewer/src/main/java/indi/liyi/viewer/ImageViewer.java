@@ -475,6 +475,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
 
             @Override
             public void onLoadSucceed(Object source) {
+                drawee.hideProgressUI();
                 drawee.setImage(source);
                 if (mSourceList.get(position).getImageWidth() == 0 ||
                         mSourceList.get(position).getImageHeight() == 0) {
@@ -488,6 +489,7 @@ public class ImageViewer extends FrameLayout implements ViewPager.OnPageChangeLi
 
             @Override
             public void onLoadFailed(Object error) {
+                drawee.hideProgressUI();
                 drawee.setImage(error);
             }
         });

@@ -48,6 +48,13 @@ public class ImageDrawee extends FrameLayout {
         }
     }
 
+    public void hideProgressUI() {
+        if (progressUI != null && progressUI.getProgressView() != null
+                && progressUI.getProgressView().getVisibility() == VISIBLE) {
+            progressUI.stop();
+        }
+    }
+
     /**
      * 释放 imageView 占据的内存
      * <p>

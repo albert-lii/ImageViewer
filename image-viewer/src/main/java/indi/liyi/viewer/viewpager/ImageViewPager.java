@@ -37,4 +37,29 @@ public class ImageViewPager extends ViewPager {
     public void setScrollable(boolean isScrollable) {
         this.isScrollable = isScrollable;
     }
+
+    /**
+     * 重写 onInterceptTouchEvent 和 onTouchEvent 方法是为了解决
+     * PhotoView + Viewpager 双指缩放的时候出现 pointerIndex out of range 问题
+     */
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        try {
+            return   super.onInterceptTouchEvent(ev);
+        } catch   (IllegalArgumentException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent   ev) {
+        try {
+            return   super.onTouchEvent(ev);
+        } catch   (IllegalArgumentException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
 }
