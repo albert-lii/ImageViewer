@@ -31,8 +31,9 @@
 
 <h2>项目演示</h2>
 
-![demo-simple]  ![demo-custom]  
-![demo-land]  ![demo-port]
+![简单示例][demo-simple]  ![朋友圈][demo-friendcircle]
+
+![横向list][demo-landscape]  ![纵向list][demo-portrait]
 
 <h2 id="1">自定义属性</h2>  
 
@@ -90,7 +91,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    Step 2:
    
    dependencies {
-      compile 'indi.liyi.view:image-viewer:3.0.0-beta'
+      compile 'indi.liyi.view:image-viewer:3.0.1'
    }
 ```  
 
@@ -99,7 +100,7 @@ loadProgressUI(@NonNull ProgressUI progressUI)
    <dependency>
       <groupId>indi.liyi.view</groupId>
       <artifactId>image-viewer</artifactId>
-      <version>3.0.0-beta</version>
+      <version>3.0.1</version>
       <type>pom</type>
    </dependency>
 ```
@@ -148,8 +149,8 @@ imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的
 ```
 此方法直接使用viewData()设置框架所需要的数据源
 
-### Tip：关于按物理键返回
-如果需要实现点击物理键关闭浏览,请在Activity中加入以下代码
+### Tip：关于点击系统返回键取消图片浏览
+如果需要实现点击返回系统返回键关闭浏览,请在Activity中加入以下代码
 ```java
   /**
      * 监听返回键
@@ -198,17 +199,16 @@ limitations under the License.
 
 
 
-[releasesvg]: https://img.shields.io/badge/version-3.0.0-brightgreen.svg
+[releasesvg]: https://img.shields.io/badge/version-3.0.1-brightgreen.svg
 [apisvg]: https://img.shields.io/badge/sdk-14+-brightgreen.svg
 [licensesvg]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
 [license]:http://www.apache.org/licenses/LICENSE-2.0
 
 [AutoGridView]:https://github.com/albert-lii/AutoGridView
-[demo-simple]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_simple.gif
-[demo-custom]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_custom.gif
-[demo-land]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_land.gif
-[demo-port]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/demo_port.gif
-[demo-apk]:https://github.com/albert-lii/ImageViewer/blob/new/apk/release/app-release.apk
+[demo-simple]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/simple.gif
+[demo-friendcircle]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/friendcircle.gif
+[demo-landscape]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/landscape.gif
+[demo-portrait]:https://github.com/albert-lii/ImageViewer/blob/new/snapshot/portrait.gif
 
 [SubsamplingScaleImageView]:https://github.com/davemorrissey/subsampling-scale-image-view
 [BigImageView]:https://github.com/Piasy/BigImageViewer
