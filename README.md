@@ -181,6 +181,14 @@ imageViewer.overlayStatusBar(false) // ImageViewer 是否会占据 StatusBar 的
 
 如果你感觉 `ImageViewer` 帮助到了你，可以点右上角 "Star" 支持一下哦！:blush:
 
+
+## 微信公众号
+有兴趣的同学可以关注微信公众号「**Code满满**」或者笔者的个人博客[「**李益的小站**」](https://www.liyisite.com/)
+
+## 其他平台
+- **简书**：[李益99](https://www.jianshu.com/u/fe3e28b3a55d)
+- **CSDN**：[李益99](https://blog.csdn.net/liyi1009365545?spm=1010.2135.3001.5343)
+
 <h2>LICENSE</h2>
 
 Copyright 2017 liyi
